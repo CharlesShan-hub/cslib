@@ -1,0 +1,11 @@
+[project]
+name = "clib"
+version = "0.0.1"
+description = "Charles' AI Lab -- A Notebook for AI Learning"
+authors = [{name = "Charles", email = "charles.shht@gmail.com"}]
+requires-python = ">=3.7"
+dependencies = []
+
+[build-system]
+requires = ["setuptools>=42", "wheel"]
+build-backend = "setuptools.build_meta"
