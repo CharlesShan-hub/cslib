@@ -1,13 +1,14 @@
 import torch
 from torchvision import datasets, transforms
 import matplotlib.pyplot as plt
+import config
 
 # 设置数据加载器
 batch_size = 64
 transform = transforms.Compose([transforms.ToTensor(), transforms.Normalize((0.5,), (0.5,))])
 
 # MNIST
-train_data = datasets.MNIST(root='/Volumes/Charles/DateSets/torchvision', train=True, download=True, transform=transform)
+train_data = datasets.MNIST(root=config.data_path, train=True, download=True, transform=transform)
 
 # EMNIST
 # 'byclass': 814,255 张图像，62 类字符，包括数字和字母（大小写不区分）。
