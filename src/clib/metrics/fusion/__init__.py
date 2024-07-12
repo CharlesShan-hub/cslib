@@ -168,3 +168,13 @@ info_summary_dict = {
         'metric':q_cv_metric
     }
 }
+
+''' Demo: Use Example Images. (Run in experinment folder)
+import clib.metrics.fusion as metrics
+need = ['ag'] # Write metrics names that you need
+for (k,v) in metrics.info_summary_dict.items():
+    if k not in need: continue
+    print(f"{k}(CDDFuse)  : {v['metric'](metrics.ir,metrics.vis,metrics.cddfuse)}")
+    print(f"{k}(DenseFuse): {v['metric'](metrics.ir,metrics.vis,metrics.densefuse)}")
+    print(f"{k}(ADF)      : {v['metric'](metrics.ir,metrics.vis,metrics.adf)}")
+'''
