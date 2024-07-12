@@ -1,4 +1,8 @@
 import os
+import torch
+# devise
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+
 # Dataset base path
 data_path_list = [
     '/root/autodl-fs/DateSets/torchvision',

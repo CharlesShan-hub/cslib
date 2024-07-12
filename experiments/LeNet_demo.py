@@ -21,8 +21,8 @@ train_loader = DataLoader(dataset=train_dataset, batch_size=64, shuffle=True)
 test_loader = DataLoader(dataset=test_dataset, batch_size=64, shuffle=False)
 
 # 初始化模型、损失函数和优化器
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-model = LeNet().to(device)
+model = LeNet(use_max_pool=False,use_relu=False).to(config.device)
+# model = LeNet(use_max_pool=True,use_relu=True).to(device)
 criterion = nn.CrossEntropyLoss()
 optimizer = optim.Adam(model.parameters(), lr=0.001)
 
@@ -32,7 +32,7 @@ for epoch in range(num_epochs):
     model.train()
     running_loss = 0.0
     for images, labels in train_loader:
-        images, labels = images.to(device), labels.to(device)
+        images, labels = images.to(config.device), labels.to(config.device)
         optimizer.zero_grad()
         outputs = model(images)
         loss = criterion(outputs, labels)
@@ -47,7 +47,7 @@ with torch.no_grad():
     correct = 0
     total = 0
     for images, labels in test_loader:
-        images, labels = images.to(device), labels.to(device)
+        images, labels = images.to(config.device), labels.to(config.device)
         outputs = model(images)
         _, predicted = torch.max(outputs.data, 1)
         total += labels.size(0)
