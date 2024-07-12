@@ -97,21 +97,11 @@ def q_abf_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Ten
 ###########################################################################################
 
 def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
-
-    print(f'Q_ABF(ir,ir,ir):{q_abf(ir,ir,ir)}')         # 0.9747936129570007
-    print(f'Q_ABF(vis,vis,vis):{q_abf(vis,vis,vis)}')   # 0.9747936129570007
-    print(f'Q_ABF(vis,ir,fused):{q_abf(vis,ir,fused)}') # 0.43425410985946655
+    from utils import ir,vis,fused  # type: ignore
+    
+    print(f'Q_ABF(ir,ir,ir):{q_abf(ir,ir,ir)}')      
+    print(f'Q_ABF(vis,vis,vis):{q_abf(vis,vis,vis)}')
+    print(f'Q_ABF(vis,ir,fused):{q_abf(vis,ir,fused)}')
 
 if __name__ == '__main__':
     main()

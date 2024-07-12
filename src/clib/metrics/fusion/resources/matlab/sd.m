@@ -2,7 +2,8 @@
 % The interface is modified by the authors of VIFB to integrate it into VIFB. 
 %
 % Reference for the metric:
-% Y.-J. Rao, ¡°In-fibre bragg grating sensors,¡± Measurement science and technology, vol. 8, no. 4, p. 355, 1997.
+% Y.-J. Rao, "In-fibre bragg grating sensors," Measurement science and technology, vol. 8, no. 4, p. 355, 1997.
+% https://github.com/xingchenzhang/VIFB/blob/master/metrics/metricsVariance.m
 
 function res  = metricsVariance(img1,img2,fused)
 

@@ -7,19 +7,19 @@
 
 # 信息论
 from .ce import *              # VIFB - 交叉熵
-# from metrics.en import *       # VIFB - 信息熵
+from .en import *              # VIFB - 信息熵
 # from metrics.te import *       # MEFB - tsallis熵
-# from metrics.mi import *       # VIFB - 互信息
+from .mi import *              # VIFB - 互信息
 # from metrics.nmi import *      # MEFB - 标准化互信息
 # from metrics.q_ncie import *   # MEFB - 非线性相关性
 # from metrics.snr import *      # Many - 信噪比
-# from metrics.psnr import *     # VIFB - 峰值信噪比
+from .psnr import *            # VIFB - 峰值信噪比
 # from metrics.cc import *       # Tang - 相关系数
 # from metrics.scc import *
 # from metrics.scd import *      # Tang - 差异相关和
 
 # 结构相似性
-# from metrics.ssim import *     # VIFB - 结构相似度测量
+from .ssim import *            # VIFB - 结构相似度测量
 # from metrics.ms_ssim import *  # Tang - 多尺度结构相似度测量
 # from metrics.q_s import *      # MEFB - 利用 SSIM 的指标 Piella's Fusion Quality Index
 # from metrics.q_w import *      # MEFB - 利用 SSIM 的指标 Weighted Fusion Quality Index
@@ -30,7 +30,7 @@ from .ce import *              # VIFB - 交叉熵
 # from metrics.eme import *
 # from metrics.mae import *
 # from metrics.mse import *      # VIFB - 均方误差
-# from metrics.rmse import *     # VIFB - 均方误差
+from .rmse import *            # VIFB - 均方误差
 # from metrics.nrmse import *    # Normalized Root Mean Square Error
 # from metrics.ergas import *    # Normalized Global Error
 # from metrics.q_h import *      # OB
@@ -40,12 +40,12 @@ from .ce import *              # VIFB - 交叉熵
 
 # 图片信息
 from .ag import *              # VIFB - 平均梯度
-# from metrics.ei import *       # VIFB - 边缘强度
+from .ei import *              # VIFB - 边缘强度
 # # from metrics.pfe import *      # Many
-# from metrics.sd import *       # VIFB - 标准差
-# from metrics.sf import *       # VIFB - 空间频率
+from .sd import *              # VIFB - 标准差
+from .sf import *              # VIFB - 空间频率
 # from metrics.q_sf import *     # OE - 基于空间频率的指标
-# from metrics.q_abf import *    # VIFB - 基于梯度的融合性能
+from .q_abf import *           # VIFB - 基于梯度的融合性能
 # from metrics.eva import *      # Zhihu - 点锐度
 # from metrics.asm import *      # Zhihu - 角二阶矩 - 不可微!!!
 # from metrics.sam import *      # Zhihu - 光谱角测度 - 要修改
@@ -56,8 +56,8 @@ from .ag import *              # VIFB - 平均梯度
 # from metrics.pww import *      # Many - Pei-Wei Wang's algorithms
 
 # 视觉感知
-# from metrics.q_cv import *     # VIFB - H. Chen and P. K. Varshney
-# from metrics.q_cb import *     # VIFB - 图像模糊与融合的质量评估 包含 cbb,cbm,cmd
+from .q_cv import *            # VIFB - H. Chen and P. K. Varshney
+from .q_cb import *            # VIFB - 图像模糊与融合的质量评估 包含 cbb,cbm,cmd
 # from metrics.vif import *      # 视觉保真度 - 不可微!! 优化用 VIFF 就行
 # from metrics.viff import *     # Tang - 视觉保真度
 
@@ -79,40 +79,92 @@ from .ag import *              # VIFB - 平均梯度
 # 1. 更改了 if __main__里边的测试函数
 # 2. 写了 Reference
 # 3. 下边的字典完善了
-# 4. 找到了对应的 matlab 代码
+# 4. 找到了对应的 matlab 代码,并且修改完毕
+
+# 代办清单
+# EN, CE, MI有一些例子, 再改一改
 
 
-import os
-from pathlib import Path
-from torchvision import transforms
-from torchvision.transforms.functional import to_tensor
-from PIL import Image
-
-
-def load_demo_image():
-    # 定义变换
-    transform = transforms.Compose([transforms.ToTensor()])
-    # 获取当前文件的绝对路径
-    current_file_path = Path(__file__).resolve()
-    # 定义资源文件夹的相对路径
-    RESOURCE_DIR =Path(current_file_path.parent, 'resources')
-    # 打开图片
-    return [to_tensor(Image.open(Path(RESOURCE_DIR,f'{f}.bmp'))).unsqueeze(0)\
-                        for f in ['vis','ir','fused']]
-[vis, ir, fused] = load_demo_image()
+from .utils import *
 
 
 info_summary_dict = {
+    'en':{
+        'type': 'Information Theory',
+        'name': 'Entropy',
+        'zh': '信息熵',
+        'metric':en_metric
+    },
     'ce':{
         'type': 'Information Theory',
         'name': 'Cross Entropy',
         'zh': '交叉熵',
         'metric':ce_metric
     },
+    'mi':{
+        'type': 'Information Theory',
+        'name': 'Mutual Information',
+        'zh': '互信息',
+        'metric':mi_metric
+    },
+    'psnr':{
+        'type': 'Information Theory',
+        'name': 'Peak Signal-to-Noise Ratio',
+        'zh': '峰值信噪比',
+        'metric':psnr_metric
+    },
+    'ssim':{
+        'type': 'Structural Similarity',
+        'name': 'Structural Similarity',
+        'zh': '结构相似度',
+        'metric':ssim_metric
+    },
+    'rmse':{
+        'type': 'Structural Similarity',
+        'name': 'Root Mean Square Error',
+        'zh': '均方根误差',
+        'metric':rmse_metric
+    },
     'ag':{
         'type': 'Image Feature',
         'name': 'Average Gradient',
         'zh': '平均梯度',
         'metric':ag_metric
+    },
+    'ei':{
+        'type': 'Image Feature',
+        'name': 'Edge Intensity',
+        'zh': '边缘强度',
+        'metric':ei_metric
+    },
+    'sf':{
+        'type': 'Image Feature',
+        'name': 'Spatial Frequency',
+        'zh': '空间频率',
+        'metric':sf_metric
+    },
+    'q_abf':{
+        'type': 'Image Feature',
+        'name': 'Qabf',
+        'zh': '基于梯度的融合性能',
+        'metric':q_abf_metric
+    },
+    'sd':{
+        'type': 'Image Feature',
+        'name': 'Standard Deviation',
+        'zh': '标准差',
+        'metric':sd_metric
+    },
+    'q_cb':{
+        'type': 'Visual Perception',
+        'name': 'Metric of Chen Blum',
+        'zh': 'Qcb',
+        'metric':q_cb_metric
+    },
+    'q_cv':{
+        'type': 'Visual Perception',
+        'name': 'Metric of Chen',
+        'zh': 'Qcv',
+        'metric':q_cv_metric
     }
 }

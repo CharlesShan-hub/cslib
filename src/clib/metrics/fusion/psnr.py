@@ -53,17 +53,7 @@ def psnr_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tens
 ###########################################################################################
 
 def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
+    from utils import ir,vis,fused  # type: ignore
 
     print(f'PSNR(ir,ir,ir):{psnr(ir,ir,ir)}')
     print(f'PSNR(vis,vis,vis):{psnr(vis,vis,vis)}')

@@ -1,5 +1,6 @@
 % The original source code is from https://github.com/zhengliu6699/imageFusionMetrics/blob/master/metricChenBlum.m
 % The interface is modified by the authors of VIFB to integrate it into VIFB. 
+% https://github.com/xingchenzhang/VIFB/blob/master/metrics/metricsQcb.m
 
 function res=metricsQcb(img1,img2,fused)
 

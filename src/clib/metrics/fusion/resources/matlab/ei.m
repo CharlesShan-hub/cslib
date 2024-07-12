@@ -2,8 +2,9 @@
 % The interface is modified by the authors of VIFB to integrate it into VIFB. 
 %
 % Reference for the metric:
-% B. Rajalingam and R. Priya, ¡°Hybrid multimodality medical image fusion technique for feature enhancement in 
-% medical diagnosis,¡± International Journal of Engineering Science Invention, 2018.
+% B. Rajalingam and R. Priya, "Hybrid multimodality medical image fusion technique for feature enhancement in 
+% medical diagnosis," International Journal of Engineering Science Invention, 2018.
+% https://github.com/xingchenzhang/VIFB/blob/master/metrics/metricsEdge_intensity.m
 
 function res = metricsEdge_intensity(img1,img2,fused)
 

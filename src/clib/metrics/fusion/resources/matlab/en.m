@@ -1,8 +1,9 @@
 % The source code is from the Internet
 % The interface is modified by the authors of VIFB to integrate it into VIFB. 
 %
-% V. Aardt and Jan, ¡°Assessment of image fusion procedures using entropy, image quality, and multispectral 
-% classification,¡± Journal of Applied Remote Sensing, vol. 2, no. 1, p.023522, 2008.
+% V. Aardt and Jan, "Assessment of image fusion procedures using entropy, image quality, and multispectral 
+% classification," Journal of Applied Remote Sensing, vol. 2, no. 1, p.023522, 2008.
+% https://github.com/xingchenzhang/VIFB/blob/master/metrics/metricsEntropy.m
 
 function res = metricsEntropy(img1,img2,fused) 
     

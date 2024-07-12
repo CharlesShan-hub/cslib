@@ -165,18 +165,8 @@ def q_cva_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Ten
 ###########################################################################################
 
 def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
-
+    from utils import ir,vis,fused  # type: ignore
+    
     # print(f'QCV(ir,vis,fused):{q_cv(vis,ir,fused)}')
     # print(f'QCV(vis,vis,vis):{q_cv(vis,vis,vis)}')
     # print(f'QCV(vis,vis,fused):{q_cv(vis,vis,fused)}')

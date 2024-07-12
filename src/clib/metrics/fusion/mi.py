@@ -91,111 +91,6 @@ def kl_divergence(p, q):
     return kl_div
 
 
-def mi_old(x, y, log=False):
-    """
-    根据两个序列计算互信息
-
-    参数：
-    x: 第一个序列
-    y: 第二个序列
-
-    返回值：
-    互信息的值
-
-    互信息的计算公式：
-    I(X;Y) = H(X) + H(Y) - H(X,Y)
-
-    其中，
-    H(X) = - sum p(x) log_2 p(x)
-    H(Y) = - sum p(y) log_2 p(y)
-    H(X, Y) = - sum p(x, y) log_2 p(x, y)
-
-    p(x), p(y) 为边缘概率分布，p(x, y) 为联合概率分布。
-    """
-    # 将序列转换为 NumPy 数组
-    if log:
-        print(f"Input x = {x}")
-        print(f"Input x = {y}")
-    x = np.array(x)
-    x = x / x.sum()
-    y = np.array(y)
-    y = y / y.sum()
-    if log:
-        print(f"Px = {x}")
-        print(f"Py = {y}")
-
-    # 确保序列长度相同
-    assert len(x) == len(y), "两个序列的长度不相同"
-
-    # 计算联合概率分布
-    Pxy = np.zeros((len(x), len(x)))
-    for (i,x_i) in enumerate(x):
-        for (j,y_j) in enumerate(y):
-            Pxy[i,j] = x_i * y_j
-    if log:
-        print(f"Pxy = {Pxy}")
-
-    hist, x_edges, y_edges = np.histogram2d(x, y, bins=(50, 50), range=[[0, 1], [0, 1]])
-
-
-    # 计算边缘概率分布
-    P_x = np.sum(Pxy, axis=1)
-    P_y = np.sum(Pxy, axis=0)
-
-    # 计算互信息
-    mutual_information_value = 0
-    for i in range(Pxy.shape[0]):
-        for j in range(Pxy.shape[1]):
-            if Pxy[i, j] > 0:
-                mutual_information_value += Pxy[i, j] * np.log2(Pxy[i, j] / (P_x[i] * P_y[j]))
-
-    return mutual_information_value
-
-def mi_old(x, y, log=False):
-    """
-    根据两个序列计算互信息
-
-    参数：
-    x: 第一个序列
-    y: 第二个序列
-
-    返回值：
-    互信息的值
-
-    互信息的计算公式：
-    I(X;Y) = H(X) + H(Y) - H(X,Y)
-
-    其中，
-    H(X) = - sum p(x) log_2 p(x)
-    H(Y) = - sum p(y) log_2 p(y)
-    H(X, Y) = - sum p(x, y) log_2 p(x, y)
-
-    p(x), p(y) 为边缘概率分布，p(x, y) 为联合概率分布。
-    """
-    # 确保序列长度相同
-    assert len(x) == len(y), "两个序列的长度不相同"
-
-    # 计算联合概率分布
-    p_joint, p_x1, p_x2 = np.histogram2d(x, y, bins=30, density=True)
-
-    # 计算边缘概率分布
-    #p_x1 = np.sum(p_joint, axis=1)
-    #p_x2 = np.sum(p_joint, axis=0)
-
-    # 计算边缘熵
-    entropy_x1 = entropy(p_x1)
-    entropy_x2 = entropy(p_x2)
-
-    # 计算联合熵
-    entropy_joint = entropy(p_joint.flatten())
-
-    # 计算互信息
-    mutual_info = entropy_x1 + entropy_x2 - entropy_joint
-
-    return mutual_info
-
-
-
 def demo_kl_divergence():
     def uniform_distribution(n):
         s = np.ones(n)
@@ -509,17 +404,9 @@ def demo_mi4():
     plt.show()
 
 def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
+    from utils import ir,vis,fused  # type: ignore
 
-    # torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
+    torch.manual_seed(42)
 
     print(f'* MI(ir,ir):{mi(ir,ir)}')
     print(f'* MI(vis,vis):{mi(vis,vis)}')
@@ -528,10 +415,11 @@ def main():
 
     print("* 两随机图像的互信息：")
     for size in [64,128,256,512]:
-        random_tensor1 = torch.randint(0, 256, size=(1, 1, size, size), dtype=torch.uint8)
-        random_tensor2 = torch.randint(0, 256, size=(1, 1, size, size), dtype=torch.uint8)
-        print(f" - {size} x {size} (self): ", mi(random_tensor1/255.0,random_tensor2/255.0).item())
-        print(f" - {size} x {size} (mklearn): ", mi_sklearn(random_tensor1.flatten().numpy(),random_tensor2.flatten().numpy()))
+        rand1 = torch.randint(0, 256, size=(1, 1, size, size), dtype=torch.uint8)
+        rand2 = torch.randint(0, 256, size=(1, 1, size, size), dtype=torch.uint8)
+        print(f" - {size} x {size} (self): ", mi(rand1/255.0,rand2/255.0).item())
+        print(f" - {size} x {size} (mklearn): ", mi_sklearn(rand1.flatten().numpy(),rand2.flatten().numpy()))
+    
     print("* 随机图像与纯色图像的互信息：")
     for size in [64,128,256,512]:
         black_tensor = torch.ones(1, 1, size, size) * 0
@@ -544,24 +432,24 @@ def main():
         print(f" - {size} x {size} (grey,mklearn): ", mi_sklearn(grey_tensor.flatten().numpy(),random_tensor.flatten().numpy()))
         print(f" - {size} x {size} (white,self): ", mi(white_tensor/255.0,random_tensor/255.0).item())
         print(f" - {size} x {size} (white,mklearn): ", mi_sklearn(white_tensor.flatten().numpy(),random_tensor.flatten().numpy()))
+    
     print("* (随机，随机)、(随机，可见光)互信息比较：")
-    vis_tensor = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    vis_tensor = torch.clamp(torch.mul(vis_tensor, 255), 0, 255).to(torch.uint8)
-    random_tensor1 = torch.randint(0, 256, size=vis_tensor.shape, dtype=torch.uint8)
-    random_tensor2 = torch.randint(0, 256, size=vis_tensor.shape, dtype=torch.uint8)
+    vis_tensor = torch.clamp(torch.mul(vis, 255), 0, 255).to(torch.uint8)
+    rand1 = torch.randint(0, 256, size=vis_tensor.shape, dtype=torch.uint8)
+    rand2 = torch.randint(0, 256, size=vis_tensor.shape, dtype=torch.uint8)
     total_elements = torch.prod(torch.tensor(vis_tensor.shape))# 计算张量的元素总数
     integer_tensor = torch.arange(256)# 使用torch.arange生成0到255的整数
     filled_tensor = integer_tensor.repeat(total_elements // 256 + 1)[:total_elements].view(vis_tensor.shape)
     shuffled_tensor = filled_tensor.flatten().gather(0, torch.randperm(total_elements)).view(vis_tensor.shape)
-    print(f" - {vis_tensor.shape} (R,R,self): ", mi(random_tensor1/255.0,random_tensor2/255.0).item())
-    print(f" - {vis_tensor.shape} (R,Vis,self): ", mi(random_tensor1/255.0,vis_tensor/255.0).item())
+    print(f" - {vis_tensor.shape} (R,R,self): ", mi(rand1/255.0,rand2/255.0).item())
+    print(f" - {vis_tensor.shape} (R,Vis,self): ", mi(rand1/255.0,vis_tensor/255.0).item())
     print(f" - {vis_tensor.shape} (Uniform,Vis,self): ", mi(filled_tensor/255.0,vis_tensor/255.0).item())
     print(f" - {vis_tensor.shape} (Uniform,Uniform,self): ", mi(filled_tensor/255.0,filled_tensor/255.0).item())
     print(f" - {vis_tensor.shape} (Uniform,Uniform',self): ", mi(filled_tensor/255.0,shuffled_tensor/255.0).item())
     print(f" - {vis_tensor.shape} (Uniform',Uniform',self): ", mi(shuffled_tensor/255.0,shuffled_tensor/255.0).item())
     print(f" - {vis_tensor.shape} (Vis,Vis,self): ", mi(vis_tensor/255.0,vis_tensor/255.0).item())
-    print(f" - {vis_tensor.shape} (R,R,mklearn): ", mi_sklearn(random_tensor1.flatten().numpy(),random_tensor2.flatten().numpy()))
-    print(f" - {vis_tensor.shape} (R,Vis,mklearn): ", mi_sklearn(random_tensor1.flatten().numpy(),vis_tensor.flatten().numpy()))
+    print(f" - {vis_tensor.shape} (R,R,mklearn): ", mi_sklearn(rand1.flatten().numpy(),rand2.flatten().numpy()))
+    print(f" - {vis_tensor.shape} (R,Vis,mklearn): ", mi_sklearn(rand1.flatten().numpy(),vis_tensor.flatten().numpy()))
     print(f" - {vis_tensor.shape} (Uniform,Vis,mklearn): ", mi_sklearn(filled_tensor.flatten().numpy(),vis_tensor.flatten().numpy()))
     print(f" - {vis_tensor.shape} (Uniform,Uniform,mklearn): ", mi_sklearn(filled_tensor.flatten().numpy(),filled_tensor.flatten().numpy()))
     print(f" - {vis_tensor.shape} (Uniform,Uniform',mklearn): ", mi_sklearn(filled_tensor.flatten().numpy(),shuffled_tensor.flatten().numpy()))

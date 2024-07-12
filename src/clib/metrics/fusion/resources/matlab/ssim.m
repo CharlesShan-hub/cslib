@@ -2,8 +2,9 @@
 % The interface is modified by the authors of VIFB to integrate it into VIFB. 
 %
 % Reference for the metric:
-% Z. Wang, A. C. Bovik, H. R. Sheikh, E. P. Simoncelli et al.,¡°Image quality assessment: from error visibility 
-% to structural similarity,¡± IEEE transactions on image processing, vol. 13, no. 4, pp. 600¨C612, 2004.
+% Z. Wang, A. C. Bovik, H. R. Sheikh, E. P. Simoncelli et al.,"Image quality assessment: from error visibility 
+% to structural similarity," IEEE transactions on image processing, vol. 13, no. 4, pp. 600-612, 2004.
+% https://github.com/xingchenzhang/VIFB/blob/master/metrics/metricsSsim.m
 
 function res = metricsSsim(img1,img2,fused)  
 
@@ -39,42 +40,42 @@ end
 
 function mssim = ssim(img1,fused)  
     % ========================================================================  
-    %ssimµÄËã·¨Ö÷Òª²Î¿¼ÈçÏÂÂÛÎÄ£º  
+    %ssimçš„ç®—æ³•ä¸»è¦å‚è€ƒå¦‚ä¸‹è®ºæ–‡ï¼š  
     %Z. Wang, A. C. Bovik, H. R. Sheikh, and E. P. Simoncelli, "Image  
     % quality assessment: From error visibility to structural similarity,"  
     % IEEE Transactios on Image Processing, vol. 13, no. 4, pp. 600-612,  
     % Apr. 2004.  
-    %  Ê×ÏÈ¶ÔÍ¼Ïñ¼Ó´°´¦Àí£¬w=fspecial('gaussian', 11, 1.5);  
+    %  é¦–å…ˆå¯¹å›¾åƒåŠ çª—å¤„ç†ï¼Œw=fspecial('gaussian', 11, 1.5);  
     %                 (2*ua*ub+C1)*(2*sigmaa*sigmab+C2)  
-    %   SSIM(A,B)=¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª¡ª  
+    %   SSIM(A,B)=â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”â€”  
     %              (ua*ua+ub*ub+C1)(sigmaa*sigmaa+sigmab*sigmab+C2)  
-    %     C1=£¨K1*L£©;  
-    %     C2=(K2*L);   K1=0.01£¬K2=0.03  
-    %     LÎª»Ò¶È¼¶Êı£¬L=255  
+    %     C1=ï¼ˆK1*Lï¼‰;  
+    %     C2=(K2*L);   K1=0.01ï¼ŒK2=0.03  
+    %     Lä¸ºç°åº¦çº§æ•°ï¼ŒL=255  
     %-------------------------------------------------------------------  
-    %     ima - ±È½ÏÍ¼ÏñA  
-    %     imb - ±È½ÏÍ¼ÏñB  
+    %     ima - æ¯”è¾ƒå›¾åƒA  
+    %     imb - æ¯”è¾ƒå›¾åƒB  
     %  
-    % ssim_map - ¸÷¼Ó´°ºóµÃµ½µÄSSIM£¨A,B|w£©×é³ÉµÄÓ³Éä¾ØÕó  
-    %    mssim - ¶Ô¼Ó´°µÃµ½µÄSSIM£¨A,B|w£©ÇóÆ½¾ù£¬¼´×îÖÕµÄSSIM£¨A,B£©  
-    %  siga_sq - Í¼ÏñA¸÷´°¿ÚÄÚ»Ò¶ÈÖµµÄ·½²î  
-    %  sigb_sq - Í¼ÏñB¸÷´°¿ÚÄÚ»Ò¶ÈÖµµÄ·½²î  
+    % ssim_map - å„åŠ çª—åå¾—åˆ°çš„SSIMï¼ˆA,B|wï¼‰ç»„æˆçš„æ˜ å°„çŸ©é˜µ  
+    %    mssim - å¯¹åŠ çª—å¾—åˆ°çš„SSIMï¼ˆA,B|wï¼‰æ±‚å¹³å‡ï¼Œå³æœ€ç»ˆçš„SSIMï¼ˆA,Bï¼‰  
+    %  siga_sq - å›¾åƒAå„çª—å£å†…ç°åº¦å€¼çš„æ–¹å·®  
+    %  sigb_sq - å›¾åƒBå„çª—å£å†…ç°åº¦å€¼çš„æ–¹å·®  
     %-------------------------------------------------------------------  
     %  Cool_ben  
     %========================================================================  
 
-    w = fspecial('gaussian', 11, 1.5);  %window ¼Ó´°  
+    w = fspecial('gaussian', 11, 1.5);  %window åŠ çª—  
     K(1) = 0.01;                      
     K(2) = 0.03;                      
     L = 255;       
 
     s=size(size(img1));
-    if s(2)==3 %ÅĞ¶ÏÊÇ»Ò¶ÈÍ¼»¹ÊÇRGB
+    if s(2)==3 %åˆ¤æ–­æ˜¯ç°åº¦å›¾è¿˜æ˜¯RGB
         img1=rgb2gray(img1);
     end 
 
     s1=size(size(fused));
-    if s1(2)==3 %ÅĞ¶ÏÊÇ»Ò¶ÈÍ¼»¹ÊÇRGB
+    if s1(2)==3 %åˆ¤æ–­æ˜¯ç°åº¦å›¾è¿˜æ˜¯RGB
         fused=rgb2gray(fused);
     end 
 
@@ -85,8 +86,8 @@ function mssim = ssim(img1,fused)
     C2 = (K(2)*L)^2;  
     w = w/sum(sum(w));  
 
-    ua   = filter2(w, img1, 'valid');%¶Ô´°¿ÚÄÚ²¢Ã»ÓĞ½øĞĞÆ½¾ù´¦Àí£¬¶øÊÇÓë¸ßË¹¾í»ı£¬  
-    ub   = filter2(w, fused, 'valid'); % ÀàËÆ¼ÓÈ¨Æ½¾ù  
+    ua   = filter2(w, img1, 'valid');%å¯¹çª—å£å†…å¹¶æ²¡æœ‰è¿›è¡Œå¹³å‡å¤„ç†ï¼Œè€Œæ˜¯ä¸é«˜æ–¯å·ç§¯ï¼Œ  
+    ub   = filter2(w, fused, 'valid'); % ç±»ä¼¼åŠ æƒå¹³å‡  
     ua_sq = ua.*ua;  
     ub_sq = ub.*ub;  
     ua_ub = ua.*ub;  

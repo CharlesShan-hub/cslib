@@ -2,8 +2,9 @@
 % The interface is modified by the authors of VIFB to integrate it into VIFB.
 %
 % Reference for the metric:
-% C. S. Xydeas and P. V. V., ¡°Objective image fusion performance measure,¡± Military Technical Courier, vol. 36, no. 4,
-% pp. 308C309, 2000
+% C. S. Xydeas and P. V. V., "Objective image fusion performance measure," Military Technical Courier, vol. 36, no. 4,
+% pp. 308-309, 2000
+% https://github.com/xingchenzhang/VIFB/blob/master/metrics/metricsQabf.m
 
 function res = metricsQabf(img1, img2, fused)
 

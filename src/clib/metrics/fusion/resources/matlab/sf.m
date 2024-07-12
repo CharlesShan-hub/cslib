@@ -2,8 +2,9 @@
 % The interface is modified by the authors of VIFB to integrate it into VIFB. 
 %
 % Reference for the metric:
-% A. M. Eskicioglu and P. S. Fisher, ¡°Image quality measures and their performance,¡± IEEE Transactions on
-% communications, vol. 43, no. 12, pp. 2959C2965, 1995.
+% A. M. Eskicioglu and P. S. Fisher, "Image quality measures and their performance," IEEE Transactions on
+% communications, vol. 43, no. 12, pp. 2959-2965, 1995.
+% https://github.com/xingchenzhang/VIFB/blob/master/metrics/metricsSpatial_frequency.m
 
 function res = metricsSpatial_frequency(img1, img2, fused)
  

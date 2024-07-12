@@ -50,14 +50,7 @@ def ag_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor
 ###########################################################################################
 
 def main():
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    vis = to_tensor(Image.open('./resources/vis.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('./resources/ir.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('./resources/fused.bmp')).unsqueeze(0)
+    from utils import ir,vis,fused  # type: ignore
 
     print(f'AG(ir):{ag(ir)}')
     print(f'AG(vis):{ag(vis)}')

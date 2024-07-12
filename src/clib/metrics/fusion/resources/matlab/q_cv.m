@@ -2,8 +2,9 @@
 % The interface is modified by the authors of VIFB to integrate it into VIFB. 
 % 
 % Reference for the metric
-% H. Chen and P. K. Varshney, “A human perception inspired quality metric for image fusion based on regional 
-% information,” Information fusion, vol. 8, no. 2, pp. 193–207, 2007.
+% H. Chen and P. K. Varshney, "A human perception inspired quality metric for image fusion based on regional 
+% information," Information fusion, vol. 8, no. 2, pp. 193-207, 2007.
+% https://github.com/xingchenzhang/VIFB/blob/master/metrics/metricsQcv.m
 
 function res = metricsQcv(img1,img2,fused)
 
@@ -73,21 +74,21 @@ function output = Qcv(im1, im2, fused)
     % fused=normalize1(fused);
 % 
 %         s=size(size(im1));
-%         if s(2)==3 %判断是灰度图还是RGB
+%         if s(2)==3 %鍒ゆ柇鏄伆搴﹀浘杩樻槸RGB
 %             im1=rgb2gray(im1);
 %         else
 %             im1=im1;
 %         end 
 % 
 %         s1=size(size(im2));
-%         if s1(2)==3 %判断是灰度图还是RGB
+%         if s1(2)==3 %鍒ゆ柇鏄伆搴﹀浘杩樻槸RGB
 %             im2=rgb2gray(im2);
 %         else
 %             im2=im2;
 %         end 
 % 
 %         s2=size(size(fused));
-%         if s2(2)==3 %判断是灰度图还是RGB
+%         if s2(2)==3 %鍒ゆ柇鏄伆搴﹀浘杩樻槸RGB
 %             fused=rgb2gray(fused);
 %         else
 %             fused=fused;

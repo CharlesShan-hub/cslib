@@ -2,8 +2,9 @@
 % The interface is modified by the authors of VIFB to integrate it into VIFB.
 %
 % Reference for the metric:
-% G. Cui, H. Feng, Z. Xu, Q. Li, and Y. Chen, ¡°Detail preserved fusion of visible and infrared images using regional
-% saliency extraction and multi-scale image decomposition,¡± Optics Communications, vol. 341, pp. 199 C 209, 2015
+% G. Cui, H. Feng, Z. Xu, Q. Li, and Y. Chen, "Detail preserved fusion of visible and infrared images using regional
+% saliency extraction and multi-scale image decomposition," Optics Communications, vol. 341, pp. 199-209, 2015
+% https://github.com/xingchenzhang/VIFB/blob/master/metrics/metricsCross_entropy.m
 
 function res = metricsAvg_gradient(img1,img2,fused)
     if nargin == 3 

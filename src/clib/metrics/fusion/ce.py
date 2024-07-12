@@ -81,14 +81,9 @@ def visualize_image_entropy(size):
     plt.show()
 
 def main():
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
+    from utils import ir,vis,fused  # type: ignore
 
     torch.manual_seed(42)
-
-    vis = to_tensor(Image.open('./resources/vis.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('./resources/ir.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('./resources/fused.bmp')).unsqueeze(0)
     rand = torch.randint(0, 255, size=fused.shape, dtype=torch.uint8)/255.0
 
     size = 64

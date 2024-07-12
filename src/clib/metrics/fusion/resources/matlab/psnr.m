@@ -2,8 +2,9 @@
 % The interface is modified by the authors of VIFB to integrate it into VIFB. 
 %
 % Reference for the metric:
-% P. Jagalingam and A. V. Hegde, ¡°A review of quality metrics for fused image,¡± Aquatic Procedia, vol. 4, 
-% no. Icwrcoe, pp. 133C142, 2015.
+% P. Jagalingam and A. V. Hegde, "A review of quality metrics for fused image," Aquatic Procedia, vol. 4, 
+% no. Icwrcoe, pp. 133-142, 2015.
+% https://github.com/xingchenzhang/VIFB/blob/master/metrics/metricsPsnr.m
 
 function res = metricsPsnr(img1,img2,fused)
    
