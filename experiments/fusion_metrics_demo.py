@@ -17,7 +17,9 @@ CREATE TABLE IF NOT EXISTS fusion_metrics (
 );
 ''')
 
-need = ['ag', 'q_abf']
+need = ['psnr', 'ssim', 'rmse', 'ag', 'ei', 'sf', 'q_abf', 'sd', 'q_cb', 'q_cv']
+# need = ['mi']
+# need = ['en', 'ce', 'mi', 'psnr', 'ssim', 'rmse', 'ag', 'ei', 'sf', 'q_abf', 'sd', 'q_cb', 'q_cv']
 
 dataset = MetricsToy(root_dir=Path(config.FusionPath,'Toy'),
                      method=['ADF','CDDFuse'], 
@@ -36,7 +38,7 @@ for batch in dataloader:
         if cursor.fetchone(): continue # 如果存在，则更新 value
 
         # 计算指标
-        value = v['metric'](batch['ir'],batch['vis'],batch['fused'])
+        value = v['metric'](batch['ir'].to(config.device),batch['vis'].to(config.device),batch['fused'].to(config.device))
         print(f"{k} - {batch['method'][0]} - {batch['id'][0]}: {value}")
         
         # 插入或更新数据
