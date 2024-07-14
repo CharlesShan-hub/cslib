@@ -3,6 +3,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+def load_model(opts):
+    model = DenseFuse(1,1)
+    model.load_state_dict(torch.load(opts.pre_trained, map_location=opts.device))
+    return model
+
 # Convolution operation
 class ConvLayer(torch.nn.Module):
     def __init__(self, in_channels, out_channels, kernel_size, stride, is_last=False):

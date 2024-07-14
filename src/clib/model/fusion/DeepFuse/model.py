@@ -1,6 +1,11 @@
 import torch.nn as nn
 import torch
 
+def load_model(opts):
+    model = DeepFuse(device=opts.device)
+    model.load_state_dict(torch.load(opts.pre_trained, map_location=opts.device)['model'])
+    return model
+
 """
     This script defines the DeepFuse model and related module
 

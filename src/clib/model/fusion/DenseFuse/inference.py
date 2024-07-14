@@ -1,7 +1,7 @@
 import torch
 import torchvision.transforms as transforms
 
-from ....utils import glance
+# from ....utils import glance
 from .utils import *
 
 def inference(model,im1,im2,opts):
@@ -23,6 +23,6 @@ def inference(model,im1,im2,opts):
     # f = en_v
     # decoder
     img_fusion = model.decoder(f)
-    glance(img_fusion[0][0,:,:,:])
+    # glance(img_fusion[0][0,:,:,:])
     # print(img_fusion.shape)
-    return img_fusion[0]
+    return img_fusion[0][0,:,:,:]
