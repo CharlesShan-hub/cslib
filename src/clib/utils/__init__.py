@@ -9,11 +9,16 @@ def path_load_test():
 def glance(tensor):
     # 处理色彩
     if len(tensor.shape)==3:
-        image = tensor.permute(1, 2, 0).detach().cpu().numpy()
+        image = tensor.permute(1, 2, 0)
+        if image.shape[-1] == 1:
+            image = image[:,:,0].detach().cpu().numpy()
+        else:
+            image = image.detach().cpu().numpy()
     else:
         image = tensor.detach().cpu().numpy()
 
     # 使用 PIL 显示图片
+    print(image.shape)
     if len(image.shape) == 2:
         plt.imshow((image * 255).astype(np.uint8),cmap='gray')
     else:
@@ -35,8 +40,9 @@ class Options(object):
         update(parmas): Update the command line arguments.
     """
 
-    def __init__(self, params: Dict[str, Any] = {}):
+    def __init__(self, name: str = 'Undefined', params: Dict[str, Any] = {}):
         self.opts = argparse.Namespace()
+        self.name = name
         if len(params) > 0:
             self.update(params)
 
@@ -47,7 +53,7 @@ class Options(object):
         Args:
             string (str): The message to be printed.
         """
-        print("[ DeepFuse ] %s" % (string))
+        print("[ %s ] %s" % (self.name,string))
 
     def presentParameters(self, args_dict: Dict[str, Any]):
         """

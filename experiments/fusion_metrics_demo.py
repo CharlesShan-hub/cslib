@@ -1,3 +1,12 @@
+from torch.utils.data import DataLoader
+from pathlib import Path
+import sqlite3
+import click
+
+import clib.metrics.fusion as metrics
+from clib.data import fusion as fusion_data
+import config
+
 '''
 测试融合算法的指标
 1. 选择指定的融合方案
@@ -7,58 +16,68 @@
 5. 可以避免重复计算，可以进行结果更新(二选一)
 6. 注意需要提前组织好融合图片的存储结构
 '''
+@click.command()
+@click.option('--database','-n',default='MetricsToy', help='Name of images database.')
+@click.option('--root_dir','-r',default=Path(config.FusionPath, 'Toy'), help='Root directory containing the dataset.')
+@click.option('--db_name','-n',default='metrics.db', help='Name of database file.')
+@click.option('--algorithm','-a',default=(),multiple=True, help='Fusion algorithm.')
+@click.option('--img_id','-i',default=(),multiple=True, help='Image IDs to compute metrics for.')
+@click.option('--metric_group','-m',default='VIFB', help='Methods Group to compute metrics for.')
+@click.option('--device','-d',default=config.device, help='Device to compute metrics on.')
+@click.option('--update','-u',default=False, help='Update Metrics that calculated before.')
+def main(database, root_dir, db_name, metric_group, algorithm, img_id, device, update):
+    # Modify Params
+    assert hasattr(fusion_data, database)
+    [img_id, algorithm] = [None if len(item)==0 else item for item in [img_id, algorithm]]
+    
+    # Connect to Database
+    conn = sqlite3.connect(Path(root_dir,db_name))
+    cursor = conn.cursor()
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS fusion_metrics (
+        method TEXT,
+        id TEXT,
+        name TEXT,
+        value REAL,
+        PRIMARY KEY (method, id, name)
+    );
+    ''')
 
-import clib.metrics.fusion as metrics
-from clib.data.fusion import MetricsToy
-from torch.utils.data import DataLoader
-from pathlib import Path
-import config
-import sqlite3
+    # Load Dataset and Dataloader
+    dataset = getattr(fusion_data,database)(root_dir=root_dir,method=algorithm,img_id=img_id)
+    dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
 
-conn = sqlite3.connect(Path(config.FusionPath,'Toy','metrics.db'))
-cursor = conn.cursor()
-cursor.execute('''
-CREATE TABLE IF NOT EXISTS fusion_metrics (
-    method TEXT,
-    id TEXT,
-    name TEXT,
-    value REAL,
-    PRIMARY KEY (method, id, name)
-);
-''')
+    # Load metrics
+    group = {
+        'VIFB': ['en', 'ce', 'mi', 'psnr', 'ssim', 'rmse', 'ag', 'ei', 'sf', 'q_abf', 'sd', 'q_cb', 'q_cv'],
+    }
+    assert metric_group in group
+    
+    # Calculate
+    for batch in dataloader:
+        for (k,v) in metrics.info_summary_dict.items():
+            # Skip Unneeded Metrics
+            if k not in group[metric_group]: continue
 
-# need = ['psnr', 'ssim', 'rmse', 'ag', 'ei', 'sf', 'q_abf', 'sd', 'q_cb', 'q_cv']
-# need = ['mi']
-need = ['en', 'ce', 'mi', 'psnr', 'ssim', 'rmse', 'ag', 'ei', 'sf', 'q_abf', 'sd', 'q_cb', 'q_cv']
+            # Skip Calculated Metrics
+            if update == False:
+                cursor.execute('''
+                SELECT value FROM fusion_metrics WHERE method=? AND id=? AND name=?;
+                ''', (batch['method'][0], batch['id'][0], k))
+                if cursor.fetchone(): continue # If Exist -> Skip
 
-# dataset = MetricsToy(root_dir=Path(config.FusionPath,'Toy'),
-#                      method=['ADF','CDDFuse'], 
-#                      img_id=['48','99'])
-dataset = MetricsToy(root_dir=Path(config.FusionPath,'Toy'),
-                     method=None, 
-                     img_id=None)
-dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
+            # Calculate
+            value = v['metric'](batch['ir'].to(device),batch['vis'].to(device),batch['fused'].to(device))
+            print(f"{k} - {batch['method'][0]} - {batch['id'][0]}: {value}")
+            
+            # Insert or Update the database
+            cursor.execute('''
+            INSERT OR REPLACE INTO fusion_metrics (method, id, name, value)
+            VALUES (?, ?, ?, ?);
+            ''', (batch['method'][0], batch['id'][0], k, value.item()))
 
-for batch in dataloader:
-    for (k,v) in metrics.info_summary_dict.items():
-        # 跳过不需要的指标
-        if k not in need: continue
+    conn.commit()
+    conn.close()
 
-        # 跳过计算过的数据
-        cursor.execute('''
-        SELECT value FROM fusion_metrics WHERE method=? AND id=? AND name=?;
-        ''', (batch['method'][0], batch['id'][0], k))
-        if cursor.fetchone(): continue # 如果存在，则更新 value
-
-        # 计算指标
-        value = v['metric'](batch['ir'].to(config.device),batch['vis'].to(config.device),batch['fused'].to(config.device))
-        print(f"{k} - {batch['method'][0]} - {batch['id'][0]}: {value}")
-        
-        # 插入或更新数据
-        cursor.execute('''
-        INSERT OR REPLACE INTO fusion_metrics (method, id, name, value)
-        VALUES (?, ?, ?, ?);
-        ''', (batch['method'][0], batch['id'][0], k, value.item()))
-
-conn.commit()
-conn.close()
+if __name__ == '__main__':
+    main()

@@ -3,10 +3,7 @@ import torch
 from .utils import *
 from .config import *
 
-def inference(model,im1,im2,device=torch.device('cpu')):
-    # Load Options
-    opts = TestOptions().parse()
-
+def inference(model,im1,im2,opts):
     # Load the Image
     trans = transforms.Compose([
         transforms.ToTensor(),
@@ -16,7 +13,7 @@ def inference(model,im1,im2,device=torch.device('cpu')):
     [im1, im2] = [load_ycbcr_from_path(im) for im in [im1,im2]]
     assert(im1.size == im2.size)
     [im1, im2] = [torch.unsqueeze(trans(im), 0)for im in [im1,im2]] # type: ignore
-    [im1, im2] = [im.to(device) for im in [im1,im2]]
+    [im1, im2] = [im.to(opts.device) for im in [im1,im2]]
 
     # Fusion
     model.eval()

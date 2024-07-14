@@ -21,6 +21,7 @@ class TrainOptions(Options):
         ----------------------------------------------------------------------------------------------------------------------
     """
     def __init__(self):
+        super().__init__('DeepFuse')
         parser = argparse.ArgumentParser()
         parser.add_argument('--folder'          , type = str, default = "/home/sunner/Music/HDREyeDataset/images/Bracketed_images")
         parser.add_argument('--crop_size'       , type = int, default = 256)
@@ -58,18 +59,17 @@ class TestOptions(Options):
         ======================================================================================================================
                 Symbol          Type            Default                         Explaination
         ----------------------------------------------------------------------------------------------------------------------
-            --model             Str         model.pth                       The path of pre-trained model
-            --res               Str         result.png                      The path to store the fusing image
+            --pre_trained       Str         model.pth                       The path of pre-trained model
             --H                 Int         400                             The height of the result image
             --W                 Int         600                             The width of the result image
         ----------------------------------------------------------------------------------------------------------------------
     """
     def __init__(self):
+        super().__init__('DeepFuse')
         parser = argparse.ArgumentParser()
-        parser.add_argument('--model'   , type = str, default = "model.pth")
-        parser.add_argument('--res'     , type = str, default = 'result.png')
-        parser.add_argument('--H'       , type = int, default = 400)
-        parser.add_argument('--W'       , type = int, default = 600)
+        parser.add_argument('--pre_trained', type = str, default = "model.pth")
+        parser.add_argument('--H'          , type = int, default = 400)
+        parser.add_argument('--W'          , type = int, default = 600)
         self.opts = parser.parse_args()
         self.opts.device = 'cuda' if is_available() else 'cpu'
 

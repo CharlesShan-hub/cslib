@@ -27,5 +27,10 @@ opts = {
     'DeepFuse':{
         'device': device,
         'pre_trained': Path(ModelBasePath,'DeepFuse','DeepFuse_model.pth'), # pytorch复现版的, https://github.com/SunnerLi/DeepFuse.pytorch
+    },
+    'DenseFuse':{
+        'device': device,
+        # 'pre_trained': Path(ModelBasePath,'DenseFuse','densefuse_rgb.model'), # https://github.com/hli1221/densefuse-pytorch
+        'pre_trained': Path(ModelBasePath,'DenseFuse','densefuse_gray.model'),
     }
 }
