@@ -20,3 +20,12 @@ assert(data_base_path is not None)
 
 TorchVisionPath = Path(data_base_path, "torchvision").__str__()
 FusionPath = Path(data_base_path, "Fusion").__str__()
+ModelBasePath = Path(data_base_path, "Model").__str__()
+
+# network config
+opts = {
+    'DeepFuse':{
+        'device': device,
+        'pre_trained': Path(ModelBasePath,'DeepFuse','DeepFuse_model.pth'), # pytorch复现版的, https://github.com/SunnerLi/DeepFuse.pytorch
+    }
+}

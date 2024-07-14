@@ -1,3 +1,13 @@
+'''
+测试融合算法的指标
+1. 选择指定的融合方案
+2. 选择指定的融合指标
+3. 选择指定的融合图片
+4. 结果输出到数据库中
+5. 可以避免重复计算，可以进行结果更新(二选一)
+6. 注意需要提前组织好融合图片的存储结构
+'''
+
 import clib.metrics.fusion as metrics
 from clib.data.fusion import MetricsToy
 from torch.utils.data import DataLoader
@@ -17,13 +27,16 @@ CREATE TABLE IF NOT EXISTS fusion_metrics (
 );
 ''')
 
-need = ['psnr', 'ssim', 'rmse', 'ag', 'ei', 'sf', 'q_abf', 'sd', 'q_cb', 'q_cv']
+# need = ['psnr', 'ssim', 'rmse', 'ag', 'ei', 'sf', 'q_abf', 'sd', 'q_cb', 'q_cv']
 # need = ['mi']
-# need = ['en', 'ce', 'mi', 'psnr', 'ssim', 'rmse', 'ag', 'ei', 'sf', 'q_abf', 'sd', 'q_cb', 'q_cv']
+need = ['en', 'ce', 'mi', 'psnr', 'ssim', 'rmse', 'ag', 'ei', 'sf', 'q_abf', 'sd', 'q_cb', 'q_cv']
 
+# dataset = MetricsToy(root_dir=Path(config.FusionPath,'Toy'),
+#                      method=['ADF','CDDFuse'], 
+#                      img_id=['48','99'])
 dataset = MetricsToy(root_dir=Path(config.FusionPath,'Toy'),
-                     method=['ADF','CDDFuse'], 
-                     img_id=['48','99'])
+                     method=None, 
+                     img_id=None)
 dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
 
 for batch in dataloader:
