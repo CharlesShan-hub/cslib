@@ -61,9 +61,9 @@ class FusionToy(Dataset):
         # Load part of Images
         if img_id is not None:
             self.ir_paths = [path for path in self.ir_paths if\
-                              os.path.splitext(path.name) in img_id]
+                              os.path.splitext(path.name)[0] in img_id]
             self.vis_paths = [path for path in self.vis_paths if\
-                              os.path.splitext(path.name) in img_id]
+                              os.path.splitext(path.name)[0] in img_id]
 
         # Check
         if check:

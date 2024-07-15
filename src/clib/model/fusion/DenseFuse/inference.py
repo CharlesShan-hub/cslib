@@ -14,6 +14,7 @@ def inference(model,im1,im2,opts):
     assert(im1.size == im2.size)
     [im1, im2] = [torch.unsqueeze(trans(im), 0)for im in [im1,im2]] # type: ignore
     [im1, im2] = [im.to(opts.device) for im in [im1,im2]]
+    model.eval()
     en_r = model.encoder(im1)
     # vision_features(en_r, 'ir')
     en_v = model.encoder(im2)

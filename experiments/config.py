@@ -32,5 +32,9 @@ opts = {
         'device': device,
         # 'pre_trained': Path(ModelBasePath,'DenseFuse','densefuse_rgb.model'), # https://github.com/hli1221/densefuse-pytorch
         'pre_trained': Path(ModelBasePath,'DenseFuse','densefuse_gray.model'),
+    },
+    'CDDFuse':{
+        'device': device,
+        'pre_trained': Path(ModelBasePath,'CDDFuse','CDDFuse_IVF.pth'), # https://github.com/Zhaozixiang1228/MMIF-CDDFuse
     }
 }
