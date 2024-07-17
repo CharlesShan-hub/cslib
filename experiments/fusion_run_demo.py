@@ -48,11 +48,12 @@ def main(dataset, root_dir, des_dir, algorithm_name, algorithm_config, pre_train
     des_dir = Path(des_dir,'fused',algorithm_name)
     if des_dir.exists() == False: des_dir.mkdir()
     bar = tqdm(range(len(dataset)))
-    for _,batch in zip(bar,dataloader):
-        img_res_path = Path(des_dir,Path(batch['ir'][0]).name)
-        if img_res_path.exists(): continue
-        img = algorithm.inference(model,batch['ir'][0],batch['vis'][0],opts)
-        save_tensor_to_img(img,img_res_path)
+    with torch.no_grad():
+        for _,batch in zip(bar,dataloader):
+            img_res_path = Path(des_dir,Path(batch['ir'][0]).name)
+            if img_res_path.exists(): continue
+            img = algorithm.inference(model,batch['ir'][0],batch['vis'][0],opts)
+            save_tensor_to_img(img,img_res_path)
 
 if __name__ == '__main__':
     main()
