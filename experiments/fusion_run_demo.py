@@ -22,23 +22,26 @@ import config
 @click.command()
 @click.option('--dataset','-n',default='FusionToy', help='Name of images dataset.')
 @click.option('--root_dir','-r',default=Path(config.FusionPath, 'TNO'), help='Root directory containing the dataset.')
-@click.option('--des_dir','-dr',default=Path(config.FusionPath, 'TNO'), help='Destination directory to save the results.')
+@click.option('--des_dir','-dr',default='', help='Destination directory to save the results.')
 @click.option('--algorithm_name','-a',default='CDDFuse', help='Fusion algorithm.')
 @click.option('--algorithm_config','-ac',default='CDDFuse', help='Config name of Fusion algorithm.')
 @click.option('--pre_trained','-p',default='',help='path to pretrained model.')
 @click.option('--img_id','-i',default=(),multiple=True, help='Image IDs to compute metrics for.')
 def main(dataset, root_dir, des_dir, algorithm_name, algorithm_config, pre_trained, img_id):
     # load Algorithm Module and Options
-    if img_id == (): img_id = None
-    else: img_id = [str(_id) for _id in img_id]
-    assert hasattr(fusion, algorithm_name)
-    assert algorithm_config in config.opts
-    algorithm = getattr(fusion, algorithm_name)
     assert hasattr(fusion_data, dataset)
     FusionDataSet = getattr(fusion_data, dataset)
+    for path in [root_dir,Path(root_dir,'ir'),Path(root_dir,'vis')]:
+        assert path.exists()
+    des_dir = root_dir if des_dir == '' else des_dir
+    if des_dir.exists() == False: des_dir.mkdir()
+    assert hasattr(fusion, algorithm_name)
+    algorithm = getattr(fusion, algorithm_name)
+    assert algorithm_config in config.opts
     opts = algorithm.TestOptions().parse(config.opts[algorithm_config])
     if pre_trained != '': setattr(opts, 'pre_trained', pre_trained)
-
+    img_id = None if img_id == () else [str(_id) for _id in img_id]
+    
     # Load Dataset, Dataloader and model with pre-trained params
     dataset = FusionDataSet(root_dir=Path(root_dir),img_id=img_id)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False) # batch size should be 1

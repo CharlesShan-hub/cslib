@@ -4,9 +4,9 @@ import torchvision.transforms as transforms
 from tqdm import tqdm
 import numpy as np
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 from .loss import MEF_SSIM_Loss
-from .config import *
 from ....transforms import to_rgb,rgb_to_ycbcr
 
 def train_trans(opts):
