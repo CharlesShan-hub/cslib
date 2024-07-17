@@ -23,8 +23,8 @@ import config
 @click.option('--dataset','-n',default='FusionToy', help='Name of images dataset.')
 @click.option('--root_dir','-r',default=Path(config.FusionPath, 'TNO'), help='Root directory containing the dataset.')
 @click.option('--des_dir','-dr',default=Path(config.FusionPath, 'TNO'), help='Destination directory to save the results.')
-@click.option('--algorithm_name','-a',default='DenseFuse', help='Fusion algorithm.')
-@click.option('--algorithm_config','-ac',default='DenseFuse', help='Config name of Fusion algorithm.')
+@click.option('--algorithm_name','-a',default='CDDFuse', help='Fusion algorithm.')
+@click.option('--algorithm_config','-ac',default='CDDFuse', help='Config name of Fusion algorithm.')
 @click.option('--pre_trained','-p',default='',help='path to pretrained model.')
 @click.option('--img_id','-i',default=(),multiple=True, help='Image IDs to compute metrics for.')
 def main(dataset, root_dir, des_dir, algorithm_name, algorithm_config, pre_trained, img_id):
