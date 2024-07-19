@@ -7,7 +7,8 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # Dataset base path
 data_base_path_list = [
     '/root/autodl-fs/DateSets',
-    '/Volumes/Charles/DateSets'
+    '/Volumes/Charles/DateSets',
+    '/Users/kimshan/resources/DataSets'
 ]
 
 # 遍历路径列表，找到第一个可用的路径
@@ -20,6 +21,7 @@ assert(data_base_path is not None)
 
 TorchVisionPath = Path(data_base_path, "torchvision").__str__()
 FusionPath = Path(data_base_path, "Fusion").__str__()
+SRPath = Path(data_base_path, "SR").__str__()
 ModelBasePath = Path(data_base_path, "Model").__str__()
 
 # network config
@@ -36,5 +38,10 @@ opts = {
     'CDDFuse':{
         'device': device,
         'pre_trained': Path(ModelBasePath,'CDDFuse','CDDFuse_IVF.pth'), # https://github.com/Zhaozixiang1228/MMIF-CDDFuse
+    },
+    'SRCNN':{
+        'device': device,
+        #'pre_trained': Path(ModelBasePath,'SRCNN','keras_to_torch_SRCNN.pth'), # https://github.com/Lornatang/SRCNN-PyTorch/blob/main/README.md#download-weights
+        'pre_trained': Path('/Users/kimshan/Downloads/keras_to_torch_SRCNN.pth')
     }
 }
