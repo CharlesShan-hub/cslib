@@ -4,7 +4,13 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 def load_model(opts):
-    model = DenseFuse(1,1)
+    if opts.color == 'gray':
+        model = DenseFuse(1,1)
+    elif opts.color == 'color':
+        #model = DenseFuse(3,3)
+        model = DenseFuse(1,1)
+    else:
+        raise ValueError("Color mode should only be `gray` or `color`")
     model.load_state_dict(torch.load(opts.pre_trained, map_location=opts.device))
     return model
 
