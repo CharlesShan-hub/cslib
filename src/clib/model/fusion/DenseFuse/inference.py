@@ -26,15 +26,16 @@ def inference(model,im1,im2,opts):
         raise ValueError("Color mode should only be `gray` or `color`")
 
     model.eval()
-    imf_list = []
-    for _im1,_im2 in zip(im1_list,im2_list):
-        en_r = model.encoder(_im1)
-        en_v = model.encoder(_im2)
-        f = model.fusion(en_r, en_v)
-        imf_list.append(model.decoder(f)[0])
-    
-    if opts.color == 'gray':
-        img_fusion = imf_list[0]
-    else:
-        img_fusion = torch.cat([imf_list[0], imf_list[1], imf_list[2]], dim=1)
+    with torch.no_grad():
+        imf_list = []
+        for _im1,_im2 in zip(im1_list,im2_list):
+            en_r = model.encoder(_im1)
+            en_v = model.encoder(_im2)
+            f = model.fusion(en_r, en_v)
+            imf_list.append(model.decoder(f)[0])
+        
+        if opts.color == 'gray':
+            img_fusion = imf_list[0]
+        else:
+            img_fusion = torch.cat([imf_list[0], imf_list[1], imf_list[2]], dim=1)
     return img_fusion[0,:,:,:]

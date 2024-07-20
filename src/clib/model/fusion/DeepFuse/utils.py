@@ -3,6 +3,8 @@ from PIL import Image
 import torch
 import numpy as np
 
+from ....utils import path_to_ycbcr,path_to_rgb,ycbcr_to_rgb
+
 L1_NORM = lambda b: torch.sum(torch.abs(b))
 
 def weightedFusion(cr1, cr2, cb1, cb2):
@@ -26,27 +28,6 @@ def weightedFusion(cr1, cr2, cb1, cb2):
     cb_fuse = cb_up / cb_down
 
     return cr_fuse, cb_fuse
-
-def load_ycbcr_from_path(path: str) -> Image.Image:
-    """
-    Load an image from the given path and convert it to YCbCr format.
-
-    Parameters:
-    path (str): The path to the image file.
-
-    Returns:
-    Image: The loaded image in YCbCr format.
-
-    Raises:
-    ValueError: If the image mode is not supported (only RGB and grayscale images are supported).
-    """
-    image = Image.open(path)
-    if len(image.size) == 2:  # 灰度图像转换灰度图像到RGB
-        image = color.gray2rgb(image)
-    elif image.mode != 'RGB':  # 如果不是RGB也不是灰度，则抛出错误
-        raise ValueError("Unsupported image mode. Only RGB and grayscale images are supported.")
-    image = color.rgb2ycbcr(image)
-    return Image.fromarray(image.astype(np.uint8))
 
 def change_ycbcr_to_rgb(tensor):
     im = tensor[0,:,:,:].permute(1, 2, 0).numpy().astype(np.uint8)
@@ -81,7 +62,7 @@ def change_ycbcr_to_rgb(tensor):
 
 def test():
     path = '/Volumes/Charles/DateSets/Fusion/Toy/vis/00449.png'
-    im = np.array(load_ycbcr_from_path(path))
+    im = np.array(path_to_ycbcr(path))
     image_rgb = color.ycbcr2rgb(im)
 
     import matplotlib.pyplot as plt
