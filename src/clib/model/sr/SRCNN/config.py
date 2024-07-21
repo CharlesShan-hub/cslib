@@ -11,7 +11,7 @@ class TestOptions(Options):
         ----------------------------------------------------------------------------------------------------------------------
     """
     def __init__(self):
-        super().__init__('CDDFuse')
+        super().__init__('SRCNN')
         self.update({
             'pre_trained': 'model.pth',
             'device': 'cuda' if is_available() else 'cpu'

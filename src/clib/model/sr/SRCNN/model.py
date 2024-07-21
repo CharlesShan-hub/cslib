@@ -17,20 +17,11 @@ import torch
 from torch import nn
 
 def load_model(opts):
-    # # Initialize the super-resolution model
+    # Initialize the super-resolution model
     model = SRCNN().to(device=opts.device)
     # model.load_state_dict(torch.load(opts.pre_trained))
-    model.load_state_dict(torch.load('/Users/kimshan/Downloads/keras_to_torch_SRCNN.pth'))
-    # for layer in model.modules():
-    #     if hasattr(layer, 'weight'):
-    #         layer.weight = layer.weight.to(memory_format=torch.channels_last)
-    #     if hasattr(layer, 'bias'):
-    #         layer.bias = layer.bias.to(memory_format=torch.channels_last)
-    
-    # # Load the super-resolution model weights
-    # checkpoint = torch.load(opts.pre_trained, map_location=lambda storage, loc: storage)
-    # model.load_state_dict(checkpoint["state_dict"])
-    
+    model.load_state_dict(torch.load(opts.pre_trained,map_location=opts.device)["state_dict"])
+
     return model
 
 class SRCNN(nn.Module):
@@ -38,8 +29,7 @@ class SRCNN(nn.Module):
         super(SRCNN, self).__init__()
         # Feature extraction layer.
         self.features = nn.Sequential(
-            #nn.Conv2d(1, 64, (9, 9), (1, 1), (4, 4)),
-            nn.Conv2d(1, 128, (9, 9), (1, 1), (4, 4)),
+            nn.Conv2d(1, 64, (9, 9), (1, 1), (4, 4)),
             nn.ReLU(True)
         )
 

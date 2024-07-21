@@ -45,9 +45,16 @@ opts = {
         'device': device,
         'pre_trained': Path(ModelBasePath,'CDDFuse','CDDFuse_IVF.pth'), # https://github.com/Zhaozixiang1228/MMIF-CDDFuse
     },
-    'SRCNN':{
+    'SRCNN2':{
         'device': device,
-        #'pre_trained': Path(ModelBasePath,'SRCNN','keras_to_torch_SRCNN.pth'), # https://github.com/Lornatang/SRCNN-PyTorch/blob/main/README.md#download-weights
-        'pre_trained': Path('/Users/kimshan/Downloads/keras_to_torch_SRCNN.pth')
+        'pre_trained': Path('/Volumes/Charles/DateSets/Model/SRCNN/srcnn_x2-T91-7d6e0623.pth.tar') # https://github.com/Lornatang/SRCNN-PyTorch
+    },
+    'SRCNN3':{
+        'device': device,
+        'pre_trained': Path('/Volumes/Charles/DateSets/Model/SRCNN/srcnn_x3-T91-919a959c.pth.tar') # https://github.com/Lornatang/SRCNN-PyTorch
+    },
+    'SRCNN4':{
+        'device': device,
+        'pre_trained': Path('/Volumes/Charles/DateSets/Model/SRCNN/srcnn_x4-T91-7c460643.pth.tar') # https://github.com/Lornatang/SRCNN-PyTorch
     }
 }

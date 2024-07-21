@@ -13,9 +13,9 @@
 # ==============================================================================
 import math
 import random
-from typing import Any
+from typing import Any, Tuple
 
-import cv2
+# import cv2
 import numpy as np
 import torch
 from torchvision.transforms import functional as F
@@ -25,7 +25,7 @@ __all__ = [
     "image_resize",
     "expand_y", "rgb2ycbcr", "bgr2ycbcr", "ycbcr2bgr", "ycbcr2rgb",
     "rgb2ycbcr_torch", "bgr2ycbcr_torch",
-    "center_crop", "random_crop", "random_rotate", "random_vertically_flip", "random_horizontally_flip",
+    "center_crop", "random_crop"#, "random_rotate", "random_vertically_flip", "random_horizontally_flip",
 ]
 
 
@@ -109,7 +109,7 @@ def _calculate_weights_indices(in_length: int,
                                out_length: int,
                                scale: float,
                                kernel_width: int,
-                               antialiasing: bool) -> [np.ndarray, np.ndarray, int, int]:
+                               antialiasing: bool) -> Tuple[np.ndarray, np.ndarray, int, int]:
     """Implementation of `calculate_weights_indices` function in Matlab under Python language.
 
     Args:
@@ -127,8 +127,7 @@ def _calculate_weights_indices(in_length: int,
     if (scale < 1) and antialiasing:
         # Use a modified kernel (larger kernel width) to simultaneously
         # interpolate and antialiasing
-        # kernel_width = kernel_width / scale
-        kernel_width = int(kernel_width / scale) # I changed this!
+        kernel_width = int(kernel_width / scale)
 
     # Output-space coordinates
     x = torch.linspace(1, out_length, out_length)
@@ -497,68 +496,68 @@ def random_crop(image: np.ndarray, image_size: int) -> np.ndarray:
     return patch_image
 
 
-def random_rotate(image,
-                  angles: list,
-                  center: tuple[int, int] = None,
-                  scale_factor: float = 1.0) -> np.ndarray:
-    """Rotate an image by a random angle
+# def random_rotate(image,
+#                   angles: list,
+#                   center: tuple[int, int] = None,
+#                   scale_factor: float = 1.0) -> np.ndarray:
+#     """Rotate an image by a random angle
 
-    Args:
-        image (np.ndarray): Image read with OpenCV
-        angles (list): Rotation angle range
-        center (optional, tuple[int, int]): High resolution image selection center point. Default: ``None``
-        scale_factor (optional, float): scaling factor. Default: 1.0
+#     Args:
+#         image (np.ndarray): Image read with OpenCV
+#         angles (list): Rotation angle range
+#         center (optional, tuple[int, int]): High resolution image selection center point. Default: ``None``
+#         scale_factor (optional, float): scaling factor. Default: 1.0
 
-    Returns:
-        rotated_image (np.ndarray): image after rotation
+#     Returns:
+#         rotated_image (np.ndarray): image after rotation
 
-    """
-    image_height, image_width = image.shape[:2]
+#     """
+#     image_height, image_width = image.shape[:2]
 
-    if center is None:
-        center = (image_width // 2, image_height // 2)
+#     if center is None:
+#         center = (image_width // 2, image_height // 2)
 
-    # Random select specific angle
-    angle = random.choice(angles)
-    matrix = cv2.getRotationMatrix2D(center, angle, scale_factor)
-    rotated_image = cv2.warpAffine(image, matrix, (image_width, image_height))
+#     # Random select specific angle
+#     angle = random.choice(angles)
+#     matrix = cv2.getRotationMatrix2D(center, angle, scale_factor)
+#     rotated_image = cv2.warpAffine(image, matrix, (image_width, image_height))
 
-    return rotated_image
-
-
-def random_horizontally_flip(image: np.ndarray, p: float = 0.5) -> np.ndarray:
-    """Flip the image upside down randomly
-
-    Args:
-        image (np.ndarray): Image read with OpenCV
-        p (optional, float): Horizontally flip probability. Default: 0.5
-
-    Returns:
-        horizontally_flip_image (np.ndarray): image after horizontally flip
-
-    """
-    if random.random() < p:
-        horizontally_flip_image = cv2.flip(image, 1)
-    else:
-        horizontally_flip_image = image
-
-    return horizontally_flip_image
+#     return rotated_image
 
 
-def random_vertically_flip(image: np.ndarray, p: float = 0.5) -> np.ndarray:
-    """Flip an image horizontally randomly
+# def random_horizontally_flip(image: np.ndarray, p: float = 0.5) -> np.ndarray:
+#     """Flip the image upside down randomly
 
-    Args:
-        image (np.ndarray): Image read with OpenCV
-        p (optional, float): Vertically flip probability. Default: 0.5
+#     Args:
+#         image (np.ndarray): Image read with OpenCV
+#         p (optional, float): Horizontally flip probability. Default: 0.5
 
-    Returns:
-        vertically_flip_image (np.ndarray): image after vertically flip
+#     Returns:
+#         horizontally_flip_image (np.ndarray): image after horizontally flip
 
-    """
-    if random.random() < p:
-        vertically_flip_image = cv2.flip(image, 0)
-    else:
-        vertically_flip_image = image
+#     """
+#     if random.random() < p:
+#         horizontally_flip_image = cv2.flip(image, 1)
+#     else:
+#         horizontally_flip_image = image
 
-    return vertically_flip_image
+#     return horizontally_flip_image
+
+
+# def random_vertically_flip(image: np.ndarray, p: float = 0.5) -> np.ndarray:
+#     """Flip an image horizontally randomly
+
+#     Args:
+#         image (np.ndarray): Image read with OpenCV
+#         p (optional, float): Vertically flip probability. Default: 0.5
+
+#     Returns:
+#         vertically_flip_image (np.ndarray): image after vertically flip
+
+#     """
+#     if random.random() < p:
+#         vertically_flip_image = cv2.flip(image, 0)
+#     else:
+#         vertically_flip_image = image
+
+#     return vertically_flip_image

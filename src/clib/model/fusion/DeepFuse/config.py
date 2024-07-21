@@ -69,5 +69,6 @@ class TestOptions(Options):
             'pre_trained': 'model.pth',
             'H': 400,
             'W': 600,
+            'resize': False,
             'device': 'cuda' if is_available() else 'cpu'
         })

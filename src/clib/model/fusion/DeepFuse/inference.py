@@ -7,7 +7,7 @@ def inference(model,im1,im2,opts):
     # Load the Image
     trans = transforms.Compose([
         transforms.ToTensor(),
-        transforms.Resize((opts.H, opts.W), antialias=True), # type: ignore
+        transforms.Resize((opts.H, opts.W), antialias=True) if opts.resize else transforms.Lambda(lambda x: x), # type: ignore
         transforms.Normalize(mean = [0.485, 0.456, 0.406], std = [0.229, 0.224, 0.225])
     ])
 
