@@ -13,7 +13,7 @@ class TrainOptions(Options):
     def __init__(self):
         super().__init__('AUIF')
         self.update({
-            'pre_trained': 'model.pth',
+            'pre_trained': ['model1.pth','model2.pth','model3.pth'],
             'device': 'cuda' if is_available() else 'cpu',
             'channel': 64,
             'lr': 1*1e-2,
@@ -37,7 +37,7 @@ class TestOptions(Options):
     def __init__(self):
         super().__init__('AUIF')
         self.update({
-            'pre_trained': 'model.pth',
+            'pre_trained': ['model1.pth','model2.pth','model3.pth'],
             'device': 'cuda' if is_available() else 'cpu',
             'channel': 64,
             'img_size': 128,

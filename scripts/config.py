@@ -53,6 +53,13 @@ opts = {
             Path(ModelBasePath,'AUIF','TCSVT_Decoder.model'),
         ],
     },
+    'DIDFuse':{
+        'device': device,
+        'pre_trained': [ # https://github.com/Zhaozixiang1228/IVIF-DIDFuse
+            Path(ModelBasePath,'DIDFuse','Encoder_weight_IJCAI.pkl'),
+            Path(ModelBasePath,'DIDFuse','Decoder_weight_IJCAI.pkl'),
+        ],
+    },
     'SRCNN2':{
         'device': device,
         'pre_trained': Path(ModelBasePath,'SRCNN','srcnn_x2-T91-7d6e0623.pth.tar') # https://github.com/Lornatang/SRCNN-PyTorch
