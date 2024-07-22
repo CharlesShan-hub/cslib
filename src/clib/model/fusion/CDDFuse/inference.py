@@ -1,7 +1,6 @@
 import torch
 import torchvision.transforms as transforms
 
-from ....utils import glance
 from .utils import *
 
 def inference(model,im1,im2,opts): # im1 ir, im2 vis

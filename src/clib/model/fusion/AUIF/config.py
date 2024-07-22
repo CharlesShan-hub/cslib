@@ -21,7 +21,8 @@ class TrainOptions(Options):
             'layer_numb': 10,
             'batch_size': 32,
             'log_interval': 12,
-            'epoch': 80
+            'epoch': 80,
+            'addition_mode': 'Sum',#'Sum', 'Average', 'l1_norm'
         })
 
 class TestOptions(Options):
@@ -39,8 +40,8 @@ class TestOptions(Options):
             'pre_trained': 'model.pth',
             'device': 'cuda' if is_available() else 'cpu',
             'channel': 64,
-            'lr': 1*1e-2,
             'img_size': 128,
             'layer_numb': 10,
-            'batch_size': 32
+            'batch_size': 32,
+            'addition_mode': 'Sum',#'Sum', 'Average', 'l1_norm'
         })

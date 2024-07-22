@@ -12,12 +12,17 @@ https://ieeexplore.ieee.org/document/9416456
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-import numpy as np
-from args import channel,img_size,layer_numb
 import kornia
 
 def load_model(opts):
-    # opts.
+    Encoder_Base_Test = Encoder_Base(size=opts.img_size,numb=opts.layer_numb).to(opts.device)
+    Encoder_Base_Test.load_state_dict(torch.load(opts.pre_trained[0]))
+    Encoder_Detail_Test = Encoder_Detail(size=opts.img_size,numb=opts.layer_numb).to(opts.device)
+    Encoder_Detail_Test.load_state_dict(torch.load(opts.pre_trained[1]))
+    Decoder_Test = Decoder().to(opts.device)
+    Decoder_Test.load_state_dict(torch.load(opts.pre_trained[2]))
+
+    return (Encoder_Base_Test,Encoder_Detail_Test,Decoder_Test)
 
 #定义初始化滤波 
 Laplace = kornia.filters.Laplacian(19)#高通滤波  
@@ -36,11 +41,11 @@ class BCL(nn.Module):
             )
         self.eta=nn.Parameter(
                 nn.init.normal_(
-                        torch.empty(1).cuda(),mean=0.1,std=0.03
+                        torch.empty(1),mean=0.1,std=0.03
                         )) 
         self.theta=nn.Parameter(
                 nn.init.normal_(
-                        torch.empty(1).cuda(),mean=1e-3,std=1e-4
+                        torch.empty(1),mean=1e-3,std=1e-4
                         )) 
     def forward(self,x_in,img):
         x_in_2=self.zero_pad(x_in)
@@ -63,11 +68,11 @@ class DCL(nn.Module):
             )
         self.eta=nn.Parameter(
                 nn.init.normal_(
-                        torch.empty(1).cuda(),mean=0.1,std=0.03
+                        torch.empty(1),mean=0.1,std=0.03
                         )) 
         self.theta=nn.Parameter(
                 nn.init.normal_(
-                        torch.empty(1).cuda(),mean=1e-3,std=1e-4
+                        torch.empty(1),mean=1e-3,std=1e-4
                         )) 
     def forward(self,x_in,img):
         x_in_2=self.zero_pad(x_in)
@@ -80,9 +85,9 @@ class DCL(nn.Module):
         return x_out_2,img,self.eta.item(),self.theta.item()  
     
 class Encoder_Base(nn.Module):
-    def __init__(self,size=img_size):
+    def __init__(self,size=128,numb=10):
         super(Encoder_Base, self).__init__()
-        self.numb=layer_numb
+        self.numb=numb
         self.conv1 = nn.ModuleList([BCL() for i in range(self.numb)])
     def forward(self,img):
         img_blur=Blur(img)
@@ -96,9 +101,9 @@ class Encoder_Base(nn.Module):
 
 
 class Encoder_Detail(nn.Module):
-    def __init__(self,size=img_size):
+    def __init__(self,size=128,numb=10):
         super(Encoder_Detail, self).__init__()
-        self.numb=layer_numb
+        self.numb=numb
         self.conv2 = nn.ModuleList([DCL() for i in range(self.numb)])
     def forward(self,img):
         img_laplace=Laplace(img)

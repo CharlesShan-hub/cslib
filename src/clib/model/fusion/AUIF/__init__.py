@@ -5,5 +5,5 @@
     Modified from: https://github.com/Zhaozixiang1228/IVIF-AUIF-Net
 """
 from .model import load_model
-# from .inference import inference
+from .inference import inference
 from .config import TestOptions

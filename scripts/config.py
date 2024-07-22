@@ -45,6 +45,14 @@ opts = {
         'device': device,
         'pre_trained': Path(ModelBasePath,'CDDFuse','CDDFuse_IVF.pth'), # https://github.com/Zhaozixiang1228/MMIF-CDDFuse
     },
+    'AUIF':{
+        'device': device,
+        'pre_trained': [ # https://github.com/Zhaozixiang1228/IVIF-AUIF-Net
+            Path(ModelBasePath,'AUIF','TCSVT_Encoder_Base.model'),
+            Path(ModelBasePath,'AUIF','TCSVT_Encoder_Detail.model'),
+            Path(ModelBasePath,'AUIF','TCSVT_Decoder.model'),
+        ],
+    },
     'SRCNN2':{
         'device': device,
         'pre_trained': Path(ModelBasePath,'SRCNN','srcnn_x2-T91-7d6e0623.pth.tar') # https://github.com/Lornatang/SRCNN-PyTorch

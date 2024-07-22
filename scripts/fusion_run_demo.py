@@ -27,7 +27,7 @@ import config
 @click.option('--des_suffix','-ds',default='', help='Destination directory suffix to save the results.')
 @click.option('--algorithm_name','-a',default='CDDFuse', help='Fusion algorithm.')
 @click.option('--algorithm_config','-ac',default='CDDFuse', help='Config name of Fusion algorithm.')
-@click.option('--pre_trained','-p',default='',help='path to pretrained model.')
+@click.option('--pre_trained','-p',default=(),multiple=True, help='path to pretrained model.')
 @click.option('--img_id','-i',default=(),multiple=True, help='Image IDs to compute metrics for.')
 def main(dataset, root_dir_base, root_dir_path, des_dir, des_suffix, algorithm_name, algorithm_config, pre_trained, img_id):
     # load Algorithm Module and Options
@@ -42,7 +42,8 @@ def main(dataset, root_dir_base, root_dir_path, des_dir, des_suffix, algorithm_n
     algorithm = getattr(fusion, algorithm_name)
     assert algorithm_config in config.opts
     opts = algorithm.TestOptions().parse(config.opts[algorithm_config])
-    if pre_trained != '': setattr(opts, 'pre_trained', pre_trained)
+    if pre_trained[0] != '':
+        setattr(opts, 'pre_trained', pre_trained[0] if len(pre_trained) == 1 else pre_trained)
     img_id = None if img_id == () else [str(_id) for _id in img_id]
     
     # Load Dataset, Dataloader and model with pre-trained params
