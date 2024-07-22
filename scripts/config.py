@@ -60,6 +60,10 @@ opts = {
             Path(ModelBasePath,'DIDFuse','Decoder_weight_IJCAI.pkl'),
         ],
     },
+    'SwinFuse':{
+        'device': device,
+        'pre_trained': Path(ModelBasePath,'SwinFuse','Final_epoch_50_Mon_Feb_14_17_37_05_2022_1e3.model'), # https://github.com/Zhishe-Wang/SwinFuse
+    },
     'SRCNN2':{
         'device': device,
         'pre_trained': Path(ModelBasePath,'SRCNN','srcnn_x2-T91-7d6e0623.pth.tar') # https://github.com/Lornatang/SRCNN-PyTorch
