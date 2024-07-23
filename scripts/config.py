@@ -75,6 +75,21 @@ opts = {
         # 'pre_trained': Path(ModelBasePath,'Res2Fusion','Final_epoch_4_1e2.model'),
         'pre_trained': Path(ModelBasePath,'Res2Fusion','Final_epoch_4_1e3.model'),
     },
+    'UNFusion_l1_mean':{
+        'device': device,
+        'pre_trained': Path(ModelBasePath,'UNFusion','UNFusion.model'),
+        'fusion_type': 'l1_mean',#['l1_mean', 'l2_mean', 'linf']
+    },
+    'UNFusion_l2_mean':{
+        'device': device,
+        'pre_trained': Path(ModelBasePath,'UNFusion','UNFusion.model'),
+        'fusion_type': 'l2_mean',#['l1_mean', 'l2_mean', 'linf']
+    },
+    'UNFusion_linf':{
+        'device': device,
+        'pre_trained': Path(ModelBasePath,'UNFusion','UNFusion.model'),
+        'fusion_type': 'linf',#['l1_mean', 'l2_mean', 'linf']
+    },
     'SRCNN2':{
         'device': device,
         'pre_trained': Path(ModelBasePath,'SRCNN','srcnn_x2-T91-7d6e0623.pth.tar') # https://github.com/Lornatang/SRCNN-PyTorch

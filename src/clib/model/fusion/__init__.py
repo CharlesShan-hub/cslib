@@ -5,4 +5,5 @@ from .DIDFuse import *
 from .SwinFuse import *
 from .MFEIF import *
 from .Res2Fusion import *
+from .UNFusion import *
 from .CDDFuse import *
