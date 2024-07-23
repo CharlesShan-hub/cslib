@@ -271,7 +271,7 @@ def get_img_parts8(image, h, w):
     return images
 
 
-def recons_fusion_images1(img_lists, h, w, device):
+def recons_fusion_images1(img_lists, h, w, device, display=False):
     img_f_list = []
     for i in range(len(img_lists[0])):
 
@@ -281,7 +281,8 @@ def recons_fusion_images1(img_lists, h, w, device):
         img4 = img_lists[3][i]
 
         img_f = torch.zeros(1, h, w).to(device)
-        print(img_f.size())
+        if display:
+            print(img_f.size())
 
         img_f[:, 0:224, 0: 224] += img1
         img_f[:, 0:224, 224: w] += img2[:, 0:224, 0:w-224]
@@ -292,7 +293,7 @@ def recons_fusion_images1(img_lists, h, w, device):
     return img_f_list
 
 
-def recons_fusion_images2(img_lists, h, w, device):
+def recons_fusion_images2(img_lists, h, w, device, display=False):
     img_f_list = []
     for i in range(len(img_lists[0])):
 
@@ -306,6 +307,8 @@ def recons_fusion_images2(img_lists, h, w, device):
         img8 = img_lists[7][i]
         img9 = img_lists[8][i]
         img_f = torch.zeros(1, h, w).to(device)
+        if display:
+            print(img_f.size())
 
         img_f[:, 0:224, 0: 224] += img1
         img_f[:, 0:224, 224: 448] += img2
@@ -320,7 +323,7 @@ def recons_fusion_images2(img_lists, h, w, device):
     return img_f_list
 
 
-def recons_fusion_images3(img_lists, h, w, device):
+def recons_fusion_images3(img_lists, h, w, device, display=False):
     img_f_list = []
     for i in range(len(img_lists[0])):
 
@@ -337,6 +340,8 @@ def recons_fusion_images3(img_lists, h, w, device):
         img11 = img_lists[10][i]
         img12 = img_lists[11][i]
         img_f = torch.zeros(1, h, w).to(device)
+        if display:
+            print(img_f.size())
 
         img_f[:, 0:224, 0: 224] += img1
         img_f[:, 0:224, 224: 448] += img2
@@ -355,7 +360,7 @@ def recons_fusion_images3(img_lists, h, w, device):
     return img_f_list
 
 
-def recons_fusion_images4(img_lists, h, w, device):
+def recons_fusion_images4(img_lists, h, w, device, display=False):
     img_f_list = []
     for i in range(len(img_lists[0])):
 
@@ -367,6 +372,8 @@ def recons_fusion_images4(img_lists, h, w, device):
         img6 = img_lists[5][i]
 
         img_f = torch.zeros(1, h, w).to(device)
+        if display:
+            print(img_f.size())
 
         img_f[:, 0:224, 0: 224] += img1
         img_f[:, 0:224, 224: 448] += img2
@@ -379,7 +386,7 @@ def recons_fusion_images4(img_lists, h, w, device):
     return img_f_list
 
 
-def recons_fusion_images5(img_lists, h, w, device):
+def recons_fusion_images5(img_lists, h, w, device, display=False):
     img_f_list = []
     for i in range(len(img_lists[0])):
 
@@ -404,6 +411,8 @@ def recons_fusion_images5(img_lists, h, w, device):
         img19 = img_lists[18][i]
         img20 = img_lists[19][i]
         img_f = torch.zeros(1, h, w).to(device)
+        if display:
+            print(img_f.size())
 
         img_f[:, 0:224, 0: 224] += img1
         img_f[:, 0:224, 224: 448] += img2
@@ -430,7 +439,7 @@ def recons_fusion_images5(img_lists, h, w, device):
     return img_f_list
 
 
-def recons_fusion_images6(img_lists, h, w, device):
+def recons_fusion_images6(img_lists, h, w, device, display=False):
     img_f_list = []
     for i in range(len(img_lists[0])):
 
@@ -438,7 +447,8 @@ def recons_fusion_images6(img_lists, h, w, device):
         img2 = img_lists[1][i]
 
         img_f = torch.zeros(1, h, w).to(device)
-        print(img_f.size())
+        if display:
+            print(img_f.size())
 
         img_f[:, 0:h, 0: 224] += img1[:, 0:h, 0:224]
         img_f[:, 0:h, 224: w] += img2[:, 0:h, 0:w-224]
@@ -447,7 +457,7 @@ def recons_fusion_images6(img_lists, h, w, device):
     return img_f_list
 
 
-def recons_fusion_images7(img_lists, h, w, device):
+def recons_fusion_images7(img_lists, h, w, device, display=False):
     img_f_list = []
     for i in range(len(img_lists[0])):
 
@@ -456,7 +466,8 @@ def recons_fusion_images7(img_lists, h, w, device):
         img3 = img_lists[2][i]
 
         img_f = torch.zeros(1, h, w).to(device)
-        print(img_f.size())
+        if display:
+            print(img_f.size())
 
         img_f[:, 0:h, 0: 224] += img1[:, 0:h, 0:224]
         img_f[:, 0:h, 224: 448] += img2[:, 0:h, 0:224]
@@ -466,7 +477,7 @@ def recons_fusion_images7(img_lists, h, w, device):
     return img_f_list
 
 
-def recons_fusion_images8(img_lists, h, w, device):
+def recons_fusion_images8(img_lists, h, w, device, display=False):
     img_f_list = []
     for i in range(len(img_lists[0])):
 
@@ -475,7 +486,8 @@ def recons_fusion_images8(img_lists, h, w, device):
         img3 = img_lists[2][i]
 
         img_f = torch.zeros(1, h, w).to(device)
-        print(img_f.size())
+        if display:
+            print(img_f.size())
 
         img_f[:, 0:h, 0: 224] += img1[:, 0:h, 0:224]
         img_f[:, 0:h, 224: 448] += img2[:, 0:h, 0:224]
