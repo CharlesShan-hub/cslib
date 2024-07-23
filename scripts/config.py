@@ -90,6 +90,10 @@ opts = {
         'pre_trained': Path(ModelBasePath,'UNFusion','UNFusion.model'),
         'fusion_type': 'linf',#['l1_mean', 'l2_mean', 'linf']
     },
+    'CoCoNet':{
+        'device': device,
+        'pre_trained': Path(ModelBasePath,'CoCoNet','latest.pth'), # https://github.com/runjia0124/CoCoNet
+    },
     'SRCNN2':{
         'device': device,
         'pre_trained': Path(ModelBasePath,'SRCNN','srcnn_x2-T91-7d6e0623.pth.tar') # https://github.com/Lornatang/SRCNN-PyTorch
