@@ -68,6 +68,13 @@ opts = {
         'device': device,
         'pre_trained': Path(ModelBasePath,'MFEIF','default.pth'), # https://github.com/JinyuanLiu-CV/MFEIF
     },
+    'Res2Fusion':{
+        'device': device,
+        # 'pre_trained': Path(ModelBasePath,'Res2Fusion','Final_epoch_4_1e0.model'), # https://github.com/Zhishe-Wang/Res2Fusion
+        # 'pre_trained': Path(ModelBasePath,'Res2Fusion','Final_epoch_4_1e1.model'),
+        # 'pre_trained': Path(ModelBasePath,'Res2Fusion','Final_epoch_4_1e2.model'),
+        'pre_trained': Path(ModelBasePath,'Res2Fusion','Final_epoch_4_1e3.model'),
+    },
     'SRCNN2':{
         'device': device,
         'pre_trained': Path(ModelBasePath,'SRCNN','srcnn_x2-T91-7d6e0623.pth.tar') # https://github.com/Lornatang/SRCNN-PyTorch
