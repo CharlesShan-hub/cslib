@@ -94,6 +94,10 @@ opts = {
         'device': device,
         'pre_trained': Path(ModelBasePath,'CoCoNet','latest.pth'), # https://github.com/runjia0124/CoCoNet
     },
+    'DDFM':{
+        'device': device,
+        'pre_trained': Path(ModelBasePath,'DDFM','256x256_diffusion_uncond.pt'), # https://github.com/openai/guided-diffusion
+    },
     'SRCNN2':{
         'device': device,
         'pre_trained': Path(ModelBasePath,'SRCNN','srcnn_x2-T91-7d6e0623.pth.tar') # https://github.com/Lornatang/SRCNN-PyTorch
