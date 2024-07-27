@@ -1,12 +1,4 @@
-# a = set([1,1,2,3])
-# print(a) # {1, 2, 3}
+from clib.utils import save_array_to_mat,save_tensor_to_mat,glance
+from clib.metrics.fusion.utils import ir
 
-# b = set([2,3,4,5,6])
-# print(b) # {2, 3, 4, 5, 6}
-
-# print(a.union(b)) # {1, 2, 3, 4, 5, 6}
-# print(a|b)        # {1, 2, 3, 4, 5, 6}
-
-# print(a.intersection(b)) # {2, 3}
-# print(a&b)               # {2, 3}
-
+save_tensor_to_mat(ir)
