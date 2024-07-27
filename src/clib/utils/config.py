@@ -1,3 +1,9 @@
+"""
+Config Utils Module
+
+Contains Base Options class.
+"""
+
 from typing import Dict, Any
 from argparse import Namespace
 

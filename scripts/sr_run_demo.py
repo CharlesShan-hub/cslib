@@ -6,7 +6,7 @@ import click
 
 import clib.model.sr as sr
 import clib.data.sr as sr_data
-from clib.utils import save_tensor_to_img
+from clib.utils import save_array_to_img
 import config
 
 '''
@@ -61,7 +61,7 @@ def main(dataset, root_dir_base, root_dir_path, upscale_factor, des_dir, des_suf
             img_res_path = Path(des_dir,Path(batch['gt'][0]).name)
             if img_res_path.exists(): continue
             img = algorithm.inference(model,batch['lr'][0],batch['gt'][0],opts)
-            save_tensor_to_img(img,img_res_path)
+            save_array_to_img(img,img_res_path)
 
 if __name__ == '__main__':
     main()
