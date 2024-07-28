@@ -1,6 +1,7 @@
 from .config import *
 from .model import *
 from .train import train
+from .generator import generate
 # from .model
 
 

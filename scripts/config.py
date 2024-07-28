@@ -113,7 +113,7 @@ opts = {
     'GAN':{
         'dataset_path': Path(TorchVisionPath),
         'images_path': Path(ModelBasePath,'GAN','images'),
-        'models_path': Path(ModelBasePath,'GAN','epoch2'),
-        'pre_trained': Path(ModelBasePath,'GAN','gan.model')
+        'models_path': Path(ModelBasePath,'GAN','epoch200'),
+        'pre_trained': Path(ModelBasePath,'GAN','epoch200','generator.pth')
     }
 }
