@@ -109,5 +109,11 @@ opts = {
     'SRCNN4':{
         'device': device,
         'pre_trained': Path(ModelBasePath,'SRCNN','srcnn_x4-T91-7c460643.pth.tar') # https://github.com/Lornatang/SRCNN-PyTorch
+    },
+    'GAN':{
+        'dataset_path': Path(TorchVisionPath),
+        'images_path': Path(ModelBasePath,'GAN','images'),
+        'models_path': Path(ModelBasePath,'GAN','epoch2'),
+        'pre_trained': Path(ModelBasePath,'GAN','gan.model')
     }
 }
