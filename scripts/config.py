@@ -26,6 +26,11 @@ ModelBasePath = Path(data_base_path, "Model").__str__()
 
 # network config
 opts = {
+    'LeNet':{
+        'TorchVisionPath': TorchVisionPath,
+        'device': device,
+        'models_path': Path(ModelBasePath,'LeNet','MNIST'),
+    },
     'DeepFuse':{
         'device': device,
         'pre_trained': Path(ModelBasePath,'DeepFuse','DeepFuse_model.pth'), # pytorch复现版的, https://github.com/SunnerLi/DeepFuse.pytorch

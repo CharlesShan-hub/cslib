@@ -6,12 +6,15 @@ Contains Base Options class.
 
 from typing import Dict, Any
 from argparse import Namespace
+from pathlib import Path
+from os import makedirs
+import json
 
 __all__ = [
     'Options'
 ]
 
-class Options(object):
+class Options(Namespace):
     """
     Base Options class.
 
@@ -45,7 +48,7 @@ class Options(object):
     """
 
     def __init__(self, name: str = 'Undefined', params: Dict[str, Any] = {}):
-        self.opts = Namespace()
+        # self.opts = Namespace()
         self.name = name
         if len(params) > 0:
             self.update(params)
@@ -59,7 +62,7 @@ class Options(object):
         """
         print("[ %s ] %s" % (self.name,string))
 
-    def presentParameters(self, args_dict: Dict[str, Any]):
+    def presentParameters(self):
         """
         Print the parameters setting line by line.
 
@@ -67,8 +70,8 @@ class Options(object):
             args_dict (Dict[str, Any]): A dictionary containing the command line arguments.
         """
         self.INFO("========== Parameters ==========")
-        for key in sorted(args_dict.keys()):
-            self.INFO("{:>15} : {}".format(key, args_dict[key]))
+        for key in sorted(vars(self).keys()):
+            self.INFO("{:>15} : {}".format(key, getattr(self, key)))
         self.INFO("===============================")
 
     def update(self, parmas: Dict[str, Any] = {}):
@@ -79,7 +82,7 @@ class Options(object):
             parmas (Dict[str, Any]): A dictionary containing the updated command line arguments.
         """
         for (key, value) in parmas.items():
-            setattr(self.opts, key, value)
+            setattr(self, key, value)
     
     def parse(self, parmas: Dict[str, Any] = {}, present: bool = True):
         """
@@ -91,5 +94,27 @@ class Options(object):
         """
         self.update(parmas)
         if present:
-            self.presentParameters(vars(self.opts))
-        return self.opts
+            self.presentParameters()
+        return self
+    
+    def save(self, models_path: str = ''):
+        """
+        Save Config when train is over.
+
+        Args:
+            params
+        """
+        if models_path == '':
+            models_path = self.models_path
+        models_path = Path(models_path) # type: ignore
+        if models_path.exists() == False: # type: ignore
+            makedirs(models_path)
+        with open(Path(models_path,'config.txt'), 'w') as f:
+            for key in sorted(vars(self).keys()):
+                f.write("{:>15} : {}\n".format(key, getattr(self, key)))
+        # print(self)
+    
+    # def __str__(self):
+    #     print({key: getattr(self, key) for key in vars(self).keys()})
+    #     return json.dumps({key: getattr(self, key) for key in vars(self).keys()},indent=4)
+        

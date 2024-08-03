@@ -13,7 +13,7 @@ def path_to_gray(path: str) -> Image.Image:
     """
     Load an image from the given path and convert it to Gray format.
     
-    Output: Gary image, range from 0 to 255, channel number is 2
+    Output: Gary image, range from 0 to 255, channel number is 1
     """
     image = np.array(Image.open(path))
     if len(image.shape) == 3:
@@ -51,3 +51,12 @@ def ycbcr_to_rgb(image: Image.Image) -> Image.Image:
     image_np = np.array(image)*1.0
     image_rgb = color.ycbcr2rgb(image_np)*255.0
     return Image.fromarray(image_rgb.astype(np.uint8), mode="RGB")
+
+
+# def rgb_to_ycbcr(image: Image.Image) -> Image.Image:
+#     """
+#     Load RGB format Image and convert to YCbCr format.
+#     """
+#     image_np = np.array(image)*1.0
+#     image_rgb = color.rgb2ycbcr(image_np)*255.0
+#     return Image.fromarray(image_rgb.astype(np.uint8), mode="RGB")
