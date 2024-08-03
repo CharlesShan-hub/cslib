@@ -43,7 +43,7 @@ def main(name: str, field: str, param: List[Tuple[str, str, str]]) -> None:
     opts.update({k: eval(t)(v) for k, v, t in param})
 
     # Trigger the training process
-    algorithm.train(opts)
+    algorithm.inference(opts)
 
 if __name__ == '__main__':
     main()

@@ -29,7 +29,14 @@ opts = {
     'LeNet':{
         'TorchVisionPath': TorchVisionPath,
         'device': device,
-        'models_path': Path(ModelBasePath,'LeNet','MNIST'),
+        'models_path': Path(ModelBasePath,'LeNet','MNIST','new'),
+        'pre_trained': Path(ModelBasePath,'LeNet','MNIST','9839_m1_d003','model.pth'),
+    },
+    'AlexNet':{
+        'TorchVisionPath': TorchVisionPath,
+        'device': device,
+        'models_path': Path(ModelBasePath,'AlexNet','MNIST','new'),
+        'pre_trained': Path(ModelBasePath,'AlexNet','MNIST','9839_m1_d003','model.pth'),
     },
     'DeepFuse':{
         'device': device,

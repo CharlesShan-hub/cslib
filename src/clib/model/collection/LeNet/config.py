@@ -19,6 +19,8 @@ class TrainOptions(Options):
             'epochs': 1, 
             'batch_size': 64, 
             'lr': 0.001, 
+            'repeat': 2,
+            'seed': 42
         })
 
 
@@ -36,4 +38,5 @@ class TestOptions(Options):
         self.update({
             'pre_trained': 'model.pth',
             'device': 'cuda' if is_available() else 'cpu',
+            'batch_size': 64, 
         })
