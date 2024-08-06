@@ -20,7 +20,8 @@ class TrainOptions(Options):
             'batch_size': 64, 
             'lr': 0.001, 
             'repeat': 2,
-            'seed': 42
+            'seed': 42,
+            'train_mode': ['Holdout','K-fold'][0]
         })
 
 
