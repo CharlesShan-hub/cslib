@@ -107,7 +107,7 @@ class Options(Namespace):
         Args:
             params
         """
-        src = self.src if src == ''
+        src = self.ResBasePath if src == '' else src
         _src: Path = Path(src) # type: ignore
         if _src.exists() == False:
             makedirs(_src)

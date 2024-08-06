@@ -6,7 +6,7 @@ python $PYTHON_SCRIPT \
     --name "LeNet" \
     --field "classical" \
     --param lr 0.03 float \
-    --param epochs 3 int \
+    --param epochs -1 int \
     --param repeat 3 int \
     --param factor 0.1 float \
     --param seed 42 int

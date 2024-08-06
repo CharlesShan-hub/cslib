@@ -42,7 +42,8 @@ class BaseTrainer:
     
     def train_Holdout(self):
         def train_in_epoch(pbar,epoch):
-            running_loss = torch.tensor(0.0)
+            running_loss = torch.tensor(0.0).to(self.opts.device)
+            batch_index = 0
             for images, labels in pbar:
                 images, labels = images.to(self.opts.device), labels.to(self.opts.device)
                 self.optimizer.zero_grad()
@@ -50,9 +51,10 @@ class BaseTrainer:
                 loss = self.criterion(outputs, labels)
                 loss.backward()
                 self.optimizer.step()
+                batch_index += 1
                 running_loss += loss
                 pbar.set_description(f"Epoch [{epoch}/{self.opts.epochs if self.opts.epochs != -1 else '∞'}]")
-                pbar.set_postfix(loss=(running_loss.item() / (epoch * len(self.train_loader) + 1))) # type: ignore
+                pbar.set_postfix(loss=(running_loss.item() / batch_index))
             return running_loss / len(self.train_loader) # type: ignore
         
         def train_of_epoch():
@@ -61,7 +63,6 @@ class BaseTrainer:
             while True:
                 epoch += 1
                 self.model.train()
-                running_loss = 0.0
                 pbar = tqdm(self.train_loader, total=len(self.train_loader)) # type: ignore
                 epoch_loss = train_in_epoch(pbar,epoch)
                 print(f"Epoch [{epoch}/{self.opts.epochs if self.opts.epochs != -1 else '∞'}], Loss: {epoch_loss:.4f}")
