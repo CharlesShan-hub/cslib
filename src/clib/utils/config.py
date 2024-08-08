@@ -171,4 +171,22 @@ class ConfigDict(UserDict):
         for item in check_list:
             if item not in value:
                 value[item] = getattr(self,item)
-        super().__setitem__(key, value)
+        
+        # for item in ['ResBasePath','pre_trained']:
+        for item in list(value.keys()):
+            if item.startswith('*'):
+                temps = value[item] if isinstance(value[item],list) else [value[item]]
+                for i,temp in enumerate(temps):
+                    part_list = []
+                    for part in Path(temp).parts:
+                        if not part.startswith('@'):
+                            part_list.append(part)
+                        else:
+                            if hasattr(self,part[1:]):
+                                part_list.append(getattr(self,part[1:]))
+                            else:
+                                part_list.append(value[part[1:]])
+                    temps[i] = Path(*part_list).__str__()
+                value[item[1:]] = temps[0] if len(temps)==1 else temps
+                
+        super().__setitem__(key, {k: value[k] for k in value if not k.startswith('*')})

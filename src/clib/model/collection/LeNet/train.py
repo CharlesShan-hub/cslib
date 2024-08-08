@@ -39,6 +39,4 @@ class Trainer(BaseTrainer):
 def train(opts = {}, model = None, criterion = None, optimizer = None,
           train_loader = None, test_loader = None):
     trainer = Trainer(opts)
-    # print(trainer.opts.__str__())
-
     trainer.train()
