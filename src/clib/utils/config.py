@@ -111,7 +111,7 @@ class Options(Namespace):
         _src: Path = Path(src) # type: ignore
         if _src.exists() == False:
             makedirs(_src)
-        with open(Path(_src,'config.txt'), 'w') as f:
+        with open(Path(_src,'config.json'), 'w') as f:
             f.write(self.__str__())
     
     def __str__(self):
@@ -172,7 +172,6 @@ class ConfigDict(UserDict):
             if item not in value:
                 value[item] = getattr(self,item)
         
-        # for item in ['ResBasePath','pre_trained']:
         for item in list(value.keys()):
             if item.startswith('*'):
                 temps = value[item] if isinstance(value[item],list) else [value[item]]

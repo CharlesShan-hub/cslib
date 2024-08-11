@@ -3,7 +3,7 @@
 PYTHON_SCRIPT="scripts/general_train.py"
 
 python $PYTHON_SCRIPT \
-    --name "LeNet" \
+    --name "AlexNet" \
     --field "classical" \
     --param *ResPath "@ModelBasePath/LeNet/MNIST/" str\
     --param *ResBasePath "@ResPath/temp" str \

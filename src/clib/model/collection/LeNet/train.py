@@ -12,7 +12,7 @@ class Trainer(BaseTrainer):
         super().__init__(opts,TrainOptions,**kwargs)
     
     def default_model(self):
-        return Model(use_max_pool=False,use_relu=False)
+        return Model(use_max_pool=self.opts.use_max_pool,use_relu=self.opts.use_relu)
     
     def default_criterion(self):
         return nn.CrossEntropyLoss()
@@ -36,7 +36,6 @@ class Trainer(BaseTrainer):
         return DataLoader(dataset=test_dataset, batch_size=self.opts.batch_size, shuffle=False)
 
     
-def train(opts = {}, model = None, criterion = None, optimizer = None,
-          train_loader = None, test_loader = None):
-    trainer = Trainer(opts)
+def train(opts = {}, **kwargs):
+    trainer = Trainer(opts, **kwargs)
     trainer.train()

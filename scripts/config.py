@@ -1,4 +1,3 @@
-from pathlib import Path
 from clib.utils import ConfigDict
         
 opts = ConfigDict([
@@ -7,10 +6,6 @@ opts = ConfigDict([
             '/Users/kimshan/resources/DataSets'
         ])
 
-# opts['LeNet'] = {
-#     #'ResBasePath': Path(opts.ModelBasePath,'LeNet','MNIST','temp'),
-#     'pre_trained': Path(opts.ModelBasePath,'LeNet','MNIST','9839_m1_d003','model.pth'),
-# }
 # opts['AlexNet'] = {
 #     'ResBasePath': Path(opts.ModelBasePath,'AlexNet','MNIST','new'),
 #     'pre_trained': Path(opts.ModelBasePath,'AlexNet','MNIST','9839_m1_d003','model.pth'),
