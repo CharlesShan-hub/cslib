@@ -36,6 +36,25 @@ class AlexNet(nn.Module):
             nn.Linear(4096, num_classes),
         )
 
+        # 初始化权重和偏差
+        nn.init.kaiming_normal_(self.features[0].weight, mode='fan_out', nonlinearity='relu')
+        nn.init.constant_(self.features[0].bias, 0)
+        for m in self.features[1:]:
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu')
+                nn.init.constant_(m.bias, 0)
+
+        for m in self.classifier:
+            if isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight)
+                nn.init.constant_(m.bias, 0)
+
+        # 批量归一化层的权重和偏差
+        for m in self.features[1:]:
+            if isinstance(m, nn.BatchNorm2d):
+                nn.init.constant_(m.weight, 1)
+                nn.init.constant_(m.bias, 0)
+
     def forward(self, x):
         x = self.features(x)
         x = self.avgpool(x)

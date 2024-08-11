@@ -4,7 +4,6 @@ PYTHON_SCRIPT="scripts/general_train.py"
 
 python $PYTHON_SCRIPT \
     --name "LeNet" \
-    --field "classical" \
     --param *ResPath "@ModelBasePath/LeNet/MNIST/" str\
     --param *ResBasePath "@ResPath/temp" str \
     --param lr 0.1 float \

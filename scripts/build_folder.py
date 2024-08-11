@@ -74,6 +74,7 @@ def main(name,path,title,link,arxiv,author):
             f"            'epochs': 200, ",
             f"            'batch_size': 64, ",
             f"            'lr': 0.0002, ",
+            f"            'train_mode': ['Holdout','K-fold'][0],"
              "        })",
             f'',
             f'',
@@ -101,6 +102,7 @@ def main(name,path,title,link,arxiv,author):
             f'import torch.optim as optim',
             f'from torchvision import datasets, transforms',
             f'from torch.utils.data import DataLoader\n',
+            f'from .utils import BaseTrainer'
             f'from .config import TrainOptions',
             f'from .model import {name} as Model\n'
              'def train(opts={}):',
@@ -179,7 +181,10 @@ def main(name,path,title,link,arxiv,author):
             f'    def forward(self, x):',
             f'        return x'
         ])
-    build_file(Path(model_path,"utils.py"))
+    build_file(Path(model_path,"utils.py"),
+        [
+            f'from ....train import BaseTrainer'
+        ])
 
 
 if __name__ == '__main__':

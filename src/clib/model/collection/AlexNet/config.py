@@ -17,9 +17,11 @@ class TrainOptions(Options):
             'pre_trained': 'model.pth',
             'device': 'cuda' if is_available() else 'cpu',
             'dataset_path': '../../data/mnist', 
-            'epochs': 200, 
-            'batch_size': 64, 
-            'lr': 0.0002, 
+            'epochs': 100, 
+            'batch_size': 128, # 128 or 256 in paper
+            'lr': 0.01, 
+            'momentum':0.9, # SGD
+            'train_mode': ['Holdout','K-fold'][0]
         })
 
 
