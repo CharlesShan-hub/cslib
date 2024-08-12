@@ -1,7 +1,7 @@
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets, transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 
 from .utils import BaseTrainer
 from .config import TrainOptions
@@ -29,8 +29,18 @@ class Trainer(BaseTrainer):
         ])
     
     def default_train_loader(self):
-        train_dataset = datasets.MNIST(root=self.opts.TorchVisionPath, train=True, download=True, transform=self.transform)
+        dataset = datasets.MNIST(root=self.opts.TorchVisionPath, train=True, download=True, transform=self.transform)
+        train_size = int(0.8 * len(dataset))  # 80% for training
+        val_size = len(dataset) - train_size   # 20% for validation
+        train_dataset, _ = random_split(dataset, [train_size, val_size])
         return DataLoader(dataset=train_dataset, batch_size=self.opts.batch_size, shuffle=True)
+    
+    def default_val_loader(self):
+        dataset = datasets.MNIST(root=self.opts.TorchVisionPath, train=True, download=True, transform=self.transform)
+        train_size = int(0.8 * len(dataset))  # 80% for training
+        val_size = len(dataset) - train_size   # 20% for validation
+        _, val_size = random_split(dataset, [train_size, val_size])
+        return DataLoader(dataset=val_size, batch_size=self.opts.batch_size, shuffle=False)
     
     def default_test_loader(self):
         test_dataset = datasets.MNIST(root=self.opts.TorchVisionPath, train=False, download=True, transform=self.transform)

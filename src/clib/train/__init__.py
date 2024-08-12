@@ -10,6 +10,7 @@ class BaseTrainer:
     def __init__(self, opts, TrainOptions, **kwargs):
         # Just make Pyright don't show wrong...
         self.opts = TrainOptions().parse(opts,present=False)
+        self.set_seed()
         self.model = torch.nn.Linear(256, 120)
         self.criterion = torch.nn.CrossEntropyLoss()
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.opts.lr)
@@ -29,12 +30,18 @@ class BaseTrainer:
         self.writer = SummaryWriter(log_dir=self.opts.ResBasePath)
 
         # Init Attr
-        build_list = ['model','criterion','optimizer','transform','train_loader','test_loader']
+        build_list = ['model','criterion','optimizer','transform','train_loader','test_loader','val_loader']
         for item in build_list:
             value = kwargs[item] if item in kwargs else getattr(self, f'default_{item}')()
             assert(value is not None)
             setattr(self,item,value)
         self.model.to(self.opts.device)
+    
+    def set_seed(self):
+        torch.manual_seed(self.opts.seed) # 设置随机种子（仅在CPU上）
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(self.opts.seed)
+            torch.cuda.set_device(0)  # 假设使用第0号GPU
     
     def adjust_learning_rate(self,factor=0.1):
         for param_group in self.optimizer.param_groups:
@@ -57,28 +64,32 @@ class BaseTrainer:
                 pbar.set_postfix(loss=(running_loss.item() / batch_index))
             return running_loss / len(self.train_loader) # type: ignore
         
+        def validate_in_epoch():
+            val_loss = torch.tensor(0.0).to(self.opts.device)
+            with torch.no_grad():
+                for images, labels in self.val_loader: # type: ignore
+                    images, labels = images.to(self.opts.device), labels.to(self.opts.device)
+                    outputs = self.model(images)
+                    val_loss += self.criterion(outputs, labels).item()
+            return val_loss / len(self.val_loader) # type: ignore
+        
         def train_of_epoch():
             recent_losses = deque(maxlen=3)
             epoch = 0
             while True:
                 epoch += 1
-                self.model.train()
                 pbar = tqdm(self.train_loader, total=len(self.train_loader)) # type: ignore
+                self.model.train()
                 epoch_loss = train_in_epoch(pbar,epoch)
-                print(f"Epoch [{epoch}/{self.opts.epochs if self.opts.epochs != -1 else '∞'}], Loss: {epoch_loss:.4f}")
-
-                # Log loss to TensorBoard
+                self.model.eval()
+                val_loss = validate_in_epoch()
+                print(f"Epoch [{epoch}/{self.opts.epochs if self.opts.epochs != -1 else '∞'}], Train Loss: {epoch_loss:.4f}, Val Loss: {val_loss:.4f}")
                 self.writer.add_scalar('Loss/train', epoch_loss, epoch)
-                
-                # Store the current epoch's loss
+                self.writer.add_scalar('Loss/val', val_loss, epoch)
                 recent_losses.append(epoch_loss)
-
-                # Check if the loss has not decreased for three consecutive epochs
                 if len(recent_losses) == 3 and all(x <= y for x, y in zip(recent_losses, list(recent_losses)[1:])):
                     print("Training has converged. Stopping...")
                     break
-
-                # Stop if the number of epochs is reached (but only if opts.epochs is not -1)
                 if self.opts.epochs != -1 and epoch >= self.opts.epochs:
                     break
         

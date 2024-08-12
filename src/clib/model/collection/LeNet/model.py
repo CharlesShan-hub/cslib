@@ -34,6 +34,16 @@ class LeNet(nn.Module):
             nn.Linear(84, num_classes)
         )
 
+        # 初始化权重和偏差
+        for m in self.modules():
+            if isinstance(m, nn.Conv2d):
+                nn.init.kaiming_normal_(m.weight, mode='fan_out', nonlinearity='relu' if m.bias is not None else 'leaky_relu')
+                if m.bias is not None:
+                    nn.init.constant_(m.bias, 0)
+            elif isinstance(m, nn.Linear):
+                nn.init.xavier_normal_(m.weight)
+                nn.init.constant_(m.bias, 0)
+
     def forward(self, x):
         # 批量数自适应得到，通道数为1，图片为28X28
         x = x.view(-1,1,28,28)
