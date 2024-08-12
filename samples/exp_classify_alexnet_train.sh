@@ -11,5 +11,6 @@ python $PYTHON_SCRIPT \
     --param repeat 6 int \
     --param factor 0.5 float \
     --param seed 42 int \
+    --param val 0.2 float \
     --param batch 128 int \
     --param num_classes 10 int # 因为是 MNIST
