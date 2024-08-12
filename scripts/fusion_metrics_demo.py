@@ -5,7 +5,7 @@ import click
 
 import clib.metrics.fusion as metrics
 from clib.data import fusion as fusion_data
-import config
+from config import opts
 
 '''
 测试融合算法的指标
@@ -18,12 +18,12 @@ import config
 '''
 @click.command()
 @click.option('--database','-n',default='MetricsToy', help='Name of images database.')
-@click.option('--root_dir','-r',default=Path(config.FusionPath, 'Toy'), help='Root directory containing the dataset.')
+@click.option('--root_dir','-r',default=Path(opts['_'].FusionPath, 'Toy'), help='Root directory containing the dataset.')
 @click.option('--db_name','-n',default='metrics.db', help='Name of database file.')
 @click.option('--algorithm','-a',default=(),multiple=True, help='Fusion algorithm.')
 @click.option('--img_id','-i',default=(),multiple=True, help='Image IDs to compute metrics for.')
 @click.option('--metric_group','-m',default='VIFB', help='Methods Group to compute metrics for.')
-@click.option('--device','-d',default=config.device, help='Device to compute metrics on.')
+@click.option('--device','-d',default=opts['_'].device, help='Device to compute metrics on.')
 @click.option('--update','-u',default=False, help='Update Metrics that calculated before.')
 def main(database, root_dir, db_name, metric_group, algorithm, img_id, device, update):
     # Modify Params

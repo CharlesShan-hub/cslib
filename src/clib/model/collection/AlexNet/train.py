@@ -30,15 +30,15 @@ class Trainer(BaseTrainer):
     
     def default_train_loader(self):
         dataset = datasets.MNIST(root=self.opts.TorchVisionPath, train=True, download=True, transform=self.transform)
-        train_size = int(0.8 * len(dataset))  # 80% for training
-        val_size = len(dataset) - train_size   # 20% for validation
+        val_size = int(self.opts.val * len(dataset)) 
+        train_size = len(dataset) - val_size
         train_dataset, _ = random_split(dataset, [train_size, val_size])
         return DataLoader(dataset=train_dataset, batch_size=self.opts.batch_size, shuffle=True)
     
     def default_val_loader(self):
         dataset = datasets.MNIST(root=self.opts.TorchVisionPath, train=True, download=True, transform=self.transform)
-        train_size = int(0.8 * len(dataset))  # 80% for training
-        val_size = len(dataset) - train_size   # 20% for validation
+        val_size = int(self.opts.val * len(dataset))
+        train_size = len(dataset) - val_size
         _, val_size = random_split(dataset, [train_size, val_size])
         return DataLoader(dataset=val_size, batch_size=self.opts.batch_size, shuffle=False)
     

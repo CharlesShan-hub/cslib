@@ -31,17 +31,17 @@ import config
 @click.option('--img_id','-i',default=(),multiple=True, help='Image IDs to compute metrics for.')
 def main(dataset, root_dir_base, root_dir_path, des_dir, des_suffix, algorithm_name, algorithm_config, pre_trained, img_id):
     # load Algorithm Module and Options
+    assert hasattr(fusion, algorithm_name)
+    algorithm = getattr(fusion, algorithm_name)
+    assert hasattr(config.opts,algorithm_config)
+    opts = algorithm.TestOptions().parse(config.opts[algorithm_config])
     assert hasattr(fusion_data, dataset)
     FusionDataSet = getattr(fusion_data, dataset)
-    root_dir = Path(config.FusionPath if root_dir_base=="" else root_dir_base,root_dir_path)
+    root_dir = Path(opts.FusionPath if root_dir_base=="" else root_dir_base,root_dir_path)
     for path in [root_dir,Path(root_dir,'ir'),Path(root_dir,'vis')]:
         assert path.exists()
     des_dir = root_dir if des_dir == '' else des_dir
     if des_dir.exists() == False: des_dir.mkdir()
-    assert hasattr(fusion, algorithm_name)
-    algorithm = getattr(fusion, algorithm_name)
-    assert algorithm_config in config.opts
-    opts = algorithm.TestOptions().parse(config.opts[algorithm_config])
     if pre_trained[0] != '':
         setattr(opts, 'pre_trained', pre_trained[0] if len(pre_trained) == 1 else pre_trained)
     img_id = None if img_id == () else [str(_id) for _id in img_id]

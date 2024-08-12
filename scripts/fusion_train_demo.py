@@ -13,7 +13,7 @@ import config
 opts = Method.TrainOptions().parse(config.opts['DeepFuse'])
 
 dataset = FusionToy(
-        root_dir=Path(config.FusionPath,'Toy'),
+        root_dir=Path(config.opts['DeepFuse'].FusionPath,'Toy'),
         transform=Method.train_trans(opts),
         only_path=False
     )
