@@ -64,7 +64,7 @@ class TestOptions(Options):
         ----------------------------------------------------------------------------------------------------------------------
     """
     def __init__(self):
-        super().__init__('DenseFuse')
+        super().__init__('DeepFuse')
         self.update({
             'pre_trained': 'model.pth',
             'H': 400,

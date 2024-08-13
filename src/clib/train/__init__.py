@@ -2,21 +2,41 @@ import torch
 from pathlib import Path
 from tqdm import tqdm
 from collections import deque
+from argparse import Namespace
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from torch.utils.tensorboard.writer import SummaryWriter
+from torchvision import transforms
+from torch.utils.data import DataLoader
 
-class BaseTrainer:
+class Components:
+    def __init__(self) -> None:
+        self.opts = Namespace()
+        self._model = torch.nn.Linear(256, 120)
+        self.criterion = torch.nn.Linear(256, 120)
+        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.001)
+        self.transform = transforms.ToTensor()
+        empty_dataset = torch.utils.data.Dataset()
+        self.train_loader = DataLoader(dataset=empty_dataset, batch_size=64, shuffle=True)
+        self.val_loader = DataLoader(dataset=empty_dataset, batch_size=64, shuffle=True)
+        self.test_loader = DataLoader(dataset=empty_dataset, batch_size=64, shuffle=True)
+    
+    @property
+    def model(self):
+        return self._model
+
+    @model.setter
+    def model(self, value):
+        if not isinstance(value, torch.nn.Module):
+            raise ValueError("model must be torch.nn.modules")
+        self._model = value.to(self.opts.device)
+
+
+class BaseTrainer(Components):
     def __init__(self, opts, TrainOptions, **kwargs):
-        # Just make Pyright don't show wrong...
+        super().__init__()
         self.opts = TrainOptions().parse(opts,present=False)
         self.set_seed()
-        self.model = torch.nn.Linear(256, 120)
-        self.criterion = torch.nn.CrossEntropyLoss()
-        self.optimizer = torch.optim.Adam(self.model.parameters(), lr=self.opts.lr)
-        self.transform = None
-        self.train_loader = None
-        self.test_loader = None
 
         # Build Folder
         assert(hasattr(self.opts,'ResBasePath'))
@@ -30,12 +50,13 @@ class BaseTrainer:
         self.writer = SummaryWriter(log_dir=self.opts.ResBasePath)
 
         # Init Attr
-        build_list = ['model','criterion','optimizer','transform','train_loader','test_loader','val_loader']
+        build_list = ['model','criterion','optimizer','transform','train_loader','val_loader','test_loader']
         for item in build_list:
+            if item in kwargs:
+                setattr(self,item,value)
             value = kwargs[item] if item in kwargs else getattr(self, f'default_{item}')()
             assert(value is not None)
             setattr(self,item,value)
-        self.model.to(self.opts.device)
     
     def set_seed(self):
         torch.manual_seed(self.opts.seed) # 设置随机种子（仅在CPU上）
@@ -62,23 +83,23 @@ class BaseTrainer:
                 running_loss += loss
                 pbar.set_description(f"Epoch [{epoch}/{self.opts.epochs if self.opts.epochs != -1 else '∞'}]")
                 pbar.set_postfix(loss=(running_loss.item() / batch_index))
-            return running_loss / len(self.train_loader) # type: ignore
+            return running_loss / len(self.train_loader)
         
         def validate_in_epoch():
             val_loss = torch.tensor(0.0).to(self.opts.device)
             with torch.no_grad():
-                for images, labels in self.val_loader: # type: ignore
+                for images, labels in self.val_loader:
                     images, labels = images.to(self.opts.device), labels.to(self.opts.device)
                     outputs = self.model(images)
                     val_loss += self.criterion(outputs, labels).item()
-            return val_loss / len(self.val_loader) # type: ignore
+            return val_loss / len(self.val_loader)
         
         def train_of_epoch():
             recent_losses = deque(maxlen=3)
             epoch = 0
             while True:
                 epoch += 1
-                pbar = tqdm(self.train_loader, total=len(self.train_loader)) # type: ignore
+                pbar = tqdm(self.train_loader, total=len(self.train_loader))
                 self.model.train()
                 epoch_loss = train_in_epoch(pbar,epoch)
                 self.model.eval()
@@ -111,7 +132,7 @@ class BaseTrainer:
         with torch.no_grad():
             correct = 0
             total = 0
-            for images, labels in self.test_loader: # type: ignore
+            for images, labels in self.test_loader:
                 images, labels = images.to(self.opts.device), labels.to(self.opts.device)
                 outputs = self.model(images)
                 _, predicted = torch.max(outputs.data, 1)

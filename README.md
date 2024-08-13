@@ -13,11 +13,12 @@
 - ./src/clib/model 用于存放具体模型
 - ./src/clib/model/collections/some_model 这是具体的某一个模型
 
-配置文件:
+配置文件:  
+(sh 文件 --> ./scripts/config.py --> ./model/.../config.py)
 
 - 每一个算法都有自己的配置文件, 在`./src/clib/model/collections/some_model/config.py`, 这里是默认的, 原论文中的参数
 - 每一个算法都可以在`./samples`里边的 shell 脚本中再写入调用时候的参数, 这些参数会覆盖默认参数
-- 在`./scripts/config.py`中定义所有模型公共的参数, 比如数据集存放的文件夹
+- 在`./scripts/config.py`中定义所有模型公共的参数, 比如数据集存放的文件夹，另外一些通用脚本比如跑模型等等不能没给算法穿一遍参数的，也要在这里统一规定参数
 
 数据集文件夹结构(举例):
 

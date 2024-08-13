@@ -10,7 +10,7 @@ from .model import AlexNet as Model
 class Trainer(BaseTrainer):
     def __init__(self, opts, **kwargs):
         super().__init__(opts,TrainOptions,**kwargs)
-    
+        
     def default_model(self):
         return Model(num_classes=self.opts.num_classes)
     

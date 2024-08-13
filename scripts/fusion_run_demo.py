@@ -33,13 +33,13 @@ def main(dataset, root_dir_base, root_dir_path, des_dir, des_suffix, algorithm_n
     # load Algorithm Module and Options
     assert hasattr(fusion, algorithm_name)
     algorithm = getattr(fusion, algorithm_name)
-    assert hasattr(config.opts,algorithm_config)
+    assert algorithm_config in config.opts
     opts = algorithm.TestOptions().parse(config.opts[algorithm_config])
     assert hasattr(fusion_data, dataset)
     FusionDataSet = getattr(fusion_data, dataset)
     root_dir = Path(opts.FusionPath if root_dir_base=="" else root_dir_base,root_dir_path)
     for path in [root_dir,Path(root_dir,'ir'),Path(root_dir,'vis')]:
-        assert path.exists()
+        if path.exists()==False: raise ValueError(f'{path} not exist')
     des_dir = root_dir if des_dir == '' else des_dir
     if des_dir.exists() == False: des_dir.mkdir()
     if pre_trained[0] != '':
