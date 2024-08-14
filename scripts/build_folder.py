@@ -107,7 +107,7 @@ def main(name,path,title,link,arxiv,author):
             f'    def __init__(self, opts, **kwargs):',
             f'        super().__init__(opts,TrainOptions,**kwargs)\n',
             f'    def default_model(self):',
-            f'        return Model(num_classes=self.opts.num_classes)\n',
+            f'        return Model()\n',
             f'    def default_criterion(self):',
             f'        return nn.CrossEntropyLoss()\n',
             f'    def default_optimizer(self):',
