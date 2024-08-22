@@ -2,16 +2,28 @@ import torch
 from pathlib import Path
 from tqdm import tqdm
 from collections import deque
-from argparse import Namespace
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from torch.utils.tensorboard.writer import SummaryWriter
 from torchvision import transforms
 from torch.utils.data import DataLoader
+from sklearn.model_selection import  StratifiedKFold
 
 class Components:
-    def __init__(self) -> None:
-        self.opts = Namespace()
+    def __init__(self, opts) -> None:
+        self.opts = opts
+        self._set_seed()
+        self._set_demo_components()
+        self._build_folder()
+        self._set_logger()
+    
+    def _set_seed(self):
+        torch.manual_seed(self.opts.seed) # 设置随机种子（仅在CPU上）
+        if torch.cuda.is_available():
+            torch.cuda.manual_seed(self.opts.seed)
+            torch.cuda.set_device(0)  # 假设使用第0号GPU
+    
+    def _set_demo_components(self):
         self._model = torch.nn.Linear(256, 120)
         self.criterion = torch.nn.Linear(256, 120)
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.001)
@@ -21,6 +33,17 @@ class Components:
         self.val_loader = DataLoader(dataset=empty_dataset, batch_size=64, shuffle=True)
         self.test_loader = DataLoader(dataset=empty_dataset, batch_size=64, shuffle=True)
     
+    def _build_folder(self):
+        assert(hasattr(self.opts,'ResBasePath'))
+        if Path(self.opts.ResBasePath).exists() == False:
+            os.makedirs(self.opts.ResBasePath)
+        else:
+            if list(Path(self.opts.ResBasePath).iterdir()):
+                raise SystemError(f"{self.opts.ResBasePath} should be empty")
+    
+    def _set_logger(self):
+        self.writer = SummaryWriter(log_dir=self.opts.ResBasePath)
+
     @property
     def model(self):
         return self._model
@@ -30,39 +53,20 @@ class Components:
         if not isinstance(value, torch.nn.Module):
             raise ValueError("model must be torch.nn.modules")
         self._model = value.to(self.opts.device)
+    
+    def save(self):
+        torch.save(self.model.state_dict(), Path(self.opts.ResBasePath,'model.pth'))
+        self.opts.save()
 
 
 class BaseTrainer(Components):
     def __init__(self, opts, TrainOptions, **kwargs):
-        super().__init__()
-        self.opts = TrainOptions().parse(opts,present=False)
-        self.set_seed()
-
-        # Build Folder
-        assert(hasattr(self.opts,'ResBasePath'))
-        if Path(self.opts.ResBasePath).exists() == False:
-            os.makedirs(self.opts.ResBasePath)
-        else:
-            if list(Path(self.opts.ResBasePath).iterdir()):
-                raise SystemError(f"{self.opts.ResBasePath} should be empty")
-        
-        # Log
-        self.writer = SummaryWriter(log_dir=self.opts.ResBasePath)
-
-        # Init Attr
+        super().__init__(TrainOptions().parse(opts,present=False))
         build_list = ['model','criterion','optimizer','transform','train_loader','val_loader','test_loader']
         for item in build_list:
-            if item in kwargs:
-                setattr(self,item,value)
             value = kwargs[item] if item in kwargs else getattr(self, f'default_{item}')()
             assert(value is not None)
             setattr(self,item,value)
-    
-    def set_seed(self):
-        torch.manual_seed(self.opts.seed) # 设置随机种子（仅在CPU上）
-        if torch.cuda.is_available():
-            torch.cuda.manual_seed(self.opts.seed)
-            torch.cuda.set_device(0)  # 假设使用第0号GPU
     
     def adjust_learning_rate(self,factor=0.1):
         for param_group in self.optimizer.param_groups:
@@ -125,7 +129,7 @@ class BaseTrainer(Components):
         train_of_repeat()
 
     def train_K_fold(self):
-        pass
+        self.skf = StratifiedKFold(n_splits=self.opts.fold_num)
 
     def test(self):
         self.model.eval()
@@ -139,11 +143,7 @@ class BaseTrainer(Components):
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 
-            print(f"Accuracy of the model on the 10000 test images: {100 * correct / total:.2f}%")
-
-    def save(self):
-        torch.save(self.model.state_dict(), Path(self.opts.ResBasePath,'model.pth'))
-        self.opts.save()
+            print(f"Accuracy of the model on the {len(self.test_loader)} test images: {100 * correct / total:.2f}%")
     
     def train(self):
         self.opts.presentParameters()

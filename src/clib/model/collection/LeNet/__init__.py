@@ -6,3 +6,4 @@
 from .model import LeNet as Model, load_model
 from .inference import inference
 from .train import train
+from .config import TestOptions

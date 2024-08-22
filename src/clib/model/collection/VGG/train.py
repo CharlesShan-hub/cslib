@@ -12,7 +12,7 @@ class Trainer(BaseTrainer):
         super().__init__(opts,TrainOptions,**kwargs)
 
     def default_model(self):
-        return Model(num_classes=self.opts.num_classes)
+        return Model()
 
     def default_criterion(self):
         return nn.CrossEntropyLoss()
@@ -41,6 +41,7 @@ class Trainer(BaseTrainer):
         val_size = len(dataset) - train_size   # 20% for validation
         _, val_size = random_split(dataset, [train_size, val_size])
         return DataLoader(dataset=val_size, batch_size=self.opts.batch_size, shuffle=False)
+    
     def default_test_loader(self):
         test_dataset = datasets.MNIST(root=self.opts.TorchVisionPath, train=False, download=True, transform=self.transform)
         return DataLoader(dataset=test_dataset, batch_size=self.opts.batch_size, shuffle=False)
