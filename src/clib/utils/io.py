@@ -16,11 +16,13 @@ from pathlib import Path
 
 __all__ = [
     'glance',
+    'tensor_to_numpy',
+    'tensor_to_image',
     'save_array_to_img',
     'save_array_to_mat',
 ]
 
-def _tensor_to_numpy(
+def tensor_to_numpy(
         image: Union[np.ndarray, torch.Tensor, Image.Image], 
         clip: bool = False
     ) -> np.ndarray:
@@ -58,6 +60,14 @@ def _tensor_to_numpy(
 
     return image_array
 
+def tensor_to_image(image: Union[np.ndarray, torch.Tensor, Image.Image], 
+        clip: bool = False
+    ) -> Image.Image:
+    return Image.fromarray(
+                obj = tensor_to_numpy(image,clip).astype(np.uint8),
+                mode = 'L' if tensor_to_numpy(image,clip).ndim == 2 else 'RGB'
+            )
+
 def glance(
         image: Union[np.ndarray, torch.Tensor, Image.Image], 
         clip: bool = False,
@@ -74,7 +84,7 @@ def glance(
     * ndarray: 2 dims.
     """
     # transform torch.tensor to np.array
-    image = _tensor_to_numpy(image,clip)
+    image = tensor_to_numpy(image,clip)
 
     # show image with PIL.Image
     plt.imshow(image.astype(np.uint8), 
@@ -87,14 +97,7 @@ def save_array_to_img(
         image: Union[np.ndarray, torch.Tensor, Image.Image], 
         filename: Union[str, Path], 
         clip: bool = False):
-    # transform torch.tensor to np.array
-    image = _tensor_to_numpy(image,clip)
-    
-    # save image
-    Image.fromarray(
-        obj = image.astype(np.uint8),
-        mode = 'L' if image.ndim == 2 else 'RGB'
-    ).save(filename)
+    tensor_to_image(image,clip).save(filename)
 
 def save_array_to_mat(
         image: Union[np.ndarray, torch.Tensor, Image.Image], 
@@ -105,7 +108,7 @@ def save_array_to_mat(
     Save a NumPy array or PyTorch tensor as MATLAB .mat files.
     """
     # transform torch.tensor to np.array
-    image_array = _tensor_to_numpy(image,clip)
+    image_array = tensor_to_numpy(image,clip)
 
     # Save Image
     if image_array.ndim == 2:
