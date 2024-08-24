@@ -22,7 +22,7 @@ def main(name: str, param: List[Tuple[str, str, str]]) -> None:
     """
     algorithm = __import__(f'clib.model.collection.{name}', fromlist=['*'])
 
-    opts[name] = {k: eval(t)(v) for k, v, t in param}
+    opts[name] = {k: bool(int(v)) if t=='bool' else eval(t)(v) for k, v, t in param}
 
     algorithm.train(opts[name])
 

@@ -7,7 +7,7 @@ class UI(BasicUI):
             background = 'white',
             foreground = 'black'
         )
-        self.title = "Clib Pro"
+        self.title("Clib Pro")
     
     def config(self,**kwargs):
         super().config(**kwargs)
@@ -46,36 +46,38 @@ class UI(BasicUI):
             text='Dataset Path',
             **self.configer_config
         )
+        self.load_btn = tk.Button(
+            master=self.config_frame,
+            text='load',
+            background=self.background,
+            foreground=self.foreground,
+            command=lambda:self.load()
+        )
         self.infer_btn = tk.Button(
             master=self.config_frame,
-            text='Dataset',
+            text='infer',
             background=self.background,
-            foreground=self.foreground
+            foreground=self.foreground,
+            command=lambda:self.inference()
         )
-        self.pic1 = PicBox(
-            master=self.show_frame,
-            text='12111111'
-        )
-        self.pic2 = PicBox(
-            master=self.show_frame,
-            text='12111111'
-        )
-        self.pic3 = PicBox(
-            master=self.show_frame,
-            text='12111111'
-        )
-        self.pic4 = PicBox(
-            master=self.show_frame,
-            text='12111111'
-        )
-        self.pics = [self.pic1,self.pic2,self.pic3,self.pic4]
+        self.pics = [PicBox(master=self.show_frame,**self.configer_config) for _ in range(4)]
     
+    def inference(self):
+        pass
+
+    def load(self):
+        pass
+
     def pack(self):
         super().pack()
         self.model_box.pack()
         self.pth_path_btn.pack()
         self.dataset_box.pack()
         self.dataset_path_btn.pack()
+        for i in self.pics:
+            i.pack(side='left')
+        self.load_btn.pack()
+        self.infer_btn.pack()
 
 
     

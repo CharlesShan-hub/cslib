@@ -2,7 +2,7 @@ from ui import UI
 
 from clib.utils.io import tensor_to_image
 from clib.model import classify 
-from clib.metrics.fusion import ir 
+# from clib.metrics.fusion import ir 
 import sys
 from pathlib import Path
 sys.path.append(Path(__file__,'../../../scripts').resolve().__str__())
@@ -11,21 +11,24 @@ import config
 import torch
 from torchvision import datasets, transforms
 from torch.utils.data import DataLoader
-from PIL import Image, ImageTk # type: ignore
-import numpy as np
-import matplotlib.pyplot as plt
 
 class App(UI):
     def __init__(self):
         super().__init__()
-        self.calculate()
-        self.infer_btn.config(command=lambda:self.inference())
 
-    def calculate(self):
+    def load(self):
+        model_name = self.model_box.value()
+        pth_path = self.pth_path_btn.value()
+        dataset_name = self.dataset_box.value()
+        dataset_path = self.dataset_path_btn.value()
+
         model_name = 'LeNet'
+        pth_path = r'/Users/kimshan/resources/DataSets/Model/LeNet/MNIST/9430/model.pth'
+        dataset_name = 'MNIST'
+        dataset_path = r'/Users/kimshan/resources/DataSets/torchvision'
+
         config.opts[model_name] = {
-            '*ResPath': r'@ModelBasePath/LeNet/MNIST/',
-            '*pre_trained': r'@ResPath/9775/model.pth'
+            'pre_trained': pth_path
         }
         opts = config.opts[model_name]
         self.alg = getattr(classify,model_name)
@@ -38,28 +41,24 @@ class App(UI):
             transforms.Normalize((0.5,), (0.5,))
         ])
 
-        dataset = datasets.MNIST(root=self.opts.TorchVisionPath, train=False, download=True, transform=transform)
+        dataset = getattr(datasets,dataset_name)(root=dataset_path, train=False, download=True, transform=transform)
         self.dataLoader = DataLoader(dataset=dataset, batch_size=4, shuffle=False)
         self.dataLoader_iter = iter(self.dataLoader)
 
         self.opts.presentParameters()
         self.model.eval()
-    
-    def inference(self):
-        pass
-    #     def _get_image(tensor):
-    #         img = tensor_to_image(tensor)
-    #         original_width, original_height = img.size
-    #         new_width = int(original_width * self.scale_factor)
-    #         new_height = int(original_height * self.scale_factor)
-    #         return img.resize((new_width, new_height))
 
-    #     with torch.no_grad():
-    #         images,labels = next(self.dataLoader_iter)
-    #         self.images = [ImageTk.PhotoImage(_get_image(i)) for i in images]
-    #         # 放大图片
-    #         for p,i in zip(self.pics,self.images):
-    #             p.config(image = i)
+    def inference(self):
+        def _get_image(tensor):
+            img = tensor_to_image(tensor)
+            return self.pics[0].resize(img)
+
+        with torch.no_grad():
+            images,labels = next(self.dataLoader_iter)
+            self.images = [_get_image(i) for i in images]
+            _, predict = torch.max(self.model(images).data, 1)
+            for pic,i,l,p in zip(self.pics,self.images,labels,predict):
+                pic.set(i,f'Label: {l}',f'Predict: {p}')
 
 if __name__ == "__main__":
     app = App()

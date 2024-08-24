@@ -178,9 +178,10 @@ class PicBox(tk.Frame):
     def config(self,**kwargs):
         # Default Config
         self.mode = 'Undefined'
-        self.btn_width = 5
-        self.width = 15
-        self.height = 1
+        self.label_height = 1
+        self.width = 20
+        self.height = 20
+        self.size = 100
         self.text = 'Undefined'
         self.background = 'black'
         self.foreground = 'white'
@@ -191,24 +192,42 @@ class PicBox(tk.Frame):
     def define(self):
         self.pic = tk.Label(
             master = self,
-            width = self.width,
-            height = self.height,
+            # width = self.width,
+            # height = self.height,
             background=self.background,
             foreground=self.foreground
         )
-        self.label = tk.Label(
+        self.label1 = tk.Label(
             master = self, 
-            width = self.width,
+            height=self.label_height,
+            # width = self.width,
+            background=self.background,
+            foreground=self.foreground
+        )
+        self.label2 = tk.Label(
+            master = self, 
+            height=self.label_height,
+            # width = self.width,
             background=self.background,
             foreground=self.foreground
         )
         
     def pack(self,**kwargs):
         super().pack(**kwargs)
-        self.pic.pack(side='left')
-        self.label.pack(side='left')
+        self.pic.pack(side='top')
+        self.label1.pack(side='top')
+        self.label2.pack(side='top')
     
-    def set(self, img, text):
-        self.img = ImageTk.PhotoImage(img)
-        self.pic.config(image=self.img)
-        self.label.config(text=text)
+    def resize(self, img):
+        original_width, original_height = img.size
+        max_dimension = max(original_width, original_height)
+        scale_factor = self.size / max_dimension
+        new_width = int(original_width * scale_factor)
+        new_height = int(original_height * scale_factor)
+        resized_img = img.resize((new_width, new_height))
+        return ImageTk.PhotoImage(resized_img)
+    
+    def set(self, img, text1, text2):
+        self.pic.config(image=img)
+        self.label1.config(text=text1)
+        self.label2.config(text=text2)

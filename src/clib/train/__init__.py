@@ -6,7 +6,7 @@ import os
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 from torch.utils.tensorboard.writer import SummaryWriter
 from torchvision import transforms
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader,TensorDataset
 from sklearn.model_selection import  StratifiedKFold
 
 class Components:
@@ -28,7 +28,7 @@ class Components:
         self.criterion = torch.nn.Linear(256, 120)
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.001)
         self.transform = transforms.ToTensor()
-        empty_dataset = torch.utils.data.Dataset()
+        empty_dataset  = TensorDataset(torch.tensor([1,2,3,4,5]))# torch.utils.data.Dataset()
         self.train_loader = DataLoader(dataset=empty_dataset, batch_size=64, shuffle=True)
         self.val_loader = DataLoader(dataset=empty_dataset, batch_size=64, shuffle=True)
         self.test_loader = DataLoader(dataset=empty_dataset, batch_size=64, shuffle=True)
@@ -140,6 +140,9 @@ class BaseTrainer(Components):
                 images, labels = images.to(self.opts.device), labels.to(self.opts.device)
                 outputs = self.model(images)
                 _, predicted = torch.max(outputs.data, 1)
+                if correct==0:
+                    print('A:',predicted)
+                    print('B:',labels)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 

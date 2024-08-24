@@ -35,12 +35,12 @@ def main(name: str, field: str, param: List[Tuple[str, str, str]]) -> None:
     assert hasattr(all_algorithms, name), f"Algorithm '{name}' not found in field '{field}'"
     
     # Validate the algorithm name exists in config.opts
-    assert name in config.opts, f"Algorithm '{name}' not found in config.opts"
+    # assert name in config.opts, f"Algorithm '{name}' not found in config.opts"
     algorithm = getattr(all_algorithms, name)
 
     # Update options with the provided parameters
-    opts = config.opts[name]
-    opts.update({k: eval(t)(v) for k, v, t in param})
+    config.opts[name] = {k: bool(int(v)) if t=='bool' else eval(t)(v) for k, v, t in param}
+    opts = config.opts[name] 
 
     # Trigger the training process
     algorithm.inference(opts)

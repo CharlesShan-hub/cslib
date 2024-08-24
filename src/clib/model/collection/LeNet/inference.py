@@ -34,9 +34,12 @@ def inference(opts = {}, model = None, test_loader = None):
             outputs = model(images)
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
+            if correct==0:
+                print('A:',predicted)
+                print('B:',labels)
             correct += (predicted == labels).sum().item()
 
-        print(f"Accuracy of the model on the 10000 test images: {100 * correct / total:.2f}%")
+        print(f"Accuracy of the model on the {len(test_loader)} test images: {100 * correct / total:.2f}%")
 
 
 def test(opts = {}, model = None, test_loader = None):
