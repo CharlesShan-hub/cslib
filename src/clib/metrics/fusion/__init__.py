@@ -2,8 +2,16 @@
  * 方法(): 默认输入都是 0-1 的张量
  * 方法_metric(): 默认输入都是 0-1 的张量, 但会调整调用方法()的输入，会与 VIFB 一致
  * 方法_approach_loss()：默认输入都是 0-1 的张量，用于趋近测试
- *
 '''
+
+# TODO
+# EN, CE, MI有一些例子, 再改一改
+
+# 打开一个注释需要满足的要求
+# 1. 更改了 if __main__里边的测试函数
+# 2. 写了 Reference
+# 3. 下边的字典完善了
+# 4. 找到了对应的 matlab 代码,并且修改完毕
 
 # 信息论
 from .ce import *              # VIFB - 交叉熵
@@ -14,7 +22,7 @@ from .mi import *              # VIFB - 互信息
 # from metrics.q_ncie import *   # MEFB - 非线性相关性
 # from metrics.snr import *      # Many - 信噪比
 from .psnr import *            # VIFB - 峰值信噪比
-# from metrics.cc import *       # Tang - 相关系数
+# from .cc import *       # Tang - 相关系数(正在改)
 # from metrics.scc import *
 # from metrics.scd import *      # Tang - 差异相关和
 
@@ -74,15 +82,6 @@ from .q_cb import *            # VIFB - 图像模糊与融合的质量评估 包
 # # from metrics.wfqi import *     # Many
 # # from metrics.efqi import *     # Many
 # # from metrics.d import *        # Many
-
-# 打开一个注释需要满足的要求
-# 1. 更改了 if __main__里边的测试函数
-# 2. 写了 Reference
-# 3. 下边的字典完善了
-# 4. 找到了对应的 matlab 代码,并且修改完毕
-
-# 代办清单
-# EN, CE, MI有一些例子, 再改一改
 
 
 from .utils import *

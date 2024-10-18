@@ -1,7 +1,7 @@
 import tkinter as tk
 import tkinter.ttk as ttk
 from tkinter import filedialog
-from PIL import Image, ImageTk
+from PIL import ImageTk
 
 class BasicUI(tk.Tk):
     def __init__(self,**kwargs):

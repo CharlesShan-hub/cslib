@@ -6,7 +6,8 @@ import numpy as np
 __all__ = [
     'cc','cc_tang',
     'cc_approach_loss',
-    'cc_metric'
+    'cc_metric',
+    'cc_test'
 ]
 
 def cc(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, eps: float = 1e-10) -> torch.Tensor:
@@ -71,27 +72,9 @@ cc_metric = cc
 
 ###########################################################################################
 
-def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
+def cc_test():
+    from .utils import ir,vis,fused,tensor_to_numpy
+    [ir_arr, vis_arr, fused_arr] = [tensor_to_numpy(i) for i in [ir, vis, fused]]
 
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis_image = Image.open('../imgs/TNO/vis/9.bmp')
-    vis_array = np.array(vis_image).astype(np.int32)
-    vis_tensor = to_tensor(vis_image).unsqueeze(0)
-    ir_image = np.array(Image.open('../imgs/TNO/ir/9.bmp'))
-    ir_array = np.array(ir_image).astype(np.int32)
-    ir_tensor = to_tensor(ir_image).unsqueeze(0)
-    fused_image = np.array(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp'))
-    fused_array = np.array(fused_image).astype(np.int32)
-    fused_tensor = to_tensor(fused_image).unsqueeze(0)
-
-    print(f'CC(ir,vis,fused) by self:{cc(ir_tensor,vis_tensor,fused_tensor)}')
-    print(f'CC(ir,vis,fused) by Tang:{cc_tang(ir_array,vis_array,fused_array)}')
-
-if __name__ == '__main__':
-    main()
+    print(f'CC(ir,vis,fused) by Charles:{cc(ir,vis,fused)}')
+    print(f'CC(ir,vis,fused) by Tang   :{cc_tang(ir_arr,vis_arr,fused_arr)}')

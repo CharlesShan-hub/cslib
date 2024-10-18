@@ -140,9 +140,6 @@ class BaseTrainer(Components):
                 images, labels = images.to(self.opts.device), labels.to(self.opts.device)
                 outputs = self.model(images)
                 _, predicted = torch.max(outputs.data, 1)
-                if correct==0:
-                    print('A:',predicted)
-                    print('B:',labels)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
 

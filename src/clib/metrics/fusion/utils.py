@@ -1,6 +1,7 @@
 from pathlib import Path
 from torchvision.transforms.functional import to_tensor
 from PIL import Image
+from ...utils import tensor_to_numpy
 
 __all__ = [
     'ir', 'vis', 'fused', 'cddfuse', 'densefuse', 'adf'
@@ -13,6 +14,6 @@ def load_demo_image():
     RESOURCE_DIR =Path(current_file_path.parent, 'resources')
     # 打开图片
     return [to_tensor(Image.open(Path(RESOURCE_DIR,f'{f}.png'))).unsqueeze(0)\
-                        for f in ['vis','ir','CDDFuse','CDDFuse','DenseFuse','ADF']]
+                        for f in ['ir','vis','CDDFuse','CDDFuse','DenseFuse','ADF']]
 
 [ir, vis, fused, cddfuse, densefuse, adf] = load_demo_image()

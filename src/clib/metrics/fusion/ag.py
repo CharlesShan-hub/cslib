@@ -49,12 +49,9 @@ def ag_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor
 
 ###########################################################################################
 
-def main():
-    from utils import ir,vis,fused  # type: ignore
+def test():
+    from .utils import ir,vis,fused
 
     print(f'AG(ir):{ag(ir)}')
     print(f'AG(vis):{ag(vis)}')
     print(f'AG(fused):{ag(fused)}')
-
-if __name__ == '__main__':
-    main()

@@ -2,7 +2,7 @@ from ui import UI
 
 from clib.utils.io import tensor_to_image
 from clib.model import classify 
-# from clib.metrics.fusion import ir 
+
 import sys
 from pathlib import Path
 sys.path.append(Path(__file__,'../../../scripts').resolve().__str__())
@@ -22,10 +22,10 @@ class App(UI):
         dataset_name = self.dataset_box.value()
         dataset_path = self.dataset_path_btn.value()
 
-        model_name = 'LeNet'
-        pth_path = r'/Users/kimshan/resources/DataSets/Model/LeNet/MNIST/9430/model.pth'
-        dataset_name = 'MNIST'
-        dataset_path = r'/Users/kimshan/resources/DataSets/torchvision'
+        # model_name = 'LeNet'
+        # pth_path = r'/Users/kimshan/resources/DataSets/Model/LeNet/MNIST/9430/model.pth'
+        # dataset_name = 'MNIST'
+        # dataset_path = r'/Users/kimshan/resources/DataSets/torchvision'
 
         config.opts[model_name] = {
             'pre_trained': pth_path
