@@ -18,6 +18,7 @@ from skimage import color
 
 
 __all__ = [
+    '_numpy_to_image',
     'to_tensor',
     'to_image',
     'to_numpy',
@@ -60,7 +61,7 @@ def _tensor_to_numpy(image: torch.Tensor) -> np.ndarray:
     
 
 def _tensor_to_image(image: torch.Tensor) -> Image.Image:
-    image_array = _tensor_to_numpy(image)*255.0
+    image_array = _tensor_to_numpy(image)
     return _numpy_to_image(image_array)
 
 
@@ -69,10 +70,11 @@ def _image_to_numpy(image: Image.Image) -> np.ndarray:
 
 
 def _image_to_tensor(image: Image.Image) -> torch.Tensor:
-    return ToTensor()(image)
+    return ToTensor()(image)/255.0
 
 
 def _numpy_to_image(image: np.ndarray) -> Image.Image:
+    image = image * 255.0
     if len(image.shape) == 2:
         return Image.fromarray(image.astype(np.uint8), mode="L")
     else:
@@ -195,6 +197,8 @@ def glance(
     """
     # transform torch.tensor to np.array
     if isinstance(image,list):
+        if shape[0]*shape[1] != len(image):
+            shape = (1,len(image)) 
         image = [to_numpy(i,clip) for i in image]
     else:
         image = [to_numpy(image,clip)]

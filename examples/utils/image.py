@@ -1,5 +1,5 @@
 from pathlib import Path
-from clib.utils.io import *
+from clib.utils.image import *
 
 ''' Load Image
 
@@ -66,6 +66,17 @@ title = ['np.ndarray','Image.Image','torch.Tensor(3,w,h)', 'torch.Tensor(1,3,w,h
 '''
 image_np_ycbcr = rgb_to_ycbcr(image_np)
 image_np_rgb = ycbcr_to_rgb(image_np_ycbcr)
-images = [image_np,image_np_rgb,abs(image_np-image_np_rgb)]
+images = [image_np,rgb_as_rgb,abs(image_np-image_np_rgb)]
 titles = ['Origin', 'Recovered', 'Loss']
 glance(images,shape=(1,3),title=titles)
+
+
+''' Save Image
+
+    1. save as image
+'''
+# 1. save as image
+save_array_to_img(image_np_rgb,filename = Path(Path(__file__).parent, "image/res.png"))
+# 2. save as mat
+save_array_to_mat(image_np_rgb,base_filename = Path(Path(__file__).parent, "image/res").__str__())
+
