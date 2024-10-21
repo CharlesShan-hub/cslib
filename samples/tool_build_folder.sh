@@ -3,9 +3,9 @@
 PYTHON_SCRIPT="scripts/build_folder.py"
 
 python $PYTHON_SCRIPT \
-    --name "VGG" \
+    --name "VIT" \
     --path "/Users/kimshan/workplace/CVPlayground" \
-    --title "Very Deep Convolutional Networks for Large-Scale Image Recognition" \
-    --link "https://doi.org/10.48550/arXiv.1409.1556" \
-    --arxiv "https://arxiv.org/abs/1409.1556" \
+    --title "An Image is Worth 16x16 Words: Transformers for Image Recognition at Scale" \
+    --link "https://api.semanticscholar.org/CorpusID:225039882" \
+    --arxiv "https://arxiv.org/abs/2010.11929" \
     --author "" \

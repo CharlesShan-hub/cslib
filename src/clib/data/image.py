@@ -1,2 +1,1 @@
-# from torchvision import datasets
-# print(datasets.__all__)
+from skimage.data import *
