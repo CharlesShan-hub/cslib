@@ -1,8 +1,6 @@
 import torch
 import kornia
 
-###########################################################################################
-
 __all__ = [
     'ei',
     'ei_approach_loss',
@@ -43,15 +41,3 @@ def ei_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
 # 与 VIFB 统一
 def ei_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return ei(F) * 255  # 与 VIFB 统一，需要乘 255
-
-###########################################################################################
-
-def main():
-    from utils import ir,vis,fused  # type: ignore
-
-    print(f'EI(ir):{ei(ir)}')
-    print(f'EI(vis):{ei(vis)}')
-    print(f'EI(fused):{ei(fused)}')
-
-if __name__ == '__main__':
-    main()

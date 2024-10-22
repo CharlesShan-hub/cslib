@@ -1,7 +1,5 @@
 import torch
 
-###########################################################################################
-
 __all__ = [
     'psnr',
     'psnr_approach_loss',
@@ -50,16 +48,3 @@ def psnr_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tens
     # 发现原来 VIFB 里边的两个 MAE 竟然在一个 log 里边！所以不能分开算两个 PSNR 再求平均。
     return psnr(A, B, F, MAX=1) # 0-1与 0-255 的输入进去只要 MAX 设置对，结果一样
 
-###########################################################################################
-
-def main():
-    from utils import ir,vis,fused  # type: ignore
-
-    print(f'PSNR(ir,ir,ir):{psnr(ir,ir,ir)}')
-    print(f'PSNR(vis,vis,vis):{psnr(vis,vis,vis)}')
-    print(f'PSNR(ir,vis,fused):{psnr(ir,vis,fused,MAX=1)}')
-    print(f'PSNR(ir,vis,fused):{psnr(ir*255,vis*255,fused*255,MAX=255)}')
-
-
-if __name__ == '__main__':
-    main()

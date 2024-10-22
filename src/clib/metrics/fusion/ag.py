@@ -1,8 +1,6 @@
 import torch
 import kornia
 
-###########################################################################################
-
 __all__ = [
     'ag',
     'ag_approach_loss',
@@ -46,12 +44,3 @@ def ag_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
 # 与 VIFB 统一
 def ag_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return ag(F) * 255.0  # 与 VIFB 统一，需要乘 255
-
-###########################################################################################
-
-def test():
-    from .utils import ir,vis,fused
-
-    print(f'AG(ir):{ag(ir)}')
-    print(f'AG(vis):{ag(vis)}')
-    print(f'AG(fused):{ag(fused)}')

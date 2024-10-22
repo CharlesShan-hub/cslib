@@ -1,7 +1,5 @@
 import torch
 
-###########################################################################################
-
 __all__ = [
     'rmse',
     'rmse_approach_loss',
@@ -34,15 +32,3 @@ rmse_approach_loss = rmse
 def rmse_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     w0 = w1 = 0.5
     return w0 * rmse(A, F) + w1 * rmse(B, F)
-
-###########################################################################################
-
-def main():
-    from utils import ir,vis,fused  # type: ignore
-
-    print(f'RMSE(ir,ir):{rmse(ir,ir)}')
-    print(f'RMSE(ir,vis):{rmse(ir,vis)}')
-    print(f'RMSE(ir,fused):{rmse(ir,fused)}')
-
-if __name__ == '__main__':
-    main()

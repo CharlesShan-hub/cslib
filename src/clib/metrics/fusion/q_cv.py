@@ -1,8 +1,6 @@
 import torch
 import kornia
 
-###########################################################################################
-
 __all__ = [
     'q_cv','q_cvm','q_cvd','q_cva',
     'q_cv_approach_loss','q_cvm_approach_loss','q_cvd_approach_loss','q_cva_approach_loss',
@@ -162,18 +160,3 @@ def q_cvd_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Ten
 def q_cva_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_cva(A, B, F, window_size=16, border_type='constant', normalize=True, eps=1e-10)
 
-###########################################################################################
-
-def main():
-    from utils import ir,vis,fused  # type: ignore
-    
-    # print(f'QCV(ir,vis,fused):{q_cv(vis,ir,fused)}')
-    # print(f'QCV(vis,vis,vis):{q_cv(vis,vis,vis)}')
-    # print(f'QCV(vis,vis,fused):{q_cv(vis,vis,fused)}')
-    # print(f'QCV(vis,vis,ir):{q_cv(vis,vis,ir)}')
-    print(f'QCVM(ir,vis,fused):{q_cvm(vis,ir,fused)}')
-    print(f'QCVD(ir,vis,fused):{q_cvd(vis,ir,fused)}')
-    print(f'QCVA(ir,vis,fused):{q_cva(vis,ir,fused)}')
-
-if __name__ == '__main__':
-    main()

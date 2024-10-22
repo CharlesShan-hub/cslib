@@ -40,15 +40,3 @@ def ssim_approach_loss(A: torch.Tensor, F: torch.Tensor,
 def ssim_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     w0 = w1 = 0.5 # VIFB 忘了除二
     return torch.mean(w0 * ssim(A, F,window_size=11) + w1 * ssim(B ,F,window_size=11)) # 论文的窗大小就是 11
-
-###########################################################################################
-
-def main():
-    from utils import ir,vis,fused  # type: ignore
-    
-    print(f'SSIM(ir,ir):{torch.mean(ssim(ir,ir,window_size=11))}')
-    print(f'SSIM(ir,fused):{torch.mean(ssim(ir,fused,window_size=11))}')
-    print(f'SSIM(vis,fused):{torch.mean(ssim(vis,fused,window_size=11))}')
-
-if __name__ == '__main__':
-    main()

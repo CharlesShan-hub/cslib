@@ -1,8 +1,6 @@
 import torch
 import kornia
 
-###########################################################################################
-
 __all__ = [
     'q_abf',
     'q_abf_approach_loss',
@@ -93,15 +91,3 @@ def q_abf_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
 # 与 VIFB 统一
 def q_abf_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_abf(A, B, F)
-
-###########################################################################################
-
-def main():
-    from utils import ir,vis,fused  # type: ignore
-    
-    print(f'Q_ABF(ir,ir,ir):{q_abf(ir,ir,ir)}')      
-    print(f'Q_ABF(vis,vis,vis):{q_abf(vis,vis,vis)}')
-    print(f'Q_ABF(vis,ir,fused):{q_abf(vis,ir,fused)}')
-
-if __name__ == '__main__':
-    main()

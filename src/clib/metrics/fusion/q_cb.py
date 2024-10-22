@@ -1,8 +1,6 @@
 import torch
 import kornia
 
-###########################################################################################
-
 __all__ = [
     'q_cb','q_cbm','q_cbb','q_cbd',
     'q_cb_approach_loss','q_cbm_approach_loss','q_cbb_approach_loss','q_cbd_approach_loss',
@@ -237,23 +235,3 @@ def q_cbb_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Ten
     return q_cbb(A, B, F, border_type='constant', mode='frequency', normalize=True)
 def q_cbd_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_cbd(A, B, F, border_type='constant', mode='frequency', normalize=True)
-
-###########################################################################################
-
-def main():
-    from utils import ir,vis,fused  # type: ignore
-
-    # Default: With normalize, Frequency(not spatial)
-    # print('With normalize, Different Images: ',q_cb(vis,ir,fused,mode='frequency',normalize=True))
-    # print('With normalize, Same Images: ',q_cb(vis,vis,vis,mode='frequency',normalize=True))
-    # print('Without normalize, Different Images: ',q_cb(vis,ir,fused,mode='frequency',normalize=False))
-    # print('Without normalize, Same Images (VIS): ',q_cb(vis,vis,vis,mode='frequency',normalize=False))
-    # print('Without normalize, Same Images (IR): ',q_cb(ir,ir,ir,mode='frequency',normalize=False))
-    # print('With normalize, Different Image (spatial)',q_cb(vis,ir,fused,mode='spatial'))
-    # print('With normalize, Same Image (spatial)',q_cb(vis,vis,vis,mode='spatial'))
-    print(f"Q_CBM: {q_cbm_metric(vis,ir,fused)}")
-    print(f"Q_CBB: {q_cbb_metric(vis,ir,fused)}")
-    print(f"Q_CBD: {q_cbd_metric(vis,ir,fused)}")
-
-if __name__ == '__main__':
-  main()

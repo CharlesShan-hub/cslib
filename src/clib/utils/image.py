@@ -18,7 +18,6 @@ from skimage import color
 
 
 __all__ = [
-    '_numpy_to_image',
     'to_tensor',
     'to_image',
     'to_numpy',

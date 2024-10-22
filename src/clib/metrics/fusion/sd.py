@@ -1,7 +1,5 @@
 import torch
 
-###########################################################################################
-
 __all__ = [
     'sd',
     'sd_approach_loss',
@@ -31,15 +29,3 @@ def sd_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
 # 与 VIFB 统一
 def sd_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return sd(F) * 255.0  # 与 VIFB 统一，需要乘 255
-
-###########################################################################################
-
-def main():
-    from utils import ir,vis,fused  # type: ignore
-
-    print(f'SD(ir):{sd(ir)}')
-    print(f'SD(vis):{sd(vis)}')
-    print(f'SD(fused):{sd(fused)}')
-
-if __name__ == '__main__':
-    main()
