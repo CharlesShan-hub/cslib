@@ -14,20 +14,20 @@
 # 4. 找到了对应的 matlab 代码,并且修改完毕
 
 # 信息论
-from .ce import *              # VIFB - 交叉熵
-from .en import *              # VIFB - 信息熵
+from .collection.ce import *              # VIFB - 交叉熵
+from .collection.en import *              # VIFB - 信息熵
 # from metrics.te import *       # MEFB - tsallis熵
-from .mi import *              # VIFB - 互信息
+from .collection.mi import *              # VIFB - 互信息
 # from metrics.nmi import *      # MEFB - 标准化互信息
 # from metrics.q_ncie import *   # MEFB - 非线性相关性
 # from metrics.snr import *      # Many - 信噪比
-from .psnr import *            # VIFB - 峰值信噪比
+from .collection.psnr import *            # VIFB - 峰值信噪比
 # from .cc import *       # Tang - 相关系数(正在改)
 # from metrics.scc import *
 # from metrics.scd import *      # Tang - 差异相关和
 
 # 结构相似性
-from .ssim import *            # VIFB - 结构相似度测量
+from .collection.ssim import *            # VIFB - 结构相似度测量
 # from metrics.ms_ssim import *  # Tang - 多尺度结构相似度测量
 # from metrics.q_s import *      # MEFB - 利用 SSIM 的指标 Piella's Fusion Quality Index
 # from metrics.q_w import *      # MEFB - 利用 SSIM 的指标 Weighted Fusion Quality Index
@@ -38,7 +38,7 @@ from .ssim import *            # VIFB - 结构相似度测量
 # from metrics.eme import *
 # from metrics.mae import *
 # from metrics.mse import *      # VIFB - 均方误差
-from .rmse import *            # VIFB - 均方误差
+from .collection.rmse import *            # VIFB - 均方误差
 # from metrics.nrmse import *    # Normalized Root Mean Square Error
 # from metrics.ergas import *    # Normalized Global Error
 # from metrics.q_h import *      # OB
@@ -47,13 +47,13 @@ from .rmse import *            # VIFB - 均方误差
 # from metrics.efqi import *
 
 # 图片信息
-from .ag import *              # VIFB - 平均梯度
-from .ei import *              # VIFB - 边缘强度
+from .collection.ag import *              # VIFB - 平均梯度
+from .collection.ei import *              # VIFB - 边缘强度
 # # from metrics.pfe import *      # Many
-from .sd import *              # VIFB - 标准差
-from .sf import *              # VIFB - 空间频率
+from .collection.sd import *              # VIFB - 标准差
+from .collection.sf import *              # VIFB - 空间频率
 # from metrics.q_sf import *     # OE - 基于空间频率的指标
-from .q_abf import *           # VIFB - 基于梯度的融合性能
+from .collection.q_abf import *           # VIFB - 基于梯度的融合性能
 # from metrics.eva import *      # Zhihu - 点锐度
 # from metrics.asm import *      # Zhihu - 角二阶矩 - 不可微!!!
 # from metrics.sam import *      # Zhihu - 光谱角测度 - 要修改
@@ -64,8 +64,8 @@ from .q_abf import *           # VIFB - 基于梯度的融合性能
 # from metrics.pww import *      # Many - Pei-Wei Wang's algorithms
 
 # 视觉感知
-from .q_cv import *            # VIFB - H. Chen and P. K. Varshney
-from .q_cb import *            # VIFB - 图像模糊与融合的质量评估 包含 cbb,cbm,cmd
+from .collection.q_cv import *            # VIFB - H. Chen and P. K. Varshney
+from .collection.q_cb import *            # VIFB - 图像模糊与融合的质量评估 包含 cbb,cbm,cmd
 # from metrics.vif import *      # 视觉保真度 - 不可微!! 优化用 VIFF 就行
 # from metrics.viff import *     # Tang - 视觉保真度
 
@@ -82,10 +82,6 @@ from .q_cb import *            # VIFB - 图像模糊与融合的质量评估 包
 # # from metrics.wfqi import *     # Many
 # # from metrics.efqi import *     # Many
 # # from metrics.d import *        # Many
-
-
-from .utils import *
-
 
 info_summary_dict = {
     'en':{
@@ -177,3 +173,17 @@ for (k,v) in metrics.info_summary_dict.items():
     print(f"{k}(DenseFuse): {v['metric'](metrics.ir,metrics.vis,metrics.densefuse)}")
     print(f"{k}(ADF)      : {v['metric'](metrics.ir,metrics.vis,metrics.adf)}")
 '''
+
+from pathlib import Path
+from ..utils import to_tensor,path_to_gray
+
+__all__ = [
+    'ir', 'vis', 'fused', 'cddfuse', 'densefuse', 'adf'
+]
+
+def load_demo_image():
+    path = Path(__file__).resolve().parent / 'resources'
+    filenames = ['ir', 'vis', 'CDDFuse', 'CDDFuse', 'DenseFuse', 'ADF']
+    return [to_tensor(path_to_gray(path / f'{f}.png')).unsqueeze(0) for f in filenames]
+
+(ir, vis, fused, cddfuse, densefuse, adf) = load_demo_image()
