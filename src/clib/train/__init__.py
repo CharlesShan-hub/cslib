@@ -148,13 +148,12 @@ class BaseTrainer(Components):
     def train(self):
         self.opts.presentParameters()
         torch.manual_seed(self.opts.seed)
-        match self.opts.train_mode:
-            case 'Holdout':
-                self.train_Holdout()
-            case 'K-fold':
+        if self.opts.train_mode == 'Holdout':
+            self.train_Holdout()
+        elif self.opts.train_mode == 'K-fold':
                 self.train_K_fold()
-            case _:
-                self.train_Holdout()
+        else:
+            self.train_Holdout()
         self.test()
         self.save()
         
