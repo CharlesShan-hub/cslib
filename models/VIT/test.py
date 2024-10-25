@@ -1,15 +1,27 @@
+''' Import Image
+'''
+
 from clib.data.image import cat
-from clib.utils.io import glance
+from clib.utils import glance
+from transform import transform
+
+x = transform(cat()).unsqueeze(0)
+glance([cat()/255.0,x],title=['Before','After'])
+
+
+''' 
+'''
+
+
 import torch
 from torch import Tensor
 from torch import nn
 # from PIL import Image
 
 from datasets import *
-from transform import *
 
-x = transform(cat()).unsqueeze(0)
-glance(x)
+
+
 
 from einops import rearrange, repeat
 from einops.layers.torch import Rearrange, Reduce

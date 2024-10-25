@@ -8,6 +8,7 @@ and saving arrays as MATLAB .mat files.
 
 from typing import Union
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 import numpy as np
 from PIL import Image
 import torch
@@ -178,7 +179,8 @@ def ycbcr_to_rgb(image: np.ndarray) -> np.ndarray:
 
 
 def glance(
-        image: Union[np.ndarray, torch.Tensor, Image.Image, list], 
+        image: Union[np.ndarray, torch.Tensor, Image.Image, list, tuple], 
+        annotations: Union[list, tuple] = (),
         clip: bool = False,
         title: Union[str, list] = "",
         hide_axis: bool = True,
@@ -195,7 +197,7 @@ def glance(
     * Image: auto convert to numpy.
     """
     # transform torch.tensor to np.array
-    if isinstance(image,list):
+    if isinstance(image,list) or isinstance(image, tuple):
         if shape[0]*shape[1] != len(image):
             shape = (1,len(image)) 
         image = [to_numpy(i,clip) for i in image]
@@ -208,6 +210,12 @@ def glance(
         plt.subplot(H,W,k+1)
         plt.imshow((image[k]*255).astype(np.uint8), 
                 cmap='gray' if image[k].ndim == 2 else 'viridis')
+        if len(annotations)>0:
+            for anno in annotations[k-1]['boxes']:
+                x_min, y_min, x_max, y_max = [anno[i] for i in range(4)]
+                rect = patches.Rectangle((x_min, y_min), x_max - x_min, y_max - y_min,
+                             linewidth=1, edgecolor='r', facecolor='none')
+                plt.gca().add_patch(rect)
         if title != "": plt.title(title[k] if isinstance(title,list) else title)
         if hide_axis: plt.axis('off')
     plt.show()
