@@ -18,7 +18,7 @@ class DetectionToy(Dataset):
     """
     def __init__(self,
                  root_dir: Union[str, Path], 
-                 transform: v2.Compose = v2.Compose([v2.ToTensor()])
+                 transform: v2.Compose = v2.Compose([v2.ToImage(), v2.ToDtype(torch.float32, scale=True)])
         ) -> None:
         super().__init__()
         self.set_name = 'train2017'

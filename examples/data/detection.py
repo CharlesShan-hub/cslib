@@ -1,5 +1,6 @@
+import torch
 from torch.utils.data import DataLoader
-from torchvision.transforms.v2 import Compose, Resize, ToTensor
+from torchvision.transforms import v2
 from torchvision.datasets import CocoDetection
 from tqdm import tqdm
 from pathlib import Path
@@ -36,7 +37,11 @@ def coco_example_glance():
 
 def coco_example_diy():
     root_dir_50 = Path('/Volumes/Charles/DateSets/Detection/coco2017_50')
-    transform = Compose([Resize((224, 224), antialias=True), ToTensor()]) # type: ignore
+    transform = v2.Compose([
+        v2.Resize((224, 224), antialias=True), 
+        v2.ToImage(), 
+        v2.ToDtype(torch.float32, scale=True)
+    ])
     dataset = DetectionToy(root_dir_50, transform=transform)
     dataloader = DataLoader(dataset, batch_size=8, shuffle=True, num_workers=4,collate_fn=collate_fn)
     pbar = tqdm(dataloader, total=len(dataloader))
@@ -46,7 +51,11 @@ def coco_example_diy():
     
 def coco_example_official():
     root_dir_50 = Path('/Volumes/Charles/DateSets/Detection/coco2017_50')
-    transform = Compose([Resize((224, 224), antialias=True), ToTensor()]) # type: ignore
+    transform = v2.Compose([
+        v2.Resize((224, 224), antialias=True), 
+        v2.ToImage(), 
+        v2.ToDtype(torch.float32, scale=True)
+    ])
     dataset = CocoDetection(
         root = (root_dir_50 / "train2017").__str__(), 
         annFile = (root_dir_50 / "annotations/instances_train2017.json").__str__(), 
