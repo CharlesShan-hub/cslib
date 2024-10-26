@@ -4,7 +4,7 @@ Config Utils Module
 Contains Base Options class for clib module and user module.
 """
 
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Union
 from argparse import Namespace
 from pathlib import Path
 from os import makedirs
@@ -56,7 +56,7 @@ class Options(Namespace):
         if len(params) > 0:
             self.update(params)
 
-    def INFO(self, string: str):
+    def info(self, string: str):
         """
         Print an information message.
 
@@ -72,10 +72,10 @@ class Options(Namespace):
         Args:
             args_dict (Dict[str, Any]): A dictionary containing the command line arguments.
         """
-        self.INFO("========== Parameters ==========")
+        self.info("========== Parameters ==========")
         for key in sorted(vars(self).keys()):
-            self.INFO("{:>15} : {}".format(key, getattr(self, key)))
-        self.INFO("===============================")
+            self.info("{:>15} : {}".format(key, getattr(self, key)))
+        self.info("===============================")
 
     def update(self, parmas: Dict[str, Any] = {}):
         """
@@ -100,7 +100,7 @@ class Options(Namespace):
             self.presentParameters()
         return self
     
-    def save(self, src: str = ''):
+    def save(self, src: Union[str,Path] = ''):
         """
         Save Config when train is over.
 
@@ -108,10 +108,10 @@ class Options(Namespace):
             params
         """
         src = self.ResBasePath if src == '' else src
-        _src: Path = Path(src) # type: ignore
-        if _src.exists() == False:
-            makedirs(_src)
-        with open(Path(_src,'config.json'), 'w') as f:
+        p = Path(src)
+        if p.exists() == False:
+            makedirs(p)
+        with open(Path(p,'config.json'), 'w') as f:
             f.write(self.__str__())
     
     def __str__(self):
