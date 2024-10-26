@@ -19,6 +19,7 @@ python $PYTHON_SCRIPT \
     --model_path "${RES_PATH}/9430/model.pth" \
     --dataset_path "${BASE_PATH}/torchvision"\
     --batch_size 8 \
+    --num_classes 10 \
     --use_relu False \
     --use_max_pool False \
     --comment "LeNET on MNNIST"

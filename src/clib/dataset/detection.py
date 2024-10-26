@@ -86,3 +86,6 @@ class DetectionToy(Dataset):
 
     def __len__(self):
         return len(self.ids)
+
+from torchvision.datasets import \
+    CocoDetection, CelebA, Cityscapes, Kitti, OxfordIIITPet, SBDataset, VOCDetection, VOCSegmentation, WIDERFace

@@ -4,7 +4,8 @@
   - LeNet
   - AlexNet
   - VGG
-  - CNN
+  - GoogLeNet
+  - ResNet
 - detection
   - RCNN
   - Fast-RCNN

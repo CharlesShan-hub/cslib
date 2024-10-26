@@ -5,21 +5,23 @@ from torch.utils.data import DataLoader
 from config import TestOptions
 from dataset import MNIST
 from transform import transform
-from model import LeNet
+from model import load_model
 
 @click.command()
 @click.option('--model_path', type=click.Path(exists=True), required=True)
 @click.option('--dataset_path', type=click.Path(exists=True), required=True)
 @click.option('--batch_size', type=int, default=8, show_default=True, required=False)
+@click.option('--num_classes', type=int, default=10, show_default=True)
 @click.option('--use_relu', type=bool, default=False, show_default=True)
 @click.option('--use_max_pool', type=bool, default=False, show_default=True)
 @click.option('--comment', type=str, default="", show_default=False)
-def test(model_path,dataset_path,batch_size,use_relu,use_max_pool,comment):
+def test(model_path,dataset_path,batch_size,num_classes,use_relu,use_max_pool,comment):
 
     opts = TestOptions().parse({
         'model_path': model_path,
         'dataset_path': dataset_path,
         'batch_size': batch_size,
+        'num_classes': num_classes,
         'use_relu': use_relu,
         'use_max_pool': use_max_pool,
         'comment': comment
@@ -29,7 +31,8 @@ def test(model_path,dataset_path,batch_size,use_relu,use_max_pool,comment):
         root=opts.dataset_path,
         train=False, 
         transform=transform,
-        download=True)
+        download=True
+    )
     
     dataloader = DataLoader(
         dataset=dataset,
@@ -37,10 +40,7 @@ def test(model_path,dataset_path,batch_size,use_relu,use_max_pool,comment):
         shuffle=False
     )
 
-    model = LeNet(
-        use_relu=opts.use_relu,
-        use_max_pool=opts.use_max_pool
-    ).eval()
+    model = load_model(opts)
 
     with torch.no_grad():
         correct = 0

@@ -2,8 +2,12 @@ import torch
 import torch.nn as nn
 
 def load_model(opts):
-    model = LeNet().to(opts.device)
-    params = torch.load(opts.pre_trained, map_location=opts.device)
+    model = LeNet(
+        num_classes = opts.num_classes,
+        use_relu = opts.use_relu,
+        use_max_pool = opts.use_max_pool
+    ).to(opts.device)
+    params = torch.load(opts.model_path, map_location=opts.device)
     model.load_state_dict(params)
     return model
 
