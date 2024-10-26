@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 # Generate and Load Data
 true_w = torch.tensor([2, -3.4])
 true_b = 4.2
-dataset = clib.data.LinearDataset(true_w, true_b, 1000, noise=True)
+dataset = clib.dataset.LinearDataset(true_w, true_b, 1000, noise=True)
 batch_size = 32
 dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 

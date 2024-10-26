@@ -1,6 +1,7 @@
-from torchvision.transforms import Compose, Resize, ToTensor
+from torchvision.transforms import Compose, Resize, ToTensor, Normalize
 
 transform = Compose([
-    ToTensor(), 
-    Resize((224, 224), antialias=True)
-])
+        Resize((28, 28)),
+        ToTensor(),
+        Normalize((0.5,), (0.5,))
+    ])

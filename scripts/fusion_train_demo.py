@@ -7,7 +7,7 @@ from torch.utils.data import DataLoader
 from pathlib import Path
 
 from clib.model.fusion import DeepFuse as Method
-from clib.data.fusion import FusionToy
+from clib.dataset.fusion import FusionToy
 import config
 
 opts = Method.TrainOptions().parse(config.opts['DeepFuse'])

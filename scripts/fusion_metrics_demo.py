@@ -4,7 +4,7 @@ import sqlite3
 import click
 
 import clib.metrics.fusion as metrics
-from clib.data import fusion as fusion_data
+from clib.dataset import fusion as fusion_data
 from config import opts
 
 '''

@@ -1,7 +1,7 @@
 ''' Import Image
 '''
 
-from clib.data.image import cat
+from clib.dataset.image import cat
 from clib.utils import glance
 from transform import transform
 
@@ -18,7 +18,7 @@ from torch import Tensor
 from torch import nn
 # from PIL import Image
 
-from datasets import *
+from dataset import *
 
 
 

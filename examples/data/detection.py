@@ -5,7 +5,7 @@ from torchvision.datasets import CocoDetection
 from tqdm import tqdm
 from pathlib import Path
 from clib.utils import glance
-from clib.data.detection import DetectionToy
+from clib.dataset.detection import DetectionToy
 
 
 def collate_fn(batch):

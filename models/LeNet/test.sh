@@ -2,9 +2,9 @@
 
 # Get Base Path
 
-BasePath=$(../check_path.sh)
-if [ -z "$BasePath" ]; then
-    echo "BasePath Not Find"
+BASE_PATH=$(../check_path.sh)
+if [ -z "$BASE_PATH" ]; then
+    echo "BASE_PATH Not Find"
     exit 1
 fi
 
@@ -12,10 +12,13 @@ fi
 # Run Script
 
 PYTHON_SCRIPT="test.py"
-ResPath="${BasePath}/LeNet/MNIST"
+RES_PATH="${BASE_PATH}/Model/LeNet/MNIST"
 
+# pth on the Mac PC
 python $PYTHON_SCRIPT \
-    --pre_trained "${ResPath}/temp/model.pth" \
+    --model_path "${RES_PATH}/9430/model.pth" \
+    --dataset_path "${BASE_PATH}/torchvision"\
     --batch_size 8 \
     --use_relu False \
-    --use_max_pool False
+    --use_max_pool False \
+    --comment "LeNET on MNNIST"

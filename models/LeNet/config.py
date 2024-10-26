@@ -20,7 +20,7 @@ class TestOptions(Options):
     def __init__(self):
         super().__init__('LeNet')
         self.update({
-            'pre_trained': 'model.pth',
+            'model_path': 'model.pth',
             'device': 'cuda' if is_available() else 'cpu',
             'batch_size': 64, 
         })
