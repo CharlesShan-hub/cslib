@@ -2,7 +2,6 @@ pytorch>=2.1
 numpy>=1.26.4
 scipy>=1.13.0
 kornia
-pytorch_msssim
 scikit-image
 scikit-learn
 matplotlib
@@ -12,3 +11,5 @@ einops
 tqdm
 visdom
 timm
+click
+tensorboard

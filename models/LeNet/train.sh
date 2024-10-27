@@ -24,10 +24,10 @@ python $PYTHON_SCRIPT \
     --use_max_pool False \
     --train_mode "Holdout" \
     --seed 42 \
-    --epoch 2 \
-    --batch_size 8 \
+    --epochs -1 \
+    --batch_size 32 \
     --lr 0.03 \
     --factor 0.1 \
-    --repeat 2 \
-    --val 0.8 \
-    --comment "LeNET on MNNIST"
+    --repeat 4 \
+    --val 0.2 \
+    --comment "LeNet on MNNIST"
