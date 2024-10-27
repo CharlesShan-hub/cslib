@@ -1,10 +1,10 @@
-torch>=2.1.0
+pytorch>=2.1
 numpy>=1.26.4
 scipy>=1.13.0
 kornia
 pytorch_msssim
 scikit-image
-sklearn
+scikit-learn
 matplotlib
 pycocotools
 torchvision
