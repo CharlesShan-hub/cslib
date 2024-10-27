@@ -6,13 +6,20 @@ class TrainOptions(Options):
         super().__init__('LeNet')
         self.update({
             'device': 'cuda' if is_available() else 'cpu',
-            'dataset_path': '../../data/mnist', 
-            'epochs': 1, 
+            'model_base_path': 'path/to/folder/to/save/pth',
+            'dataset_path': 'path/to/dataset',
+            'num_classes': 10,
+            'use_relu': False,
+            'use_max_pool': False,
+            'train_mode': ['Holdout','K-fold'][0],
+            'seed': 42,
+            'epochs': 2,
             'batch_size': 64, 
             'lr': 0.001, 
-            'repeat': 2,
-            'seed': 42,
-            'train_mode': ['Holdout','K-fold'][0]
+            'factor': 0.1, # lr_this_turn  = lr_last_turn * factor
+            'repeat': 2, # number of turns
+            'val': 0.8, # when Holdout, present to train
+            'comment': ''
         })
 
 
@@ -20,7 +27,12 @@ class TestOptions(Options):
     def __init__(self):
         super().__init__('LeNet')
         self.update({
-            'model_path': 'model.pth',
             'device': 'cuda' if is_available() else 'cpu',
-            'batch_size': 64, 
+            'model_path': 'path/to/model.pth',
+            'dataset_path': 'path/to/dataset',
+            'batch_size': 8,
+            'num_classes': 10,
+            'use_relu': False,
+            'use_max_pool': False,
+            'comment': ''
         })

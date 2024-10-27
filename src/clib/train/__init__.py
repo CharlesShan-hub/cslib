@@ -18,31 +18,31 @@ class Components:
         self._set_logger()
     
     def _set_seed(self):
-        torch.manual_seed(self.opts.seed) # 设置随机种子（仅在CPU上）
+        torch.manual_seed(self.opts.seed) # random seed (only cpu)
         if torch.cuda.is_available():
             torch.cuda.manual_seed(self.opts.seed)
-            torch.cuda.set_device(0)  # 假设使用第0号GPU
+            torch.cuda.set_device(0)  # if use GPU:0
     
     def _set_demo_components(self):
         self._model = torch.nn.Linear(256, 120)
-        self.criterion = torch.nn.Linear(256, 120)
+        self.criterion = torch.nn.CrossEntropyLoss()
         self.optimizer = torch.optim.Adam(self.model.parameters(), lr=0.001)
-        self.transform = transforms.ToTensor()
+        self.transform = transforms.Compose([])
         empty_dataset  = TensorDataset(torch.tensor([1,2,3,4,5]))# torch.utils.data.Dataset()
         self.train_loader = DataLoader(dataset=empty_dataset, batch_size=64, shuffle=True)
         self.val_loader = DataLoader(dataset=empty_dataset, batch_size=64, shuffle=True)
         self.test_loader = DataLoader(dataset=empty_dataset, batch_size=64, shuffle=True)
     
     def _build_folder(self):
-        assert(hasattr(self.opts,'ResBasePath'))
-        if Path(self.opts.ResBasePath).exists() == False:
-            os.makedirs(self.opts.ResBasePath)
+        assert(hasattr(self.opts,'model_base_path'))
+        if Path(self.opts.model_base_path).exists() == False:
+            os.makedirs(self.opts.model_base_path)
         else:
-            if list(Path(self.opts.ResBasePath).iterdir()):
-                raise SystemError(f"{self.opts.ResBasePath} should be empty")
+            if list(Path(self.opts.model_base_path).iterdir()):
+                raise SystemError(f"{self.opts.model_base_path} should be empty")
     
     def _set_logger(self):
-        self.writer = SummaryWriter(log_dir=self.opts.ResBasePath)
+        self.writer = SummaryWriter(log_dir=self.opts.model_base_path)
 
     @property
     def model(self):
@@ -55,18 +55,20 @@ class Components:
         self._model = value.to(self.opts.device)
     
     def save(self):
-        torch.save(self.model.state_dict(), Path(self.opts.ResBasePath,'model.pth'))
+        torch.save(self.model.state_dict(), Path(self.opts.model_base_path,'model.pth'))
         self.opts.save()
 
 
 class BaseTrainer(Components):
-    def __init__(self, opts, TrainOptions, **kwargs):
-        super().__init__(TrainOptions().parse(opts,present=False))
-        build_list = ['model','criterion','optimizer','transform','train_loader','val_loader','test_loader']
-        for item in build_list:
-            value = kwargs[item] if item in kwargs else getattr(self, f'default_{item}')()
-            assert(value is not None)
-            setattr(self,item,value)
+    def __init__(self, opts, TrainOptions=None, **kwargs):
+        if TrainOptions is not None:
+            opts = TrainOptions().parse(opts,present=False)
+        super().__init__(opts)
+        # build_list = ['model','criterion','optimizer','transform','train_loader','val_loader','test_loader']
+        # for item in build_list:
+        #     value = kwargs[item] if item in kwargs else getattr(self, f'default_{item}')()
+        #     if (value is not None):
+        #         setattr(self,item,value)
     
     def adjust_learning_rate(self,factor=0.1):
         for param_group in self.optimizer.param_groups:
@@ -151,7 +153,7 @@ class BaseTrainer(Components):
         if self.opts.train_mode == 'Holdout':
             self.train_Holdout()
         elif self.opts.train_mode == 'K-fold':
-                self.train_K_fold()
+            self.train_K_fold()
         else:
             self.train_Holdout()
         self.test()

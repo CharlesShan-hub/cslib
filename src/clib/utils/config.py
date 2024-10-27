@@ -70,7 +70,7 @@ class Options(Namespace):
             args_dict (Dict[str, Any]): A dictionary containing the command line arguments.
         """
         self.info("========== Parameters ==========")
-        for key in sorted(vars(self).keys()):
+        for key in vars(self).keys():
             self.info("{:>15} : {}".format(key, getattr(self, key)))
         self.info("===============================")
 
@@ -84,7 +84,7 @@ class Options(Namespace):
         for (key, value) in parmas.items():
             setattr(self, key, value)
     
-    def parse(self, parmas: Dict[str, Any] = {}, present: bool = True):
+    def parse(self, parmas: Dict[str, Any] = {}, present: bool = False):
         """
         Update the command line arguments. Can also present into command line.
         
@@ -104,7 +104,7 @@ class Options(Namespace):
         Args:
             params
         """
-        src = self.ResBasePath if src == '' else src
+        src = self.model_base_path if src == '' else src
         p = Path(src)
         if p.exists() == False:
             makedirs(p)

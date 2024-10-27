@@ -211,11 +211,12 @@ def glance(
         plt.imshow((image[k]*255).astype(np.uint8), 
                 cmap='gray' if image[k].ndim == 2 else 'viridis')
         if len(annotations)>0:
-            for anno in annotations[k-1]['boxes']:
-                x_min, y_min, x_max, y_max = [anno[i] for i in range(4)]
-                rect = patches.Rectangle((x_min, y_min), x_max - x_min, y_max - y_min,
-                             linewidth=1, edgecolor='r', facecolor='none')
-                plt.gca().add_patch(rect)
+            if hasattr(annotations[k-1],'boxes'):
+                for anno in annotations[k-1]['boxes']:
+                    x_min, y_min, x_max, y_max = [anno[i] for i in range(4)]
+                    rect = patches.Rectangle((x_min, y_min), x_max - x_min, y_max - y_min,
+                                linewidth=1, edgecolor='r', facecolor='none')
+                    plt.gca().add_patch(rect)
         if title != "": plt.title(title[k] if isinstance(title,list) else title)
         if hide_axis: plt.axis('off')
     plt.show()
