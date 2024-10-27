@@ -1,0 +1,14 @@
+torch>=2.1.0
+numpy>=1.26.4
+scipy>=1.13.0
+kornia
+pytorch_msssim
+skimage
+sklearn
+matplotlib
+pycocotools
+torchvision
+einops
+tqdm
+visdom
+timm
