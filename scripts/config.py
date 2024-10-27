@@ -1,5 +1,5 @@
 from pathlib import Path
-from clib.utils import ConfigDict
+from clib.deprecated import ConfigDict
         
 opts = ConfigDict(data_root_path_list=[
             '/root/autodl-fs/DateSets',
