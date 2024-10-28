@@ -25,9 +25,9 @@ python $PYTHON_SCRIPT \
     --train_mode "Holdout" \
     --seed 42 \
     --epochs -1 \
-    --batch_size 32 \
+    --batch_size 16 \
     --lr 0.03 \
-    --factor 0.1 \
-    --repeat 4 \
+    --factor 0.5 \
+    --repeat 8 \
     --val 0.2 \
-    --comment "LeNet on MNNIST"
+    --comment "LeNet on MNIST"

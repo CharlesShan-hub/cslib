@@ -1,4 +1,5 @@
 import click
+import torch
 import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets
@@ -58,8 +59,7 @@ def train(
             "repeat": repeat,
             "val": val,
             "comment": comment,
-        },
-        present=True,
+        }
     )
 
     trainer = BaseTrainer(opts)
@@ -79,15 +79,31 @@ def train(
     )
     val_size = int(opts.val * len(train_dataset))
     train_size = len(train_dataset) - val_size
-    train_dataset, val_dataset = random_split(train_dataset, [train_size, val_size])
+    train_dataset, val_dataset = random_split(
+        train_dataset,
+        [train_size, val_size],
+        generator=torch.Generator().manual_seed(opts.seed),
+    )
     trainer.train_loader = DataLoader(
-        dataset=train_dataset, batch_size=opts.batch_size, shuffle=True
+        dataset=train_dataset,
+        batch_size=opts.batch_size,
+        shuffle=True,
+        worker_init_fn=trainer.seed_worker,
+        generator=trainer.g,
     )
     trainer.val_loader = DataLoader(
-        dataset=val_dataset, batch_size=opts.batch_size, shuffle=True
+        dataset=val_dataset,
+        batch_size=opts.batch_size,
+        shuffle=True,
+        worker_init_fn=trainer.seed_worker,
+        generator=trainer.g,
     )
     trainer.test_loader = DataLoader(
-        dataset=test_dataset, batch_size=opts.batch_size, shuffle=True
+        dataset=test_dataset,
+        batch_size=opts.batch_size,
+        shuffle=True,
+        worker_init_fn=trainer.seed_worker,
+        generator=trainer.g,
     )
     trainer.train()
 

@@ -3,6 +3,8 @@ from pathlib import Path
 from tqdm import tqdm
 from collections import deque
 import os
+import random
+import numpy as np
 
 os.environ["TF_CPP_MIN_LOG_LEVEL"] = "2"
 from torch.utils.tensorboard.writer import SummaryWriter
@@ -14,16 +16,30 @@ from sklearn.model_selection import StratifiedKFold
 class Components:
     def __init__(self, opts) -> None:
         self.opts = opts
+        self.epoch_history = 0
         self._set_seed()
         self._set_demo_components()
         self._build_folder()
         self._set_logger()
 
     def _set_seed(self):
+        def seed_worker(worker_id):
+            worker_seed = torch.initial_seed() % 2**32
+            np.random.seed(worker_seed)
+            random.seed(worker_seed)
+
+        self.seed_worker = seed_worker
+
+        g = torch.Generator()
+        g.manual_seed(self.opts.seed)
+        self.g = g
+
         torch.manual_seed(self.opts.seed)  # random seed (only cpu)
         if torch.cuda.is_available():
             torch.cuda.manual_seed(self.opts.seed)
-            torch.cuda.set_device(0)  # if use GPU:0
+            torch.cuda.manual_seed_all(self.opts.seed)  # seed all GPUs
+            torch.backends.cudnn.deterministic = True
+            torch.backends.cudnn.benchmark = False
 
     def _set_demo_components(self):
         self._model = torch.nn.Linear(256, 120)
@@ -129,13 +145,16 @@ class BaseTrainer(Components):
                 print(
                     f"Epoch [{epoch}/{self.opts.epochs if self.opts.epochs != -1 else '∞'}], Train Loss: {epoch_loss:.4f}, Val Loss: {val_loss:.4f}"
                 )
-                self.writer.add_scalar("Loss/train", epoch_loss, epoch)
-                self.writer.add_scalar("Loss/val", val_loss, epoch)
+                self.writer.add_scalar(
+                    "Loss/train", epoch_loss, epoch + self.epoch_history
+                )
+                self.writer.add_scalar("Loss/val", val_loss, epoch + self.epoch_history)
                 recent_losses.append(val_loss)
                 if len(recent_losses) == 3 and all(
                     x <= y for x, y in zip(recent_losses, list(recent_losses)[1:])
                 ):
                     print("Training has converged. Stopping...")
+                    self.epoch_history += epoch
                     break
                 if self.opts.epochs != -1 and epoch >= self.opts.epochs:
                     break
