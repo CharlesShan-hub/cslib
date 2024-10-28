@@ -1,1 +1,1 @@
-from clib.dataset import VOCDetection
+from clib.dataset import Flowers17

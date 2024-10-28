@@ -4,7 +4,7 @@
 paths=(
     '/root/autodl-fs/DateSets'
     '/Volumes/Charles/DateSets'
-    '/Users/kimshan/resources/DataSets',
+    '/Users/kimshan/resources/DataSets'
     '/home/vision/sht/DataSets'
 )
 
