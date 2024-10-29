@@ -5,9 +5,11 @@ import torch
 
 class AlexNet(nn.Module):
 
-    def __init__(self, num_classes):
+    def __init__(self, num_classes, classify=True, fine_tuning=False, init_weight=None):
         super(AlexNet, self).__init__()
         self.num_classes = num_classes
+        self.classify = classify
+        self.fine_tuning = fine_tuning
 
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
@@ -51,8 +53,28 @@ class AlexNet(nn.Module):
         feature = self.active9(x)
         final = self.fn10(feature)
 
-        #return feature, final
-        return final
+        if self.classify:
+            return final
+        if self.fine_tuning:
+            return feature
+    
+    def init_weights(self,pre_trained_url,pre_trained_path):
+        from torch.hub import load_state_dict_from_url
+
+        state_dict=load_state_dict_from_url(
+            url=pre_trained_url, 
+            model_dir=pre_trained_path,
+            progress=True
+        )
+        current_state = self.state_dict()
+        keys = list(state_dict.keys())
+        for key in keys:
+            if key.startswith('features'):
+                current_state[key] = state_dict[key]
+        current_state['fn8.weight'] = state_dict['classifier.1.weight']
+        current_state['fn8.bias'] = state_dict['classifier.1.bias']
+        current_state['fn9.weight'] = state_dict['classifier.4.weight']
+        current_state['fn9.bias'] = state_dict['classifier.4.bias']
 
 
 class SVM:

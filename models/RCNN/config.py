@@ -4,15 +4,17 @@ from clib.utils import Options
 
 class TrainOptions(Options):
     def __init__(self):
-        super().__init__("RCNN")
+        super().__init__("RCNN - AlexNet")
         self.update(
             {
                 "device": "cuda" if is_available() else "cpu",
                 "model_base_path": "path/to/folder/to/save/pth",
                 "dataset_path": "path/to/dataset",
-                "num_classes": 10,
-                "use_relu": False,
-                "use_max_pool": False,
+                "pre_trained": True,
+                "pre_trained_path": "path/to/save/pre_trained.pth",
+                "pre_trained_url":"https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth",
+                "num_classes": 17,
+                "image_size": 224,
                 "train_mode": ["Holdout", "K-fold"][0],
                 "seed": 42,
                 "epochs": 2,

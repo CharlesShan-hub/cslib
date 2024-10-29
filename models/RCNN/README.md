@@ -1,4 +1,42 @@
 # RCNN
 
-* Modified from: https://github.com/cassiePython/RCNN
-* Dataset: https://www.robots.ox.ac.uk/~vgg/data/flowers/17/
+## Overview
+
+![feature](./assets/overview.jpg)
+
+- Modified from: https://github.com/cassiePython/RCNN
+- Dataset: https://www.robots.ox.ac.uk/~vgg/data/flowers/17/
+- Note: https://blog.csdn.net/v_JULY_v/article/details/80170182
+
+## Roadmap
+
+1. 训练（或者下载）一个分类模型（比如 AlexNet）
+
+   ![claasify](./assets/step1.jpg)
+
+   ```bash
+   (Pytorch2) kimshan@MacBook-Pro-2 RCNN % chmod 777 ./train_classifier.sh
+   (Pytorch2) kimshan@MacBook-Pro-2 RCNN % ./train_classifier.sh
+   ```
+
+2. 对该模型做 fine-tuning
+
+   - 将分类数从 1000 改为 20，比如 20 个物体类别 + 1 个背景
+   - 去掉最后一个全连接层
+
+   ![fine-tuning](./assets/step2.jpg)
+
+3. 特征提取
+
+   - 提取图像的所有候选框（选择性搜索 Selective Search）
+   - 对于每一个区域：修正区域大小以适合 CNN 的输入，做一次前向运算，将第五个池化层的输出（就是对候选框提取到的特征）存到硬盘
+
+   ![feature](./assets/step3.jpg)
+
+4. 训练一个 SVM 分类器（二分类）来判断这个候选框里物体的类别每个类别对应一个 SVM，判断是不是属于这个类别，是就是 positive，反之 nagative。比如下图，就是狗分类的 SVM
+
+   ![SVM](./assets/step4.png)
+
+5. 使用回归器精细修正候选框位置：对于每一个类，训练一个线性回归模型去判定这个框是否框得完美。
+
+   ![modify](./assets/step5.png)

@@ -23,11 +23,11 @@ python $PYTHON_SCRIPT \
     --use_relu False \
     --use_max_pool False \
     --train_mode "Holdout" \
-    --seed 42 \
+    --seed 32 \
     --epochs -1 \
-    --batch_size 16 \
-    --lr 0.03 \
+    --batch_size 32 \
+    --lr 0.003 \
     --factor 0.5 \
-    --repeat 8 \
+    --repeat 6 \
     --val 0.2 \
     --comment "LeNet on MNIST"

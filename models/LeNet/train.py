@@ -4,11 +4,12 @@ import torch.nn as nn
 import torch.optim as optim
 from torchvision import datasets
 from torch.utils.data import DataLoader, random_split
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from transform import transform
 from model import LeNet
 from config import TrainOptions
-from clib.train import BaseTrainer
+from clib.train import ClassifyTrainer
 
 
 @click.command()
@@ -62,7 +63,7 @@ def train(
         }
     )
 
-    trainer = BaseTrainer(opts)
+    trainer = ClassifyTrainer(opts)
     trainer.model = LeNet(
         num_classes=opts.num_classes,
         use_max_pool=opts.use_max_pool,
@@ -70,6 +71,12 @@ def train(
     )
     trainer.criterion = nn.CrossEntropyLoss()
     trainer.optimizer = optim.Adam(params=trainer.model.parameters(), lr=opts.lr)
+    trainer.scheduler = ReduceLROnPlateau(
+        optimizer=trainer.optimizer, 
+        mode='min', 
+        factor=opts.factor, 
+        patience=2
+    )
     trainer.transform = transform
     train_dataset = datasets.MNIST(
         root=opts.dataset_path, train=True, download=True, transform=trainer.transform

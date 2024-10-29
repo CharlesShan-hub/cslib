@@ -7,11 +7,14 @@ import torch.optim as optim
 from model import AlexNet
 from dataset import Flowers17
 from transform import transform
-from clib.train import BaseTrainer
+from clib.train import ClassifyTrainer
 
 @click.command()
 @click.option("--model_base_path", type=click.Path(exists=True), required=True)
 @click.option("--dataset_path", type=click.Path(exists=True), required=True)
+@click.option("--pre_trained", type=bool, default=True, show_default=True)
+@click.option("--pre_trained_path", type=click.Path(exists=True), required=True)
+@click.option("--pre_trained_url", type=str, required=True)
 @click.option("--num_classes", type=int, default=17, show_default=True)
 @click.option("--image_size", type=int, default=224, show_default=True)
 @click.option("--train_mode", type=str, default="Holdout", show_default=False)
@@ -26,6 +29,9 @@ from clib.train import BaseTrainer
 def train(
     model_base_path,
     dataset_path,
+    pre_trained,
+    pre_trained_path,
+    pre_trained_url,
     num_classes,
     image_size,
     train_mode,
@@ -42,6 +48,9 @@ def train(
         {
             "model_base_path": model_base_path,
             "dataset_path": dataset_path,
+            "pre_trained":pre_trained,
+            "pre_trained_url":pre_trained_url,
+            "pre_trained_path":pre_trained_path,
             "num_classes": num_classes,
             "image_size": image_size,
             "train_mode": train_mode,
@@ -56,9 +65,11 @@ def train(
         }
     )
 
-    trainer = BaseTrainer(opts)
+    trainer = ClassifyTrainer(opts)
     trainer.model = AlexNet(
-        num_classes = opts.num_classes,
+        num_classes=opts.num_classes,
+        classify=True,
+        fine_tuning=False
     )
     trainer.criterion = nn.CrossEntropyLoss()
     trainer.optimizer = optim.Adam(params=trainer.model.parameters(), lr=opts.lr)
@@ -93,6 +104,11 @@ def train(
         worker_init_fn=trainer.seed_worker,
         generator=trainer.g,
     )
+    if opts.pre_trained:
+        trainer.model.init_weights(
+            pre_trained_path=opts.pre_trained_path,
+            pre_trained_url=opts.pre_trained_url
+        )
     trainer.train()
     
 
