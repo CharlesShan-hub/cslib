@@ -37,7 +37,7 @@ class TrainOptions(Options):
                     13: 'SGD', 
                     14: 'SparseAdam'
                 }[13],
-                "lr": 0.001,
+                "lr": 0.01,
                 "lr_scheduler": {
                     1: 'LambdaLR', 
                     2: 'MultiplicativeLR', 
@@ -91,6 +91,6 @@ class TestOptions(Options):
                 "use_max_pool": False,
 
                 # Test Config
-                "batch_size": 8,
+                "batch_size": 32,
             }
         )

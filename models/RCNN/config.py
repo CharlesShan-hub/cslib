@@ -7,38 +7,59 @@ class TrainOptions(Options):
         super().__init__("RCNN - AlexNet")
         self.update(
             {
+                # Utils
+                "comment": "",
                 "device": "cuda" if is_available() else "cpu",
-                "model_base_path": "path/to/folder/to/save/pth",
+                "model_base_path": "path/to/folder/to/save/ckpt",
                 "dataset_path": "path/to/dataset",
+
+                # Model Option
                 "pre_trained": True,
                 "pre_trained_path": "path/to/save/pre_trained.pth",
                 "pre_trained_url":"https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth",
                 "num_classes": 17,
                 "image_size": 224,
-                "train_mode": ["Holdout", "K-fold"][0],
+                
+                # Train Config
                 "seed": 42,
-                "epochs": 2,
                 "batch_size": 64,
-                "lr": 0.001,
-                "factor": 0.1,  # lr_this_turn  = lr_last_turn * factor
-                "repeat": 2,  # number of turns
-                "val": 0.2,  # when Holdout, present to validate (not for train!)
-                "comment": "",
+                "epochs": 2,
+                "optimizer": 'SGD',
+                "lr": 0.01,
+                "lr_scheduler": 'ReduceLROnPlateau',
+                "max_epoch": {
+                    1: 0,   # unlimit max epoch (need ReduceLROnPlateau and limit reduce)
+                    2: 100,
+                }[2],
+                "max_reduce": {
+                    1: 0,   # unlimit max reduce (need limit reduce)
+                    2: 4,
+                }[2], # when ReduceLROnPlateau, max reduce number
+                "factor": 0.1,  # when ConstantLR | ReduceLROnPlateau, lr_new  = lr_old * factor
+                "train_mode": {
+                    1:"Holdout", 
+                    2:"K-fold"
+                }[1],
+                "val": 0.2,  # when Holdout, precent to validate (not for train!)
             }
         )
 
 class TestOptions(Options):
     def __init__(self):
-        super().__init__('RCNN')
+        super().__init__('RCNN - AlexNet')
         self.update(
             {
+                # Utils
+                'comment': '',
                 'device': 'cuda' if is_available() else 'cpu',
                 'model_path': 'path/to/model.pth',
                 'dataset_path': 'path/to/dataset',
+                
+                # Model Option
+                'num_classes': 17,
+
+                # Test Config
                 'batch_size': 8,
-                'num_classes': 10,
-                'use_relu': False,
-                'use_max_pool': False,
-                'comment': ''
+                
             }
         )
