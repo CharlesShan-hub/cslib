@@ -17,17 +17,17 @@ mkdir -p "${RES_PATH}/${NAME}"
 # Run Script
 
 python $PYTHON_SCRIPT \
+    --comment "LeNet on MNIST with ReduceLROnPlateau on SGD" \
     --model_base_path "${RES_PATH}/${NAME}" \
-    --dataset_path "${BASE_PATH}/torchvision"\
+    --dataset_path "${BASE_PATH}/torchvision" \
     --num_classes 10 \
     --use_relu False \
     --use_max_pool False \
-    --train_mode "Holdout" \
     --seed 32 \
-    --epochs -1 \
     --batch_size 32 \
-    --lr 0.003 \
-    --factor 0.5 \
-    --repeat 6 \
-    --val 0.2 \
-    --comment "LeNet on MNIST"
+    --lr 0.3 \
+    --max_epoch 100 \
+    --max_reduce 3 \
+    --factor 0.1 \
+    --train_mode "Holdout" \
+    --val 0.2

@@ -16,10 +16,10 @@ RES_PATH="${BASE_PATH}/Model/LeNet/MNIST"
 
 # pth on the Mac PC
 python $PYTHON_SCRIPT \
-    --model_path "${RES_PATH}/9430/model.pth" \
+    --comment "LeNET on MNNIST" \
+    --model_path "${RES_PATH}/9903/checkpoints/13.pt" \
     --dataset_path "${BASE_PATH}/torchvision"\
-    --batch_size 8 \
     --num_classes 10 \
     --use_relu False \
     --use_max_pool False \
-    --comment "LeNET on MNNIST"
+    --batch_size 32

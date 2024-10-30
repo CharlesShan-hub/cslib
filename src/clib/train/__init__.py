@@ -1,8 +1,6 @@
 from typing import Optional
 import torch
 from pathlib import Path
-from tqdm import tqdm
-from collections import deque
 import os
 import random
 import numpy as np
@@ -12,13 +10,16 @@ from torch.utils.tensorboard.writer import SummaryWriter
 from torchvision import transforms
 from sklearn.model_selection import StratifiedKFold
 
+EPOCH_UNLIMIT = 0
+REDUCE_UNLIMIT = 0
 
-class Components:
+class BaseTrainer():
     def __init__(self, opts):
         self.opts = opts
         self._set_seed()
         self._build_folder()
         self._set_components()
+        self._valid()
         
     def _set_seed(self):
         """
@@ -97,21 +98,24 @@ class Components:
         assert Path(self.opts.model_base_path).exists()
         if list(Path(self.opts.model_base_path).iterdir()):
             raise SystemError(f"{self.opts.model_base_path} should be empty")
+        (Path(self.opts.model_base_path) / 'checkpoints').mkdir()
 
-    def save_pth(self):
+    def _valid(self):
+        if self.opts.lr_scheduler == 'ReduceLROnPlateau':
+            if self.opts.max_epoch == self.opts.max_reduce == EPOCH_UNLIMIT:
+                raise ValueError("epoch and reduce can't unlimit both.")
+            self._current_lr = self.opts.lr
+            self._reduce_count = 0
+
+    def save_opts(self):
         """
-        Save pth(without network) and opts
+        Save opts
         """
-        assert self.model is not None
-        torch.save(
-            self.model.state_dict(), 
-            Path(self.opts.model_base_path, "model.pth")
-        )
         self.opts.save()
     
-    def save_checkpoint(self,epoch):
+    def save_checkpoint(self,epoch):#TODO
         """
-        TODO : Save ckpt
+        Save ckpt
         """
         assert self.model is not None
         assert self.optimizer is not None
@@ -122,58 +126,49 @@ class Components:
             'optimizer_state_dict': self.optimizer.state_dict(),
             'loss': self.loss.item()
         }
-        torch.save(checkpoint, Path(self.opts.model_base_path, f"/ckpt/{epoch}.ckpt"))
-        
-
-
-class BaseTrainer(Components):
-    def __init__(self, opts):
-        super().__init__(opts)
-
-    def adjust_learning_rate(self, factor=0.1):
-        assert self.optimizer is not None
-        for param_group in self.optimizer.param_groups:
-            param_group["lr"] *= factor
+        torch.save(checkpoint, Path(self.opts.model_base_path) / f"checkpoints/{epoch}.pt")
     
     def test(self):
         raise RuntimeError("You should implement in subclass")
     
-    def holdout(self):
-        self.epoch_history: int = 0
-        assert self.optimizer is not None 
-        for i in range(self.opts.repeat):
-            print(f"Starting training round {i+1}/{self.opts.repeat}")
-            self.holdout_epoch()
-            if i != self.opts.repeat - 1:
-                self.adjust_learning_rate(factor=self.opts.factor)
-                print(f"Adjusted lr to {self.optimizer.param_groups[0]['lr']:.6f} for this round.")
-    
-    def holdout_epoch(self):
-        assert self.train_loader is not None
-        assert self.model is not None
-        recent_losses = deque(maxlen=3)
-        epoch = 0
-        while True:
-            epoch += 1
-            pbar = tqdm(self.train_loader, total=len(self.train_loader))
-            self.model.train()
-            train_loss = self.holdout_epoch_train(pbar, epoch)
-            self.model.eval()
-            val_loss = self.holdout_epoch_validate(epoch)
-            recent_losses.append(val_loss)
-            if len(recent_losses) == 3 and all(
-                x <= y for x, y in zip(recent_losses, list(recent_losses)[1:])
-            ):
-                print("Training has converged. Stopping...")
-                self.epoch_history += epoch
-                break
-            if self.opts.epochs != -1 and epoch >= self.opts.epochs:
-                break
+    def get_lr(self):
+        if isinstance(self.scheduler,torch.optim.lr_scheduler.ReduceLROnPlateau):
+            return self.scheduler.optimizer.param_groups[0]['lr']
+        else:
+            assert ValueError("Not realized yet!")
 
-    def holdout_epoch_train(self, pbar, epoch):
+    def _is_last_epoch(self,epoch):
+        if self.opts.max_epoch != EPOCH_UNLIMIT:
+            if epoch == self.opts.max_epoch:
+                return True
+                
+        if isinstance(self.scheduler,torch.optim.lr_scheduler.ReduceLROnPlateau):
+            if self._current_lr != self.get_lr():
+                self._current_lr = self.get_lr()
+                self._reduce_count += 1
+                if self._reduce_count == self.opts.max_reduce:
+                    return True
+            
+        else:
+            assert ValueError("Not realized yet!")
+        
+        return False
+    
+    def holdout(self):
+        epoch = 1
+        while True:
+            self.holdout_train(epoch)
+            self.holdout_validate(epoch)
+            self.save_checkpoint(epoch)
+            if self._is_last_epoch(epoch):
+                print("Training has converged. Stopping...")
+                break
+            epoch+=1
+
+    def holdout_train(self, epoch):
         raise RuntimeError("You should implement in subclass")
 
-    def holdout_epoch_validate(self):
+    def holdout_validate(self, epoch):
         raise RuntimeError("You should implement in subclass")
 
     def k_fold(self):
@@ -188,112 +183,4 @@ class BaseTrainer(Components):
         else:
             self.holdout()
         self.test()
-        self.save()
-
-
-class ClassifyTrainer(BaseTrainer):
-    def __init__(self, opts):
-        super().__init__(opts)
-
-    def holdout_epoch_train(self, pbar, epoch):
-        assert self.optimizer is not None
-        assert self.model is not None
-        assert self.criterion is not None
-        assert self.train_loader is not None
-        running_loss = torch.tensor(0.0).to(self.opts.device)
-        batch_index = 0
-        correct = 0
-        total = 0
-        for images, labels in pbar:
-            images = images.to(self.opts.device)
-            labels = labels.to(self.opts.device)
-            self.optimizer.zero_grad()
-            outputs = self.model(images)
-            loss = self.criterion(outputs, labels)
-            loss.backward()
-            self.optimizer.step()
-            batch_index += 1
-            running_loss += loss
-            pbar.set_description(
-                f"Epoch [{epoch}/{self.opts.epochs if self.opts.epochs != -1 else '∞'}]"
-            )
-            pbar.set_postfix(loss=(running_loss.item() / batch_index))
-            total += labels.size(0)
-            _, predicted = torch.max(outputs.data, 1)
-            correct += (predicted == labels).sum().item()
-
-        train_loss = running_loss / len(self.train_loader)
-        train_accuracy = correct / total
-        self.loss = loss
-        breakpoint()
-
-        self.writer.add_scalar(
-            tag = "Loss/train", 
-            scalar_value = train_loss, 
-            global_step = epoch + self.epoch_history
-        )
-        self.writer.add_scalar(
-            tag = "Accuracy/train", 
-            scalar_value = train_accuracy, 
-            global_step = epoch + self.epoch_history
-        )
-
-        print(f"Epoch [{epoch}/{self.opts.epochs if self.opts.epochs != -1 else '∞'}]", \
-              f"Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.4f}")
-        
-        return train_loss
-
-    def holdout_epoch_validate(self,epoch):
-        assert self.model is not None
-        assert self.criterion is not None
-        assert self.val_loader is not None
-        running_loss = torch.tensor(0.0).to(self.opts.device)
-        with torch.no_grad():
-            correct = 0
-            total = 0
-            for images, labels in self.val_loader:
-                images = images.to(self.opts.device)
-                labels = labels.to(self.opts.device)
-                outputs = self.model(images)
-                running_loss += self.criterion(outputs, labels).item()
-                total += labels.size(0)
-                _, predicted = torch.max(outputs.data, 1)
-                correct += (predicted == labels).sum().item()
-
-        val_loss = running_loss / len(self.val_loader)
-        val_accuracy = correct / total
-    
-        self.writer.add_scalar(
-            tag="Loss/val", 
-            scalar_value=val_loss, 
-            global_step=epoch + self.epoch_history
-        )
-        self.writer.add_scalar(
-            tag = "Accuracy/val", 
-            scalar_value = val_accuracy, 
-            global_step = epoch + self.epoch_history
-        )
-
-        print(f"Epoch [{epoch}/{self.opts.epochs if self.opts.epochs != -1 else '∞'}]", \
-              f"Val Loss: {val_loss:.4f}, Val Accuracy: {val_accuracy:.4f}")
-
-        return val_loss
-    
-    def test(self):
-        assert self.model is not None
-        assert self.test_loader is not None
-        self.model.eval()
-        with torch.no_grad():
-            correct = 0
-            total = 0
-            for images, labels in self.test_loader:
-                images = images.to(self.opts.device)
-                labels = labels.to(self.opts.device)
-                outputs = self.model(images)
-                _, predicted = torch.max(outputs.data, 1)
-                total += labels.size(0)
-                correct += (predicted == labels).sum().item()
-
-            print(
-                f"Accuracy of the model on the {len(self.test_loader)} test images: {100 * correct / total:.2f}%"
-            )
+        self.save_opts()

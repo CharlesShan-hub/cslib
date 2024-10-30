@@ -9,7 +9,7 @@ def load_model(opts):
         use_max_pool=opts.use_max_pool,
     ).to(opts.device)
     params = torch.load(opts.model_path, map_location=opts.device)
-    model.load_state_dict(params)
+    model.load_state_dict(params['model_state_dict'])
     return model
 
 
