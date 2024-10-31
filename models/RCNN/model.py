@@ -2,18 +2,6 @@ import torch.nn as nn
 from sklearn import svm
 import torch
 
-
-def load_model(opts):
-    model = AlexNet(
-        num_classes=opts.num_classes,
-        classify=True,
-        fine_tuning=False,
-    ).to(opts.device)
-    params = torch.load(opts.model_path, map_location=opts.device)
-    model.load_state_dict(params['model_state_dict'])
-    return model
-
-
 class AlexNet(nn.Module):
 
     def __init__(self, num_classes, classify=True, fine_tuning=False, init_weight=None):

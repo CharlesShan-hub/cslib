@@ -176,6 +176,7 @@ class BaseTrainer():
 
     def train(self):
         self.opts.presentParameters()
+        self.model.to(self.opts.device)
         if self.opts.train_mode == "Holdout":
             self.holdout()
         elif self.opts.train_mode == "K-fold":

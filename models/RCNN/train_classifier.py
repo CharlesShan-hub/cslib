@@ -20,7 +20,7 @@ class AlexNetTrainer(BaseTrainer):
             num_classes=opts.num_classes,
             classify=True,
             fine_tuning=False
-        )
+        ).to(opts.device)
 
         self.criterion = nn.CrossEntropyLoss()
 

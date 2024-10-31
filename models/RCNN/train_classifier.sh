@@ -28,7 +28,7 @@ python $PYTHON_SCRIPT \
     --seed 42 \
     --batch_size 16 \
     --lr 0.03 \
-    --max_epoch 2 \
+    --max_epoch 100 \
     --max_reduce 3 \
     --factor 0.1 \
     --train_mode "Holdout" \
