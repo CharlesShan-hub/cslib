@@ -8,7 +8,7 @@ if [ -z "$BASE_PATH" ]; then
     exit 1
 fi
 
-PYTHON_SCRIPT="train_classifier.py"
+PYTHON_SCRIPT="train_finetune.py"
 RES_PATH="${BASE_PATH}/Model/RCNN/Flowers17"
 NAME=$(date +'%Y_%m_%d_%H_%M')
 mkdir -p "${RES_PATH}/${NAME}"
@@ -17,13 +17,12 @@ mkdir -p "${RES_PATH}/${NAME}"
 # Run Script
 
 python $PYTHON_SCRIPT \
-    --comment "(RCNN on 17flowers) step1: Train AlexNet Classifier(with pre-trained model)" \
+    --comment "(RCNN on 2flowers) step2: Finetune AlexNet Classifier(with pre-trained model)" \
     --model_base_path "${RES_PATH}/${NAME}" \
     --dataset_path "${BASE_PATH}/torchvision"\
     --pre_trained True \
-    --pre_train_save_path "${RES_PATH}" \
-    --pre_trained_url "https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth" \
-    --num_classes 17 \
+    --pre_trained_url "${RES_PATH}/AlexNet_Classifier/checkpoints/53.pt" \
+    --num_classes 3 \
     --image_size 224 \
     --seed 42 \
     --batch_size 16 \
@@ -32,4 +31,6 @@ python $PYTHON_SCRIPT \
     --max_reduce 3 \
     --factor 0.1 \
     --train_mode "Holdout" \
-    --val 0.2
+    --val_size 0.2 \
+    --test_size 0.2 \
+    --seed 42

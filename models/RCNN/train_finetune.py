@@ -1,25 +1,26 @@
 import click
 from tqdm import tqdm
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 import torch
 from torch import nn, optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
 from config import TrainOptions
 from model import AlexNet
-from dataset import Flowers17
+from dataset import Flowers2
 from transform import transform
 from clib.train import BaseTrainer
 
 
-class FinetuneTrainer(BaseTrainer):
+class AlexNetTrainer(BaseTrainer):
     def __init__(self, opts):
         super().__init__(opts)
 
         self.model = AlexNet(
             num_classes=opts.num_classes,
             classify=True,
-            fine_tuning=True
+            fine_tuning=False,
+            device=opts.device
         ).to(opts.device)
 
         self.criterion = nn.CrossEntropyLoss()
@@ -40,15 +41,22 @@ class FinetuneTrainer(BaseTrainer):
 
         self.transform = transform(opts.image_size)
 
-        train_dataset = Flowers17(
-            root=opts.dataset_path, split="train", download=True, transform=self.transform
+        dataset = Flowers2(
+            root=opts.dataset_path,
+            is_svm=False,
+            image_size=opts.image_size,
+            transform=self.transform
         )
-        val_dataset = Flowers17(
-            root=opts.dataset_path, split="val", download=True, transform=self.transform
+
+        val_size = int(opts.val_size * len(dataset))
+        test_size = int(opts.test_size * len(dataset))
+        train_size = len(dataset) - val_size - test_size
+        train_dataset, val_dataset, test_dataset = random_split(
+            dataset,
+            [train_size, val_size, test_size],
+            generator=torch.Generator().manual_seed(opts.seed),
         )
-        test_dataset = Flowers17(
-            root=opts.dataset_path, split="test", download=True, transform=self.transform
-        )
+        
         self.train_loader = DataLoader(
             dataset=train_dataset,
             batch_size=opts.batch_size,
@@ -73,7 +81,6 @@ class FinetuneTrainer(BaseTrainer):
         
         if opts.pre_trained:
             self.model.init_weights(
-                pre_train_save_path=opts.pre_train_save_path,
                 pre_trained_url=opts.pre_trained_url
             )
 
@@ -183,7 +190,6 @@ class FinetuneTrainer(BaseTrainer):
                 _, predicted = torch.max(outputs.data, 1)
                 total += labels.size(0)
                 correct += (predicted == labels).sum().item()
-
             print(
                 f"Accuracy of the model on the {total} test images: {100 * correct / total:.2f}%"
             )
@@ -194,7 +200,6 @@ class FinetuneTrainer(BaseTrainer):
 @click.option("--model_base_path", type=click.Path(exists=True), required=True)
 @click.option("--dataset_path", type=click.Path(exists=True), required=True)
 @click.option("--pre_trained", type=bool, default=True, show_default=True)
-@click.option("--pre_train_save_path", type=click.Path(exists=True), required=True)
 @click.option("--pre_trained_url", type=str, required=True)
 @click.option("--num_classes", type=int, default=17, show_default=True)
 @click.option("--image_size", type=int, default=224, show_default=True)
@@ -205,10 +210,11 @@ class FinetuneTrainer(BaseTrainer):
 @click.option("--max_reduce", type=int, default=6, show_default=True, required=False)
 @click.option("--factor", type=float, default=0.1, show_default=True, required=False)
 @click.option("--train_mode", type=str, default="Holdout", show_default=False)
-@click.option("--val", type=float, default=0.2, show_default=True, required=False)
+@click.option("--val_size", type=float, default=0.2, show_default=True, required=False)
+@click.option("--test_size", type=float, default=0.2, show_default=True, required=False)
 def train(**kwargs):
     opts = TrainOptions().parse(kwargs)
-    trainer = FinetuneTrainer(opts)
+    trainer = AlexNetTrainer(opts)
     trainer.train()
 
 if __name__ == "__main__":

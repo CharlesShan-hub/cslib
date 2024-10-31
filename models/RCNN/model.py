@@ -2,13 +2,15 @@ import torch.nn as nn
 from sklearn import svm
 import torch
 
+
 class AlexNet(nn.Module):
 
-    def __init__(self, num_classes, classify=True, fine_tuning=False, init_weight=None):
+    def __init__(self, num_classes, classify=True, fine_tuning=False, init_weight=None, device='cpu'):
         super(AlexNet, self).__init__()
         self.num_classes = num_classes
         self.classify = classify
         self.fine_tuning = fine_tuning
+        self.device = device
 
         self.features = nn.Sequential(
             nn.Conv2d(3, 64, kernel_size=11, stride=4, padding=2),
@@ -57,23 +59,35 @@ class AlexNet(nn.Module):
         if self.fine_tuning:
             return feature
     
-    def init_weights(self,pre_trained_url,pre_trained_path):
-        from torch.hub import load_state_dict_from_url
+    def init_weights(self,pre_trained_url,pre_train_save_path=0):
+        from urllib.parse import urlparse
 
-        state_dict=load_state_dict_from_url(
-            url=pre_trained_url, 
-            model_dir=pre_trained_path,
-            progress=True
-        )
-        current_state = self.state_dict()
-        keys = list(state_dict.keys())
-        for key in keys:
-            if key.startswith('features'):
-                current_state[key] = state_dict[key]
-        current_state['fn8.weight'] = state_dict['classifier.1.weight']
-        current_state['fn8.bias'] = state_dict['classifier.1.bias']
-        current_state['fn9.weight'] = state_dict['classifier.4.weight']
-        current_state['fn9.bias'] = state_dict['classifier.4.bias']
+        def is_url(path):
+            parsed_url = urlparse(path)
+            return bool(parsed_url.scheme)
+
+        if is_url(pre_trained_url):
+            from torch.hub import load_state_dict_from_url
+            state_dict=load_state_dict_from_url(
+                url=pre_trained_url, 
+                model_dir=pre_train_save_path,
+                progress=True
+            )
+            current_state = self.state_dict()
+            keys = list(state_dict.keys())
+            for key in keys:
+                if key.startswith('features'):
+                    current_state[key] = state_dict[key]
+            current_state['fn8.weight'] = state_dict['classifier.1.weight']
+            current_state['fn8.bias'] = state_dict['classifier.1.bias']
+            current_state['fn9.weight'] = state_dict['classifier.4.weight']
+            current_state['fn9.bias'] = state_dict['classifier.4.bias']
+        else:
+            state_dict = torch.load(pre_trained_url, map_location=self.device)['model_state_dict']            
+            keys = list(state_dict.keys())
+            for key in keys:
+                if not key.startswith('fn10'):
+                    self.state_dict()[key] = state_dict[key]
 
 
 class SVM:
