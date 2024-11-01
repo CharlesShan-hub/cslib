@@ -12,6 +12,15 @@
 
 1. 训练（或者下载）一个分类模型（比如 AlexNet）本项目用的 Flowers102 的简单版本——Flowers17。这一步训练出来了输出为 17 的分类器。
 
+   - 原文中，采用 ImageNet 训练，输出 1000 个种类
+   - 本项目，采用 flowers17 训练，输出 17 个种类
+   
+   原文中网络结构（为了分两块 GPU 训练）
+
+   ![AlexNet](./assets/Alexnet.png)
+
+   这里可以简化成这样
+   
    ![claasify](./assets/step1.jpg)
 
    ```bash
@@ -21,7 +30,8 @@
 
 2. 对该模型做 fine-tuning
 
-   - 原论文中，将分类数从 1000 改为 20，比如 20 个物体类别 + 1 个背景。（这里为了简化， 从 flowers17 再写了一个 flowers2数据集，模型输出 2+1=3 类。）
+   - 原论文中，将分类数从 1000 改为 21，比如 20 个物体类别 + 1 个背景
+   - 本项目，从 flowers17 再写了一个 flowers2数据集，模型输出 2+1=3 类
    - 去掉最后一个全连接层
 
    ![fine-tuning](./assets/step2.jpg)

@@ -36,7 +36,8 @@ class AlexNetTrainer(BaseTrainer):
             optimizer=self.optimizer, 
             mode='max', 
             factor=opts.factor, 
-            patience=2
+            patience=2,
+            cooldown=opts.cooldown
         )
 
         self.transform = transform(opts.image_size)
@@ -110,6 +111,9 @@ class AlexNetTrainer(BaseTrainer):
             )
             pbar.set_postfix(loss=(running_loss.item() / batch_index))
             _, predicted = torch.max(outputs.data, 1)
+            print("------------------------------------")
+            print(predicted)
+            print(labels)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
@@ -209,6 +213,7 @@ class AlexNetTrainer(BaseTrainer):
 @click.option("--max_epoch", type=int, default=100, show_default=True, required=False)
 @click.option("--max_reduce", type=int, default=6, show_default=True, required=False)
 @click.option("--factor", type=float, default=0.1, show_default=True, required=False)
+@click.option("--cooldown", type=float, default=20, show_default=True, required=False)
 @click.option("--train_mode", type=str, default="Holdout", show_default=False)
 @click.option("--val_size", type=float, default=0.2, show_default=True, required=False)
 @click.option("--test_size", type=float, default=0.2, show_default=True, required=False)

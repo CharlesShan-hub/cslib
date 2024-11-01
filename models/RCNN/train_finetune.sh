@@ -26,11 +26,12 @@ python $PYTHON_SCRIPT \
     --image_size 224 \
     --seed 42 \
     --batch_size 16 \
-    --lr 0.03 \
+    --lr 0.3 \
     --max_epoch 100 \
     --max_reduce 3 \
     --factor 0.1 \
+    --cooldown 20 \
     --train_mode "Holdout" \
-    --val_size 0.2 \
-    --test_size 0.2 \
+    --val_size 0.1 \
+    --test_size 0.1 \
     --seed 42

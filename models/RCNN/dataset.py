@@ -4,6 +4,7 @@ from clib.utils import path_to_rgb, to_image
 
 import numpy as np
 import cv2
+from random import random
 
 class Flowers2(Flowers17):
     def __init__(self,
@@ -15,10 +16,11 @@ class Flowers2(Flowers17):
         ):
         super().__init__(root)
         
+        self.count = [0,0,0]
         self.names = {
-            0: 'Tulip',       # 561
-            1: 'Pansy',       # 1281
-            2: 'Background',  # for RCNN
+            1: 'Tulip',       # 561
+            2: 'Pansy',       # 1281
+            0: 'Background',  # for RCNN
         }
         self.d = {
             561:[90,126,350,434],
@@ -199,7 +201,14 @@ class Flowers2(Flowers17):
             i = np.load(self._patch_folder / f'image_{key}.npy')[0]
             l = np.load(self._patch_folder / f'label_{key}.npy')[0]
             for n in range(i.shape[0]):
+                if l[n,:][0] == 1:
+                    if random() < 0.90:
+                        continue
                 self.images.append(i[n,:,:,:])
+                self.images.append(i[n,::-1,:,:])
+                self.images.append(i[n,:,::-1,:])
+                self.labels.append(l[n,:])  
+                self.labels.append(l[n,:])  
                 self.labels.append(l[n,:])   
     
     def __len__(self) -> int:
@@ -213,5 +222,8 @@ class Flowers2(Flowers17):
 
         if self.target_transform:
             label = self.target_transform(label)
+
+        # self.count[label] += 1
+        # print(self.count)
 
         return image, label

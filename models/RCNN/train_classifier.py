@@ -106,6 +106,10 @@ class FinetuneTrainer(BaseTrainer):
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
+            print("------------------------------------")
+            print(predicted)
+            print(labels)
+
         train_loss = running_loss / total
         train_accuracy = correct / total
         self.loss = loss

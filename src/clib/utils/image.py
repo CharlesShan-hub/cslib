@@ -196,6 +196,10 @@ def glance(
     * ndarray: 2 dims.
     * Image: auto convert to numpy.
     """
+    # transfrom batch tensor to list
+    if isinstance(image, torch.Tensor):
+        if len(image.shape) == 4 and image.shape[0] > 1:
+            image = [i.unsqueeze(0) for i in image]
     # transform torch.tensor to np.array
     if isinstance(image,list) or isinstance(image, tuple):
         if shape[0]*shape[1] != len(image):
