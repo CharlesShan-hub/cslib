@@ -24,7 +24,7 @@ python $PYTHON_SCRIPT \
     --use_relu False \
     --use_max_pool False \
     --seed 32 \
-    --batch_size 32 \
+    --batch_size 16 \
     --lr 0.3 \
     --max_epoch 100 \
     --max_reduce 3 \

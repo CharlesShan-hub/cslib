@@ -2,7 +2,7 @@ from torch.cuda import is_available
 from clib.utils import Options
 
 
-class TrainOptions(Options):
+class TrainAldexNetOptions(Options):
     def __init__(self):
         super().__init__("RCNN - AlexNet")
         self.update(
@@ -44,7 +44,22 @@ class TrainOptions(Options):
             }
         )
 
-class TestOptions(Options):
+
+class TrainSVMOptions(Options):
+    def __init__(self):
+        super().__init__("RCNN - AlexNet")
+        self.update(
+            {
+                # Utils
+                "comment": "",
+                "device": "cuda" if is_available() else "cpu",
+                "model_base_path": "path/to/folder/to/save/ckpt",
+                "dataset_path": "path/to/dataset",
+            }
+        )
+
+
+class TestAldexNetOptions(Options):
     def __init__(self):
         super().__init__('RCNN - AlexNet')
         self.update(

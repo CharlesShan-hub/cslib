@@ -1,7 +1,7 @@
 import click
 import torch
 from torch.utils.data import DataLoader
-from config import TestOptions
+from config import TestAldexNetOptions
 from dataset import Flowers17
 from transform import transform
 from model import AlexNet
@@ -54,7 +54,7 @@ class AlexTester(BaseInferencer):
 @click.option("--image_size", type=int, default=224, show_default=True)
 @click.option("--batch_size", type=int, default=8, show_default=True, required=False)
 def test(**kwargs):
-    opts = TestOptions().parse(kwargs,present=True)
+    opts = TestAldexNetOptions().parse(kwargs,present=True)
     tester = AlexTester(opts)
     tester.test()
 

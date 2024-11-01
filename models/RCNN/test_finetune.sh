@@ -23,4 +23,5 @@ python $PYTHON_SCRIPT \
     --image_size 224 \
     --batch_size 32 \
     --val_size 0.1 \
-    --test_size 0.1
+    --test_size 0.1 \
+    --save_feature False

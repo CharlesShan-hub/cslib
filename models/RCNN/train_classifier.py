@@ -5,7 +5,7 @@ import torch
 from torch import nn, optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from config import TrainOptions
+from config import TrainAldexNetOptions
 from model import AlexNet
 from dataset import Flowers17
 from transform import transform
@@ -211,7 +211,7 @@ class FinetuneTrainer(BaseTrainer):
 @click.option("--train_mode", type=str, default="Holdout", show_default=False)
 @click.option("--val", type=float, default=0.2, show_default=True, required=False)
 def train(**kwargs):
-    opts = TrainOptions().parse(kwargs)
+    opts = TrainAldexNetOptions().parse(kwargs)
     trainer = FinetuneTrainer(opts)
     trainer.train()
 

@@ -1,7 +1,7 @@
 import click
 import torch
 from torch.utils.data import DataLoader, random_split
-from config import TestOptions
+from config import TestAldexNetOptions
 from dataset import Flowers2
 from transform import transform
 from model import AlexNet
@@ -25,7 +25,6 @@ class AlexTester(BaseInferencer):
 
         dataset = Flowers2(
             root=opts.dataset_path,
-            is_svm=False,
             image_size=opts.image_size,
             transform=self.transform
         )
@@ -78,8 +77,9 @@ class AlexTester(BaseInferencer):
 @click.option("--val_size", type=float, default=0.2, show_default=True, required=False)
 @click.option("--test_size", type=float, default=0.2, show_default=True, required=False)
 @click.option("--seed", type=int, default=42, show_default=True, required=False)
+@click.option("--save_feature", type=bool, default=False, show_default=True)
 def test(**kwargs):
-    opts = TestOptions().parse(kwargs,present=True)
+    opts = TestAldexNetOptions().parse(kwargs,present=True)
     tester = AlexTester(opts)
     tester.test()
 

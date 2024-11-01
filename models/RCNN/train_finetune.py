@@ -5,7 +5,7 @@ import torch
 from torch import nn, optim
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from config import TrainOptions
+from config import TrainAldexNetOptions
 from model import AlexNet
 from dataset import Flowers2
 from transform import transform
@@ -44,7 +44,6 @@ class AlexNetTrainer(BaseTrainer):
 
         dataset = Flowers2(
             root=opts.dataset_path,
-            is_svm=False,
             image_size=opts.image_size,
             transform=self.transform
         )
@@ -111,9 +110,9 @@ class AlexNetTrainer(BaseTrainer):
             )
             pbar.set_postfix(loss=(running_loss.item() / batch_index))
             _, predicted = torch.max(outputs.data, 1)
-            print("------------------------------------")
-            print(predicted)
-            print(labels)
+            # print("------------------------------------")
+            # print(predicted)
+            # print(labels)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
 
@@ -218,7 +217,7 @@ class AlexNetTrainer(BaseTrainer):
 @click.option("--val_size", type=float, default=0.2, show_default=True, required=False)
 @click.option("--test_size", type=float, default=0.2, show_default=True, required=False)
 def train(**kwargs):
-    opts = TrainOptions().parse(kwargs)
+    opts = TrainAldexNetOptions().parse(kwargs)
     trainer = AlexNetTrainer(opts)
     trainer.train()
 

@@ -9,14 +9,12 @@ from random import random
 class Flowers2(Flowers17):
     def __init__(self,
         root: str,
-        is_svm: bool,
         image_size: int,
         threshold: float = 0.5,
         transform = None
         ):
         super().__init__(root)
         
-        self.count = [0,0,0]
         self.names = {
             1: 'Tulip',       # 561
             2: 'Pansy',       # 1281
@@ -84,17 +82,17 @@ class Flowers2(Flowers17):
             1324:[40,60,380,440],
             1325:[114,37,242,356],
         }
-        self.is_svm = is_svm
         self.image_size = image_size
         self.threshold = threshold
         self._patch_folder = self._base_folder / 'patches'
         self.transform = transform
         self.images = []
         self.labels = []
+        
         if self._patch_folder.exists():
             self.load_from_npy()
         else:
-            self.save_to_numpy()
+            self.save_to_numpy() 
 
     def save_to_numpy(self):
         self._patch_folder.mkdir()
@@ -135,18 +133,10 @@ class Flowers2(Flowers17):
                 iou_val = self.IOU(box, proposal_vertice)
                 # labels, let 0 represent default class, which is background
                 index = 1 if key > 1280 else 2 # 1 and 2 is two kind of flowers
-                if self.is_svm:
-                    if iou_val < self.threshold:
-                        labels.append(0)
-                    else:
-                        labels.append(index)
+                if iou_val < self.threshold:
+                    labels.append(0)
                 else:
-                    label = np.zeros(2 + 1) # 2 flowers, one background
-                    if iou_val < self.threshold:
-                        label[0] = 1
-                    else:
-                        label[index] = 1
-                    labels.append(label)
+                    labels.append(index)
             np.save(self._patch_folder / f'image_{key}.npy', [images])
             np.save(self._patch_folder / f'label_{key}.npy', [labels])
             self.images.extend(images)
@@ -201,15 +191,15 @@ class Flowers2(Flowers17):
             i = np.load(self._patch_folder / f'image_{key}.npy')[0]
             l = np.load(self._patch_folder / f'label_{key}.npy')[0]
             for n in range(i.shape[0]):
-                if l[n,:][0] == 1:
+                if l[n] == 1:
                     if random() < 0.90:
                         continue
                 self.images.append(i[n,:,:,:])
                 self.images.append(i[n,::-1,:,:])
                 self.images.append(i[n,:,::-1,:])
-                self.labels.append(l[n,:])  
-                self.labels.append(l[n,:])  
-                self.labels.append(l[n,:])   
+                self.labels.append(l[n])  
+                self.labels.append(l[n])  
+                self.labels.append(l[n])   
     
     def __len__(self) -> int:
         return len(self.images)
@@ -227,3 +217,22 @@ class Flowers2(Flowers17):
         # print(self.count)
 
         return image, label
+    
+    def svm_load_data(self):
+        self.labels_svm = [[],[]]
+        self.images_svm = [[],[]]
+        for key in self.d:
+            i = np.load(self._patch_folder / f'image_{key}.npy')[0]
+            l = np.load(self._patch_folder / f'label_{key}.npy')[0]
+            for n in range(i.shape[0]):
+                if l[n] == 1:
+                    if random() < 0.90:
+                        continue
+                index = 0 if key > 1280 else 1 # 1 and 2 is two kind of flowers 
+                self.images_svm[index].append(i[n,:,:,:])
+                self.images_svm[index].append(i[n,::-1,:,:])
+                self.images_svm[index].append(i[n,:,::-1,:])
+                self.labels_svm[index].append(l[n])  
+                self.labels_svm[index].append(l[n])  
+                self.labels_svm[index].append(l[n])    
+        return self.images_svm[0],self.labels_svm[0], self.images_svm[1],self.labels_svm[1]
