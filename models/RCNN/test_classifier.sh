@@ -17,7 +17,7 @@ RES_PATH="${BASE_PATH}/Model/RCNN/Flowers17"
 # pth on the Mac PC
 python $PYTHON_SCRIPT \
     --comment "(RCNN on 17flowers) step1: Train AlexNet Classifier(with pre-trained model)" \
-    --model_path "${RES_PATH}/AlexNet_Classifier/checkpoints/45.pt" \
+    --model_path "${RES_PATH}/AlexNet_Classifier/checkpoints/53.pt" \
     --dataset_path "${BASE_PATH}/torchvision"\
     --num_classes 17 \
     --image_size 224 \
