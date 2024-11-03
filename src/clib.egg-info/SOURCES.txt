@@ -14,6 +14,8 @@ src/clib/dataset/fusion.py
 src/clib/dataset/image.py
 src/clib/dataset/linear.py
 src/clib/dataset/sr.py
+src/clib/dataset/collection/__init__.py
+src/clib/dataset/collection/flowers17.py
 src/clib/deprecated/__init__.py
 src/clib/inference/__init__.py
 src/clib/metrics/__init__.py
