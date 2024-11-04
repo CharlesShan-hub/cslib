@@ -2,7 +2,7 @@
 
 # 定义要检查的路径数组
 paths=(
-    '/root/autodl-fs/DateSets'
+    '/root/autodl-fs/DataSets'
     '/Volumes/Charles/DateSets'
     '/Users/kimshan/resources/DataSets'
     '/home/vision/sht/DataSets'

@@ -21,7 +21,7 @@ python $PYTHON_SCRIPT \
     --model_base_path "${RES_PATH}/${NAME}" \
     --dataset_path "${BASE_PATH}/torchvision"\
     --pre_trained True \
-    --pre_trained_url "${RES_PATH}/AlexNet_Classifier/checkpoints/53.pt" \
+    --pre_trained_url "${RES_PATH}/AlexNet_Classifier/checkpoints/43.pt" \
     --num_classes 3 \
     --image_size 224 \
     --seed 42 \
@@ -30,7 +30,7 @@ python $PYTHON_SCRIPT \
     --max_epoch 100 \
     --max_reduce 3 \
     --factor 0.1 \
-    --cooldown 20 \
+    --cooldown 15 \
     --train_mode "Holdout" \
     --val_size 0.1 \
     --test_size 0.1 \

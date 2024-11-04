@@ -71,7 +71,7 @@
 - 构建包
   - CVPlayground 下边的 src 文件夹中存放包，构建的时候会自动搜索 src 下的内容  
   - 临时添加 clib 库：`pip install -e /Users/kimshan/workplace/CVPlayground`
-  - 查看 GPU 版本：`nvcc --version`，然后去 requirements 里边修改 pytorch 的 cuda 版本号
+  - 查看 GPU 版本：`nvcc --version`，然后去 environment.yml 里边修改 pytorch 的 cuda 版本号
   - 安装 requriements：`conda install --yes --file requirements.txt`
 - git 开发
   - **开发前一定要先：`git pull`!!**

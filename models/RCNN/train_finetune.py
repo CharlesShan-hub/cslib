@@ -12,14 +12,14 @@ from transform import transform
 from clib.train import BaseTrainer
 
 
-class AlexNetTrainer(BaseTrainer):
+class FinetuneTrainer(BaseTrainer):
     def __init__(self, opts):
         super().__init__(opts)
 
         self.model = AlexNet(
             num_classes=opts.num_classes,
             classify=True,
-            fine_tuning=False,
+            save_feature=False,
             device=opts.device
         ).to(opts.device)
 
@@ -212,13 +212,13 @@ class AlexNetTrainer(BaseTrainer):
 @click.option("--max_epoch", type=int, default=100, show_default=True, required=False)
 @click.option("--max_reduce", type=int, default=6, show_default=True, required=False)
 @click.option("--factor", type=float, default=0.1, show_default=True, required=False)
-@click.option("--cooldown", type=float, default=20, show_default=True, required=False)
+@click.option("--cooldown", type=float, default=5, show_default=True, required=False)
 @click.option("--train_mode", type=str, default="Holdout", show_default=False)
 @click.option("--val_size", type=float, default=0.2, show_default=True, required=False)
 @click.option("--test_size", type=float, default=0.2, show_default=True, required=False)
 def train(**kwargs):
     opts = TrainAldexNetOptions().parse(kwargs)
-    trainer = AlexNetTrainer(opts)
+    trainer = FinetuneTrainer(opts)
     trainer.train()
 
 if __name__ == "__main__":

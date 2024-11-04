@@ -5,11 +5,11 @@ import torch
 
 class AlexNet(nn.Module):
 
-    def __init__(self, num_classes, classify=True, fine_tuning=False, init_weight=None, device='cpu'):
+    def __init__(self, num_classes, classify=True, save_feature=False, init_weight=None, device='cpu'):
         super(AlexNet, self).__init__()
         self.num_classes = num_classes
         self.classify = classify
-        self.fine_tuning = fine_tuning
+        self.save_feature = save_feature
         self.device = device
 
         self.features = nn.Sequential(
@@ -56,7 +56,7 @@ class AlexNet(nn.Module):
 
         if self.classify:
             return final
-        if self.fine_tuning:
+        if self.save_feature:
             return feature
     
     def init_weights(self,pre_trained_url,pre_train_save_path=0):

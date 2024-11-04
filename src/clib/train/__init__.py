@@ -127,6 +127,8 @@ class BaseTrainer():
             'loss': self.loss.item()
         }
         torch.save(checkpoint, Path(self.opts.model_base_path) / f"checkpoints/{epoch}.pt")
+        if epoch > 10:
+            (Path(self.opts.model_base_path) / f"checkpoints/{epoch-10}.pt").unlink()
     
     def test(self):
         raise RuntimeError("You should implement in subclass")

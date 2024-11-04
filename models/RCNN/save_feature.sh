@@ -11,16 +11,14 @@ fi
 
 # Run Script
 
-PYTHON_SCRIPT="test_finetune.py"
+PYTHON_SCRIPT="save_feature.py"
 RES_PATH="${BASE_PATH}/Model/RCNN/Flowers17"
 
 # pth on the Mac PC
 python $PYTHON_SCRIPT \
-    --comment "(RCNN on 2flowers) step2: Finetune AlexNet Classifier(with pre-trained model)" \
+    --comment "(RCNN on 2flowers) step3: Save Feature from Finetune AlexNet Classifier" \
     --model_path "${RES_PATH}/AlexNet_Finetune/checkpoints/51.pt" \
     --dataset_path "${BASE_PATH}/torchvision"\
     --num_classes 3 \
     --image_size 224 \
-    --batch_size 32 \
-    --val_size 0.1 \
-    --test_size 0.1
+    --batch_size 32

@@ -12,14 +12,14 @@ from transform import transform
 from clib.train import BaseTrainer
 
 
-class FinetuneTrainer(BaseTrainer):
+class AlexNetTrainer(BaseTrainer):
     def __init__(self, opts):
         super().__init__(opts)
 
         self.model = AlexNet(
             num_classes=opts.num_classes,
             classify=True,
-            fine_tuning=True
+            save_feature=False
         ).to(opts.device)
 
         self.criterion = nn.CrossEntropyLoss()
@@ -105,10 +105,6 @@ class FinetuneTrainer(BaseTrainer):
             _, predicted = torch.max(outputs.data, 1)
             total += labels.size(0)
             correct += (predicted == labels).sum().item()
-
-            print("------------------------------------")
-            print(predicted)
-            print(labels)
 
         train_loss = running_loss / total
         train_accuracy = correct / total
@@ -212,7 +208,7 @@ class FinetuneTrainer(BaseTrainer):
 @click.option("--val", type=float, default=0.2, show_default=True, required=False)
 def train(**kwargs):
     opts = TrainAldexNetOptions().parse(kwargs)
-    trainer = FinetuneTrainer(opts)
+    trainer = AlexNetTrainer(opts)
     trainer.train()
 
 if __name__ == "__main__":

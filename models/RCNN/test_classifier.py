@@ -14,7 +14,7 @@ class AlexTester(BaseInferencer):
         self.model = AlexNet(
             num_classes=opts.num_classes,
             classify=True,
-            fine_tuning=False
+            save_feature=False
         ).to(opts.device)
         self.load_checkpoint()
 

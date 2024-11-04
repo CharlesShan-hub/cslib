@@ -191,30 +191,29 @@ class Flowers2(Flowers17):
             i = np.load(self._patch_folder / f'image_{key}.npy')[0]
             l = np.load(self._patch_folder / f'label_{key}.npy')[0]
             for n in range(i.shape[0]):
-                if l[n] == 1:
-                    if random() < 0.90:
+                if l[n] == 0:
+                    if random() < 0.95:
                         continue
                 self.images.append(i[n,:,:,:])
                 self.images.append(i[n,::-1,:,:])
                 self.images.append(i[n,:,::-1,:])
+                # self.images.append(i[n,::-1,::-1,:]) # Not good if added
                 self.labels.append(l[n])  
                 self.labels.append(l[n])  
                 self.labels.append(l[n])   
+                # self.labels.append(l[n])   
     
     def __len__(self) -> int:
         return len(self.images)
 
     def __getitem__(self, idx: int):
-        image, label = to_image(self.images[idx]), np.argmax(self.labels[idx])
+        image, label = to_image(self.images[idx]), self.labels[idx]
 
         if self.transform:
             image = self.transform(image)
 
         if self.target_transform:
             label = self.target_transform(label)
-
-        # self.count[label] += 1
-        # print(self.count)
 
         return image, label
     
@@ -225,14 +224,16 @@ class Flowers2(Flowers17):
             i = np.load(self._patch_folder / f'image_{key}.npy')[0]
             l = np.load(self._patch_folder / f'label_{key}.npy')[0]
             for n in range(i.shape[0]):
-                if l[n] == 1:
-                    if random() < 0.90:
+                if l[n] == 0:
+                    if random() < 0.95:
                         continue
                 index = 0 if key > 1280 else 1 # 1 and 2 is two kind of flowers 
                 self.images_svm[index].append(i[n,:,:,:])
                 self.images_svm[index].append(i[n,::-1,:,:])
                 self.images_svm[index].append(i[n,:,::-1,:])
+                # self.images_svm[index].append(i[n,::-1,::-1,:])
                 self.labels_svm[index].append(l[n])  
                 self.labels_svm[index].append(l[n])  
                 self.labels_svm[index].append(l[n])    
+                # self.labels_svm[index].append(l[n])    
         return self.images_svm[0],self.labels_svm[0], self.images_svm[1],self.labels_svm[1]
