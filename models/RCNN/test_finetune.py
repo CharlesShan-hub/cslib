@@ -41,9 +41,7 @@ class FinetuneTester(BaseInferencer):
         self.test_loader = DataLoader(
             dataset=test_dataset,
             batch_size=opts.batch_size,
-            shuffle=True,
-            worker_init_fn=self.seed_worker,
-            generator=self.g,
+            shuffle=False
         )
 
     def test(self):

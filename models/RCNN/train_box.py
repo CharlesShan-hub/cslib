@@ -4,19 +4,33 @@ from torch.utils.data import DataLoader, random_split
 from torch.optim.lr_scheduler import ReduceLROnPlateau
 import torch
 from torch import nn, optim
+from torch.autograd import Variable
 
 from config import TrainBoxOptions
 from model import RegNet
 from dataset import Flowers2_Box
 from clib.train import BaseTrainer
 
+class Regloss(nn.Module):
+    def __init__(self):
+        super(Regloss, self).__init__()
+    
+    def forward(self, y_true, y_pred):
+        no_object_loss = torch.pow((1 - y_true[:, 0]) * y_pred[:, 0],2).mean()
+        object_loss = torch.pow((y_true[:, 0]) * (y_pred[:, 0] - 1),2).mean()
+
+        reg_loss = (y_true[:, 0] * (torch.pow(y_true[:, 1:5] - y_pred[:, 1:5],2).sum(1))).mean()    
+        
+        loss = no_object_loss + object_loss + reg_loss
+        return loss
+    
 class BoxTrainer(BaseTrainer):
     def __init__(self, opts):
         super().__init__(opts)
 
-        self.model = RegNet.to(opts.device)
+        self.model = RegNet().to(opts.device)
 
-        self.criterion = nn.CrossEntropyLoss()
+        self.criterion = Regloss().to(opts.device)
 
         self.opts.optimizer = "SGD"
         self.optimizer = optim.SGD(
@@ -27,7 +41,7 @@ class BoxTrainer(BaseTrainer):
         self.opts.lr_scheduler = "ReduceLROnPlateau"
         self.scheduler = optim.lr_scheduler.ReduceLROnPlateau(
             optimizer=self.optimizer, 
-            mode='max', 
+            mode='min', 
             factor=opts.factor, 
             patience=2
         )
@@ -76,14 +90,14 @@ class BoxTrainer(BaseTrainer):
         pbar = tqdm(self.train_loader, total=len(self.train_loader))
         running_loss = torch.tensor(0.0).to(self.opts.device)
         batch_index = 0
-        correct = total = 0
+        total = 0
         self.model.train()
-        for images, labels, _ , _  in pbar:
-            images = images.to(self.opts.device)
-            labels = labels.to(self.opts.device)
-            self.optimizer.zero_grad()
-            outputs = self.model(images)
-            loss = self.criterion(outputs, labels)
+        for features, _, _ , rects  in pbar:
+            features = features.to(self.opts.device)
+            rects = Variable(rects).to(self.opts.device)
+            outputs = self.model(features)
+            loss = self.criterion(rects, outputs)
+            total += rects.size(0)
             loss.backward()
             self.optimizer.step()
             batch_index += 1
@@ -92,15 +106,9 @@ class BoxTrainer(BaseTrainer):
                 f"Epoch [{epoch}/{self.opts.max_epoch if self.opts.max_epoch != 0 else '∞'}]"
             )
             pbar.set_postfix(loss=(running_loss.item() / batch_index))
-            _, predicted = torch.max(outputs.data, 1)
-            # print("------------------------------------")
-            # print(predicted)
-            # print(labels)
-            total += labels.size(0)
-            correct += (predicted == labels).sum().item()
+            total += rects.size(0)
 
         train_loss = running_loss / total
-        train_accuracy = correct / total
         self.loss = loss
 
         self.writer.add_scalar(
@@ -113,14 +121,9 @@ class BoxTrainer(BaseTrainer):
             scalar_value = train_loss, 
             global_step = epoch
         )
-        self.writer.add_scalar(
-            tag = "Accuracy/train", 
-            scalar_value = train_accuracy, 
-            global_step = epoch
-        )
 
         print(f"Epoch [{epoch}/{self.opts.max_epoch if self.opts.max_epoch != 0 else '∞'}]", \
-              f"Train Loss: {train_loss:.4f}, Train Accuracy: {train_accuracy:.4f}")
+              f"Train Loss: {train_loss:.4f}")
         
         return train_loss
 
@@ -130,60 +133,68 @@ class BoxTrainer(BaseTrainer):
         assert self.val_loader is not None
         assert self.scheduler is not None
         running_loss = torch.tensor(0.0).to(self.opts.device)
-        correct = total = 0
+        total = 0
         self.model.eval()
-        with torch.no_grad():
-            for images, labels, _ , _ in self.val_loader:
-                images = images.to(self.opts.device)
-                labels = labels.to(self.opts.device)
-                outputs = self.model(images)
-                running_loss += self.criterion(outputs, labels)
-                total += labels.size(0)
-                _, predicted = torch.max(outputs.data, 1)
-                correct += (predicted == labels).sum().item()
+        for features, _, _ , rects  in self.val_loader:
+            features = features.to(self.opts.device)
+            rects = Variable(rects).to(self.opts.device)
+            outputs = self.model(features)
+            running_loss += self.criterion(rects, outputs)
+            # print("------------")
+            # print(outputs)
+            # print(rects)
+            total += rects.size(0)
 
         val_loss = running_loss / total
-        val_accuracy = float(correct / total)
         assert isinstance(self.scheduler, ReduceLROnPlateau)
-        self.scheduler.step(metrics=val_accuracy)
+        self.scheduler.step(metrics=val_loss)
     
         self.writer.add_scalar(
             tag="Loss/val", 
             scalar_value=val_loss, 
             global_step=epoch
         )
-        self.writer.add_scalar(
-            tag = "Accuracy/val", 
-            scalar_value = val_accuracy, 
-            global_step = epoch
-        )
 
         print(f"Epoch [{epoch}/{self.opts.max_epoch if self.opts.max_epoch != 0 else '∞'}]", \
-              f"Val Loss: {val_loss:.4f}, Val Accuracy: {val_accuracy:.4f}")
+              f"Val Loss: {val_loss:.4f}")
 
         return val_loss
     
     def test(self):
         assert self.model is not None
         assert self.test_loader is not None
+        assert self.criterion is not None
         self.model.eval()
-        correct = total = 0
+        total = 0
+        running_loss = 0.0
         with torch.no_grad():
-            for images, labels, _ , _  in self.test_loader:
-                images = images.to(self.opts.device)
-                labels = labels.to(self.opts.device)
-                outputs = self.model(images)
-                _, predicted = torch.max(outputs.data, 1)
-                total += labels.size(0)
-                correct += (predicted == labels).sum().item()
+            for features, _, _ , rects  in self.test_loader:
+                features = features.to(self.opts.device)
+                rects = rects.to(self.opts.device)
+                outputs = self.model(features)
+                running_loss += self.criterion(rects, outputs)
+                total += rects.size(0)
             print(
-                f"Accuracy of the model on the {total} test images: {100 * correct / total:.2f}%"
+                f"Loss of the model on the {total} test images: {running_loss:.4f}%"
             )
 
 @click.command()
 @click.option("--comment", type=str, default="", show_default=False)
 @click.option("--model_base_path", type=click.Path(exists=True), required=True)
 @click.option("--dataset_path", type=click.Path(exists=True), required=True)
+
+@click.option("--num_classes", type=int, default=3, show_default=True)
+@click.option("--image_size", type=int, default=224, show_default=True)
+@click.option("--seed", type=int, default=42, show_default=True, required=False)
+@click.option("--batch_size", type=int, default=8, show_default=True, required=False)
+@click.option("--lr", type=float, default=0.03, show_default=True, required=False)
+@click.option("--max_epoch", type=int, default=100, show_default=True, required=False)
+@click.option("--max_reduce", type=int, default=6, show_default=True, required=False)
+@click.option("--factor", type=float, default=0.1, show_default=True, required=False)
+@click.option("--cooldown", type=float, default=5, show_default=True, required=False)
+@click.option("--train_mode", type=str, default="Holdout", show_default=False)
+@click.option("--val_size", type=float, default=0.2, show_default=True, required=False)
+@click.option("--test_size", type=float, default=0.2, show_default=True, required=False)
 def train(**kwargs):
     opts = TrainBoxOptions().parse(kwargs)
     trainer = BoxTrainer(opts)

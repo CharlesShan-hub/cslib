@@ -24,7 +24,7 @@ python $PYTHON_SCRIPT \
     --image_size 224 \
     --seed 42 \
     --batch_size 16 \
-    --lr 0.3 \
+    --lr 0.03 \
     --max_epoch 100 \
     --max_reduce 3 \
     --factor 0.1 \

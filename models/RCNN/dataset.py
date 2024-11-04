@@ -2,24 +2,176 @@ from clib.dataset import Flowers17
 from clib.algorithms.selective_search import selective_search
 from clib.utils import path_to_rgb, to_image
 
+import torch
+from typing import Callable, Optional
 import numpy as np
-import cv2
+from skimage.transform import resize
 from random import random
+from tqdm import tqdm
 
 class Flowers2(Flowers17):
     def __init__(self,
-        root: str,
+        root: str, 
         image_size: int,
         threshold: float = 0.5,
-        transform = None
-        ):
-        super().__init__(root)
-        
+        sigma: float = 0.9,
+        scale: int = 500,
+        min_size: int = 10,
+        reset_patch: bool = False, 
+        transform: Optional[Callable] = None,
+        download: bool = False,
+    ):
+        super().__init__(root,transform=transform,download=download)
+
         self.names = {
+            0: 'Background',  
             1: 'Tulip',       # 561
             2: 'Pansy',       # 1281
-            0: 'Background',  # for RCNN
         }
+        self._set_box_dict()
+        self.image_size = image_size
+        self.threshold = threshold
+        self.sigma = sigma
+        self.scale = scale
+        self.min_size = min_size
+        self._patch_folder = self._base_folder / 'patches'
+        self.transform = transform
+        self.images = []
+        self.labels = []
+        self.image_names = []
+        self.rects = []
+        
+        if (self._patch_folder.exists()==False) or (reset_patch):
+            self.save_to_numpy() 
+        self.load_from_npy()
+        
+
+    def save_to_numpy(self):
+        self._patch_folder.mkdir()
+
+        pbar = tqdm(self.d.items(), total=len(self.d.items()))
+        for (key, box) in pbar:
+            images = []
+            labels = []
+            rects = []
+            image_names = []
+            img = path_to_rgb(self._images_folder / f"image_{key:04d}.jpg")
+            _, regions = selective_search(img, scale=self.scale, sigma=self.sigma, min_size=self.min_size)
+            candidates = set()
+            for r in regions:
+                # excluding same rectangle (with different segments)
+                if r['rect'] in candidates:
+                    continue
+                # excluding small regions
+                if r['size'] < 220:
+                    continue
+                if (r['rect'][2] * r['rect'][3]) < 500:
+                    continue
+                # resize to 227 * 227 for input
+                proposal_img, proposal_vertice = self.clip_pic(img, r['rect'])
+                # Delete Empty array
+                if len(proposal_img) == 0:
+                    continue
+                # Ignore things contain 0 or not C contiguous array
+                x, y, w, h = r['rect']
+                if w == 0 or h == 0:
+                    continue
+                # Check if any 0-dimension exist
+                [a, b, c] = proposal_img.shape
+                if a == 0 or b == 0 or c == 0:
+                    continue
+                resized_proposal_img = resize(
+                    proposal_img, 
+                    (self.image_size, self.image_size), 
+                    mode='reflect', 
+                    anti_aliasing=True
+                )
+                candidates.add(r['rect'])
+                img_float = np.asarray(resized_proposal_img, dtype="float32")
+                images.append(img_float)
+                # IOU
+                iou_val = self.IOU(box, proposal_vertice)
+                # labels, let 0 represent default class, which is background
+                index = 1 if key > 1280 else 2 # 1 and 2 is two kind of flowers
+                if iou_val < self.threshold:
+                    rects.append([0]+list(r['rect']))
+                    labels.append(0)
+                else:
+                    rects.append([1]+list(r['rect']))
+                    labels.append(index)
+                # names
+                image_names.append(key)
+            np.save(self._patch_folder / f'image_{key}.npy', images)
+            np.save(self._patch_folder / f'label_{key}.npy', labels)
+            np.save(self._patch_folder / f'rects_{key}.npy', rects)
+    
+    def clip_pic(self, img, rect):
+        [x, y, w, h] = rect
+        x_1 = x + w
+        y_1 = y + h
+        # return img[x:x_1, y:y_1, :], [x, y, x_1, y_1, w, h]   
+        return img[y:y_1, x:x_1, :], [x, y, x_1, y_1, w, h]
+    
+    def if_intersection(self,xmin_a, xmax_a, ymin_a, ymax_a, xmin_b, xmax_b, ymin_b, ymax_b):
+        if_intersect = False
+        if xmin_a < xmax_b <= xmax_a and (ymin_a < ymax_b <= ymax_a or ymin_a <= ymin_b < ymax_a):
+            if_intersect = True
+        elif xmin_a <= xmin_b < xmax_a and (ymin_a < ymax_b <= ymax_a or ymin_a <= ymin_b < ymax_a):
+            if_intersect = True
+        elif xmin_b < xmax_a <= xmax_b and (ymin_b < ymax_a <= ymax_b or ymin_b <= ymin_a < ymax_b):
+            if_intersect = True
+        elif xmin_b <= xmin_a < xmax_b and (ymin_b < ymax_a <= ymax_b or ymin_b <= ymin_a < ymax_b):
+            if_intersect = True
+        else:
+            return if_intersect
+        if if_intersect:
+            x_sorted_list = sorted([xmin_a, xmax_a, xmin_b, xmax_b])
+            y_sorted_list = sorted([ymin_a, ymax_a, ymin_b, ymax_b])
+            x_intersect_w = x_sorted_list[2] - x_sorted_list[1]
+            y_intersect_h = y_sorted_list[2] - y_sorted_list[1]
+            area_inter = x_intersect_w * y_intersect_h
+            return area_inter
+    
+    def IOU(self, ver1, vertice2):
+        # vertices in four points
+        vertice1 = [ver1[0], ver1[1], ver1[0]+ver1[2], ver1[1]+ver1[3]]
+        area_inter = self.if_intersection(vertice1[0], vertice1[2], vertice1[1], vertice1[3], vertice2[0], vertice2[2], vertice2[1], vertice2[3])
+        if area_inter:
+            area_1 = ver1[2] * ver1[3]
+            area_2 = vertice2[4] * vertice2[5]
+            iou = float(area_inter) / (area_1 + area_2 - area_inter)
+            return iou
+        return False
+    
+    def load_from_npy(self):
+        for key in self.d:
+            i = np.load(self._patch_folder / f'image_{key}.npy')
+            l = np.load(self._patch_folder / f'label_{key}.npy')
+            r = np.load(self._patch_folder / f'rects_{key}.npy')
+            for n in range(i.shape[0]):
+                if l[n] == 0:
+                    if random() < 0.95:
+                        continue
+                self.images.extend([i[n,:,:,:], i[n,::-1,:,:], i[n,:,::-1,:]])
+                self.labels.extend([l[n],l[n],l[n]])  
+                self.image_names.extend([key,key,key])  
+                self.rects.extend([r[n,:],r[n,:],r[n,:]])
+    
+    def __len__(self) -> int:
+        return len(self.images)
+
+    def __getitem__(self, idx: int):
+        image, label = to_image(self.images[idx]), self.labels[idx]
+
+        if self.transform:
+            image = self.transform(image)
+
+        if self.target_transform:
+            label = self.target_transform(label)
+
+        return image, label, self.image_names[idx], self.rects[idx]
+    
+    def _set_box_dict(self):
         self.d = {
             561:[90,126,350,434],
             562:[160,15,340,415],
@@ -82,142 +234,6 @@ class Flowers2(Flowers17):
             1324:[40,60,380,440],
             1325:[114,37,242,356],
         }
-        self.image_size = image_size
-        self.threshold = threshold
-        self._patch_folder = self._base_folder / 'patches'
-        self.transform = transform
-        self.images = []
-        self.labels = []
-        self.image_names = []
-        self.rects = []
-        
-        if self._patch_folder.exists():
-            self.load_from_npy()
-        else:
-            self.save_to_numpy() 
-
-    def save_to_numpy(self):
-        self._patch_folder.mkdir()
-
-        for (key, box) in self.d.items():
-            images = []
-            labels = []
-            image_names = []
-            img = path_to_rgb(self._images_folder / f"image_{key:04d}.jpg")
-            _, regions = selective_search(img, scale=500, sigma=0.9, min_size=10)
-            candidates = set()
-            for r in regions:
-                # excluding same rectangle (with different segments)
-                if r['rect'] in candidates:
-                    continue
-                # excluding small regions
-                if r['size'] < 220:
-                    continue
-                if (r['rect'][2] * r['rect'][3]) < 500:
-                    continue
-                # resize to 227 * 227 for input
-                proposal_img, proposal_vertice = self.clip_pic(img, r['rect'])
-                # Delete Empty array
-                if len(proposal_img) == 0:
-                    continue
-                # Ignore things contain 0 or not C contiguous array
-                x, y, w, h = r['rect']
-                if w == 0 or h == 0:
-                    continue
-                # Check if any 0-dimension exist
-                [a, b, c] = proposal_img.shape
-                if a == 0 or b == 0 or c == 0:
-                    continue
-                resized_proposal_img = self.resize_image(proposal_img, self.image_size, self.image_size)
-                candidates.add(r['rect'])
-                img_float = np.asarray(resized_proposal_img, dtype="float32")
-                images.append(img_float)
-                # IOU
-                iou_val = self.IOU(box, proposal_vertice)
-                # labels, let 0 represent default class, which is background
-                index = 1 if key > 1280 else 2 # 1 and 2 is two kind of flowers
-                if iou_val < self.threshold:
-                    labels.append(0)
-                else:
-                    labels.append(index)
-                # names
-                image_names.append(key)
-                self.rects.append(r['rect'])
-            np.save(self._patch_folder / f'image_{key}.npy', [images])
-            np.save(self._patch_folder / f'label_{key}.npy', [labels])
-            self.images.extend(images)
-            self.labels.extend(labels)
-            self.image_names.extend(image_names)
-    
-    def clip_pic(self, img, rect):
-        [x, y, w, h] = rect
-        x_1 = x + w
-        y_1 = y + h
-        # return img[x:x_1, y:y_1, :], [x, y, x_1, y_1, w, h]   
-        return img[y:y_1, x:x_1, :], [x, y, x_1, y_1, w, h]
-    
-    def resize_image(self,in_image, new_width, new_height, out_image=None, resize_mode=cv2.INTER_CUBIC):
-        img = cv2.resize(in_image, (new_width, new_height), resize_mode)
-        if out_image:
-            cv2.imwrite(out_image, img)
-        return img
-    
-    def if_intersection(self,xmin_a, xmax_a, ymin_a, ymax_a, xmin_b, xmax_b, ymin_b, ymax_b):
-        if_intersect = False
-        if xmin_a < xmax_b <= xmax_a and (ymin_a < ymax_b <= ymax_a or ymin_a <= ymin_b < ymax_a):
-            if_intersect = True
-        elif xmin_a <= xmin_b < xmax_a and (ymin_a < ymax_b <= ymax_a or ymin_a <= ymin_b < ymax_a):
-            if_intersect = True
-        elif xmin_b < xmax_a <= xmax_b and (ymin_b < ymax_a <= ymax_b or ymin_b <= ymin_a < ymax_b):
-            if_intersect = True
-        elif xmin_b <= xmin_a < xmax_b and (ymin_b < ymax_a <= ymax_b or ymin_b <= ymin_a < ymax_b):
-            if_intersect = True
-        else:
-            return if_intersect
-        if if_intersect:
-            x_sorted_list = sorted([xmin_a, xmax_a, xmin_b, xmax_b])
-            y_sorted_list = sorted([ymin_a, ymax_a, ymin_b, ymax_b])
-            x_intersect_w = x_sorted_list[2] - x_sorted_list[1]
-            y_intersect_h = y_sorted_list[2] - y_sorted_list[1]
-            area_inter = x_intersect_w * y_intersect_h
-            return area_inter
-    
-    def IOU(self, ver1, vertice2):
-        # vertices in four points
-        vertice1 = [ver1[0], ver1[1], ver1[0]+ver1[2], ver1[1]+ver1[3]]
-        area_inter = self.if_intersection(vertice1[0], vertice1[2], vertice1[1], vertice1[3], vertice2[0], vertice2[2], vertice2[1], vertice2[3])
-        if area_inter:
-            area_1 = ver1[2] * ver1[3]
-            area_2 = vertice2[4] * vertice2[5]
-            iou = float(area_inter) / (area_1 + area_2 - area_inter)
-            return iou
-        return False
-    
-    def load_from_npy(self):
-        for key in self.d:
-            i = np.load(self._patch_folder / f'image_{key}.npy')[0]
-            l = np.load(self._patch_folder / f'label_{key}.npy')[0]
-            for n in range(i.shape[0]):
-                if l[n] == 0:
-                    if random() < 0.95:
-                        continue
-                self.images.extend([i[n,:,:,:], i[n,::-1,:,:], i[n,:,::-1,:]])
-                self.labels.extend([l[n],l[n],l[n]])  
-                self.image_names.extend([key,key,key])  
-    
-    def __len__(self) -> int:
-        return len(self.images)
-
-    def __getitem__(self, idx: int):
-        image, label = to_image(self.images[idx]), self.labels[idx]
-
-        if self.transform:
-            image = self.transform(image)
-
-        if self.target_transform:
-            label = self.target_transform(label)
-
-        return image, label, self.image_names[idx], self.rects[idx]
 
 
 class Flowers2_Box(Flowers2):
@@ -225,21 +241,15 @@ class Flowers2_Box(Flowers2):
         root: str,
         image_size: int,
         threshold: float = 0.5,
-        transform = None
+        transform: Optional[Callable] = None,
         ):
-        super().__init__(root,image_size,threshold,transform)
-        self.load_from_numpy()
-    
-    def load_from_numpy(self):
-        self
-    
+        # Has already load from numpy
+        super().__init__(root,image_size,threshold,transform=transform)
+        # Replace images to features
+        self.features = np.load(self._base_folder / f'feature_for_svm.npy')
+        
     def __getitem__(self, idx: int):
-        image, label = to_image(self.images[idx]), self.labels[idx]
-
-        if self.transform:
-            image = self.transform(image)
-
-        if self.target_transform:
-            label = self.target_transform(label)
-
-        return image, label, self.image_names[idx], self.rects[idx]
+        label = self.labels[idx]
+        return self.features[idx,:], label, self.image_names[idx], torch.tensor(self.rects[idx])
+    
+    

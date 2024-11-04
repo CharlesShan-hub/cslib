@@ -59,7 +59,7 @@ class AlexNet(nn.Module):
         if self.save_feature:
             return feature
     
-    def init_weights(self,pre_trained_url,pre_train_save_path=0):
+    def init_weights(self,pre_trained_url,pre_train_save_path=""):
         from urllib.parse import urlparse
 
         def is_url(path):
@@ -102,17 +102,16 @@ class SVM:
 
 class RegNet(nn.Module):
 
-    def __init__(self, num_classes):
+    def __init__(self):
         super(RegNet, self).__init__()
-        self.num_classes = num_classes
 
         layers = []
         fc1 = nn.Linear(4096, 4096)
         fc1.weight.data.normal_(0.0, 0.01)
         layers.append(fc1)
-        layers.append(nn.Dropout(0.5))
+        # layers.append(nn.Dropout(0.5))
         layers.append(nn.Tanh())
-        fc2 = nn.Linear(4096, self.num_classes)
+        fc2 = nn.Linear(4096, 5)# 1(is object or not) + 4(X,Y,H,W)
         fc2.weight.data.normal_(0.0, 0.01)
         layers.append(fc2)
         layers.append(nn.Tanh())

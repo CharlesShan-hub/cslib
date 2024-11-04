@@ -69,6 +69,8 @@ class TrainBoxOptions(Options):
                 "device": "cuda" if is_available() else "cpu",
                 "model_base_path": "path/to/folder/to/save/ckpt",
                 "dataset_path": "path/to/dataset",
+
+                "lr_scheduler": 'ReduceLROnPlateau',
             }
         )
 
