@@ -21,4 +21,4 @@ python $PYTHON_SCRIPT \
     --dataset_path "${BASE_PATH}/torchvision"\
     --num_classes 3 \
     --image_size 224 \
-    --batch_size 32
+    --batch_size 8

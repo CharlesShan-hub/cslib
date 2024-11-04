@@ -47,7 +47,21 @@ class TrainAldexNetOptions(Options):
 
 class TrainSVMOptions(Options):
     def __init__(self):
-        super().__init__("RCNN - AlexNet")
+        super().__init__("RCNN - SVM")
+        self.update(
+            {
+                # Utils
+                "comment": "",
+                "device": "cuda" if is_available() else "cpu",
+                "model_base_path": "path/to/folder/to/save/ckpt",
+                "dataset_path": "path/to/dataset",
+            }
+        )
+
+
+class TrainBoxOptions(Options):
+    def __init__(self):
+        super().__init__("RCNN - Box")
         self.update(
             {
                 # Utils

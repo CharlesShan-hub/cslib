@@ -88,6 +88,8 @@ class Flowers2(Flowers17):
         self.transform = transform
         self.images = []
         self.labels = []
+        self.image_names = []
+        self.rects = []
         
         if self._patch_folder.exists():
             self.load_from_npy()
@@ -100,6 +102,7 @@ class Flowers2(Flowers17):
         for (key, box) in self.d.items():
             images = []
             labels = []
+            image_names = []
             img = path_to_rgb(self._images_folder / f"image_{key:04d}.jpg")
             _, regions = selective_search(img, scale=500, sigma=0.9, min_size=10)
             candidates = set()
@@ -137,10 +140,14 @@ class Flowers2(Flowers17):
                     labels.append(0)
                 else:
                     labels.append(index)
+                # names
+                image_names.append(key)
+                self.rects.append(r['rect'])
             np.save(self._patch_folder / f'image_{key}.npy', [images])
             np.save(self._patch_folder / f'label_{key}.npy', [labels])
             self.images.extend(images)
             self.labels.extend(labels)
+            self.image_names.extend(image_names)
     
     def clip_pic(self, img, rect):
         [x, y, w, h] = rect
@@ -194,14 +201,9 @@ class Flowers2(Flowers17):
                 if l[n] == 0:
                     if random() < 0.95:
                         continue
-                self.images.append(i[n,:,:,:])
-                self.images.append(i[n,::-1,:,:])
-                self.images.append(i[n,:,::-1,:])
-                # self.images.append(i[n,::-1,::-1,:]) # Not good if added
-                self.labels.append(l[n])  
-                self.labels.append(l[n])  
-                self.labels.append(l[n])   
-                # self.labels.append(l[n])   
+                self.images.extend([i[n,:,:,:], i[n,::-1,:,:], i[n,:,::-1,:]])
+                self.labels.extend([l[n],l[n],l[n]])  
+                self.image_names.extend([key,key,key])  
     
     def __len__(self) -> int:
         return len(self.images)
@@ -215,25 +217,29 @@ class Flowers2(Flowers17):
         if self.target_transform:
             label = self.target_transform(label)
 
-        return image, label
+        return image, label, self.image_names[idx], self.rects[idx]
+
+
+class Flowers2_Box(Flowers2):
+    def __init__(self,
+        root: str,
+        image_size: int,
+        threshold: float = 0.5,
+        transform = None
+        ):
+        super().__init__(root,image_size,threshold,transform)
+        self.load_from_numpy()
     
-    def svm_load_data(self):
-        self.labels_svm = [[],[]]
-        self.images_svm = [[],[]]
-        for key in self.d:
-            i = np.load(self._patch_folder / f'image_{key}.npy')[0]
-            l = np.load(self._patch_folder / f'label_{key}.npy')[0]
-            for n in range(i.shape[0]):
-                if l[n] == 0:
-                    if random() < 0.95:
-                        continue
-                index = 0 if key > 1280 else 1 # 1 and 2 is two kind of flowers 
-                self.images_svm[index].append(i[n,:,:,:])
-                self.images_svm[index].append(i[n,::-1,:,:])
-                self.images_svm[index].append(i[n,:,::-1,:])
-                # self.images_svm[index].append(i[n,::-1,::-1,:])
-                self.labels_svm[index].append(l[n])  
-                self.labels_svm[index].append(l[n])  
-                self.labels_svm[index].append(l[n])    
-                # self.labels_svm[index].append(l[n])    
-        return self.images_svm[0],self.labels_svm[0], self.images_svm[1],self.labels_svm[1]
+    def load_from_numpy(self):
+        self
+    
+    def __getitem__(self, idx: int):
+        image, label = to_image(self.images[idx]), self.labels[idx]
+
+        if self.transform:
+            image = self.transform(image)
+
+        if self.target_transform:
+            label = self.target_transform(label)
+
+        return image, label, self.image_names[idx], self.rects[idx]

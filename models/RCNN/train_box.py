@@ -1,27 +1,20 @@
 import click
 from tqdm import tqdm
 from torch.utils.data import DataLoader, random_split
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 import torch
 from torch import nn, optim
-from torch.optim.lr_scheduler import ReduceLROnPlateau
 
-from config import TrainAldexNetOptions
-from model import AlexNet
-from dataset import Flowers2
-from transform import transform
+from config import TrainBoxOptions
+from model import RegNet
+from dataset import Flowers2_Box
 from clib.train import BaseTrainer
 
-
-class FinetuneTrainer(BaseTrainer):
+class BoxTrainer(BaseTrainer):
     def __init__(self, opts):
         super().__init__(opts)
 
-        self.model = AlexNet(
-            num_classes=opts.num_classes,
-            classify=True,
-            save_feature=False,
-            device=opts.device
-        ).to(opts.device)
+        self.model = RegNet.to(opts.device)
 
         self.criterion = nn.CrossEntropyLoss()
 
@@ -36,16 +29,12 @@ class FinetuneTrainer(BaseTrainer):
             optimizer=self.optimizer, 
             mode='max', 
             factor=opts.factor, 
-            patience=2,
-            cooldown=opts.cooldown
+            patience=2
         )
 
-        self.transform = transform(opts.image_size)
-
-        dataset = Flowers2(
+        dataset = Flowers2_Box(
             root=opts.dataset_path,
-            image_size=opts.image_size,
-            transform=self.transform
+            image_size=opts.image_size
         )
 
         val_size = int(opts.val_size * len(dataset))
@@ -78,13 +67,7 @@ class FinetuneTrainer(BaseTrainer):
             worker_init_fn=self.seed_worker,
             generator=self.g,
         )
-        
-        if opts.pre_trained:
-            self.model.init_weights(
-                pre_trained_url=opts.pre_trained_url
-            )
-
-
+    
     def holdout_train(self, epoch):
         assert self.optimizer is not None
         assert self.model is not None
@@ -197,28 +180,13 @@ class FinetuneTrainer(BaseTrainer):
                 f"Accuracy of the model on the {total} test images: {100 * correct / total:.2f}%"
             )
 
-
 @click.command()
 @click.option("--comment", type=str, default="", show_default=False)
 @click.option("--model_base_path", type=click.Path(exists=True), required=True)
 @click.option("--dataset_path", type=click.Path(exists=True), required=True)
-@click.option("--pre_trained", type=bool, default=True, show_default=True)
-@click.option("--pre_trained_url", type=str, required=True)
-@click.option("--num_classes", type=int, default=17, show_default=True)
-@click.option("--image_size", type=int, default=224, show_default=True)
-@click.option("--seed", type=int, default=42, show_default=True, required=False)
-@click.option("--batch_size", type=int, default=8, show_default=True, required=False)
-@click.option("--lr", type=float, default=0.03, show_default=True, required=False)
-@click.option("--max_epoch", type=int, default=100, show_default=True, required=False)
-@click.option("--max_reduce", type=int, default=6, show_default=True, required=False)
-@click.option("--factor", type=float, default=0.1, show_default=True, required=False)
-@click.option("--cooldown", type=float, default=5, show_default=True, required=False)
-@click.option("--train_mode", type=str, default="Holdout", show_default=False)
-@click.option("--val_size", type=float, default=0.2, show_default=True, required=False)
-@click.option("--test_size", type=float, default=0.2, show_default=True, required=False)
 def train(**kwargs):
-    opts = TrainAldexNetOptions().parse(kwargs)
-    trainer = FinetuneTrainer(opts)
+    opts = TrainBoxOptions().parse(kwargs)
+    trainer = BoxTrainer(opts)
     trainer.train()
 
 if __name__ == "__main__":

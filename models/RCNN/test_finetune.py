@@ -52,7 +52,7 @@ class FinetuneTester(BaseInferencer):
         self.model.eval()
         correct = total = 0
         with torch.no_grad():
-            for images, labels in self.test_loader:
+            for images, labels, _ , _  in self.test_loader:
                 images = images.to(self.opts.device)
                 labels = labels.to(self.opts.device)
                 outputs = self.model(images)

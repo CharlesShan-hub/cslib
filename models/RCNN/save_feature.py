@@ -6,6 +6,9 @@ from dataset import Flowers2
 from transform import transform
 from model import AlexNet
 from clib.inference import BaseInferencer
+import numpy as np
+from pathlib import Path
+from tqdm import tqdm
 
 class FeatureSaver(BaseInferencer):
     def __init__(self, opts):
@@ -38,18 +41,26 @@ class FeatureSaver(BaseInferencer):
         assert self.model is not None
         assert self.loader is not None
         self.model.eval()
-        correct = total = 0
+        all_outputs = []
+        all_labels = []
+        all_keys = []
+        pbar = tqdm(self.loader, total=len(self.loader))
         with torch.no_grad():
-            for images, labels in self.loader:
+            for images, labels, key , _  in pbar:
                 images = images.to(self.opts.device)
                 labels = labels.to(self.opts.device)
                 outputs = self.model(images)
-                print(outputs.shape)
-                breakpoint()
+                all_outputs.append(outputs.cpu().numpy())
+                all_labels.append(labels.cpu().numpy())
+                all_keys.append(key.cpu().numpy())
 
-            print(
-                f"Accuracy of the model on the {total} test images: {100 * correct / total:.2f}%"
-            )
+            all_outputs = np.vstack(all_outputs)
+            all_labels = np.concatenate(all_labels)
+            all_keys = np.concatenate(all_keys)
+
+            np.save(Path(self.opts.dataset_path) / 'flowers-17' /'feature_for_svm.npy', all_outputs)
+            np.save(Path(self.opts.dataset_path) / 'flowers-17' /'label_for_svm.npy', all_labels)
+            np.save(Path(self.opts.dataset_path) / 'flowers-17' /'key_for_svm.npy', all_keys)
 
 @click.command()
 @click.option("--model_path", type=click.Path(exists=True), required=True)

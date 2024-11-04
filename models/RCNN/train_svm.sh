@@ -17,7 +17,7 @@ mkdir -p "${RES_PATH}/${NAME}"
 # Run Script
 
 python $PYTHON_SCRIPT \
-    --comment "(RCNN on 2flowers) step2: Finetune AlexNet Classifier(with pre-trained model)" \
+    --comment "(RCNN on 2flowers) step4: Train SVM" \
     --model_base_path "${RES_PATH}/${NAME}" \
     --dataset_path "${BASE_PATH}/torchvision" \
     --image_size 224
