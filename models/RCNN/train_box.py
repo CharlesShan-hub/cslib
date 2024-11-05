@@ -100,6 +100,17 @@ class BoxTrainer(BaseTrainer):
             total += rects.size(0)
             loss.backward()
             self.optimizer.step()
+
+            # print(outputs)
+            # print(rects)
+            # for name, param in self.model.named_parameters():
+            #     if param.grad is not None:
+            #         grad_norm = param.grad.norm()
+            #         print(f'Parameter: {name}, Gradient Norm: {grad_norm}')
+            #         if grad_norm > 1e6:  # 这里的阈值是示例，实际情况可能需要调整
+            #             print(f'Gradient explosion detected for {name}')
+
+            self.optimizer.zero_grad()
             batch_index += 1
             running_loss += loss
             pbar.set_description(
@@ -107,6 +118,7 @@ class BoxTrainer(BaseTrainer):
             )
             pbar.set_postfix(loss=(running_loss.item() / batch_index))
             total += rects.size(0)
+
 
         train_loss = running_loss / total
         self.loss = loss
@@ -174,8 +186,9 @@ class BoxTrainer(BaseTrainer):
                 outputs = self.model(features)
                 running_loss += self.criterion(rects, outputs)
                 total += rects.size(0)
+                running_loss/=total
             print(
-                f"Loss of the model on the {total} test images: {running_loss:.4f}%"
+                f"Loss of the model on the {total} test images: {running_loss:.4f}"
             )
 
 @click.command()

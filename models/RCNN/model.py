@@ -109,7 +109,7 @@ class RegNet(nn.Module):
         fc1 = nn.Linear(4096, 4096)
         fc1.weight.data.normal_(0.0, 0.01)
         layers.append(fc1)
-        # layers.append(nn.Dropout(0.5))
+        layers.append(nn.Dropout(0.5))
         layers.append(nn.Tanh())
         fc2 = nn.Linear(4096, 5)# 1(is object or not) + 4(X,Y,H,W)
         fc2.weight.data.normal_(0.0, 0.01)
