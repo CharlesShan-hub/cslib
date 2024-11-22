@@ -81,3 +81,56 @@
   - 提交1/3（记录文件变化）：`git add .`
   - 提交2/3（所有变化提交到本地仓库）`git commit -m "My feature implementation"`
   - 提交3/3（本地仓库退到远程仓库）：`git push`
+
+## CV领域梳理
+
+1. Image Classification 图像分类
+
+   > https://paperswithcode.com/area/computer-vision/image-classification
+
+   1. Out of Distribution (OOD) Detection：**分布外（OOD）检测**是检测不属于分类器已被训练的分布的实例的任务。OOD数据通常被称为“看不见的”数据，因为模型在训练期间没有遇到它。
+   2. Few-Shot Image Classification：**少镜头图像分类**是一项计算机视觉任务，涉及训练机器学习模型，仅使用每个类别的少数标记示例（通常< 6个示例）将图像分类到预定义的类别中。
+
+   3. Fine-Grained Image Classification：**细粒度图像分类**是计算机视觉中的一项任务，其目标是将图像分类为更大类别中的子类别。例如，对不同种类的鸟或不同类型的花进行分类。
+   4. Learning with noisy labels：使用**噪声标签**学习意味着当我们说“噪声标签”时，我们的意思是对手故意弄乱了标签，否则这些标签将来自“干净”的分布。此设置还可用于仅从正数据和未标记数据进行投射学习。
+
+2. Object Detection 目标检测
+
+   > https://paperswithcode.com/area/computer-vision/object-detection
+   >
+   > https://paperswithcode.com/area/computer-vision/2d-object-detection
+
+   1. 3D Object Detection 3D目标检测：在3D环境中识别和定位物体
+   2. Real-Time Object Detection 实时对象检测
+   3. RGB Salient Object Detection RGB显著目标检测
+   4. Few-Shot Object Detection 少镜头目标检测
+
+3. Semantic Segmentation 语义分割
+
+   > https://paperswithcode.com/area/computer-vision/semantic-segmentation
+   >
+   > https://paperswithcode.com/area/computer-vision/2d-semantic-segmentation
+
+   	1. 3D Semantic Segmentation 三维语义分割：涉及将3D点云或3D网格划分为语义上有意义的部分或区域
+   	1. Real-Time Semantic Segmentation 实时语义分割
+   	1. Scene Segmentation 场景分割
+   	1. Road Segmentation 道路分割
+   	1. Crack Segmentation 裂缝分割
+
+4. Image Generation 图像生成
+
+   > https://paperswithcode.com/area/computer-vision/image-generation
+
+   1. Image Inpainting 图像修复：**图像修复**是一个重建图像中丢失区域的任务。它是计算机视觉中的一个重要问题，也是许多成像和图形应用中的一个基本功能，例如对象去除，图像恢复，操纵，重定向，合成和基于图像的渲染。
+   2. Image-to-Image Translation：**图像到图像翻译**是计算机视觉和机器学习中的一项任务，其目标是学习输入图像和输出图像之间的映射，以便输出图像可用于执行特定任务，例如样式传输，数据增强或图像恢复。
+   3. Image Manipulation 图像操纵：图像处理是改变或变换现有图像以实现所需效果或修改其内容的过程。这可能涉及各种技术和工具，以根据特定要求增强、修改或创建图像。
+   4. Image Harmonization 图像协调：图像协调的目的是修改合成区域相对于特定背景的颜色。
+
+5. Data Augmentation 数据增强
+
+   > 
+
+
+
+
+

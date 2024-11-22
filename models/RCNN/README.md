@@ -24,7 +24,7 @@
    ![claasify](./assets/step1.jpg)
 
    ```bash
-   (Pytorch2) kimshan@MacBook-Pro-2 RCNN % chmod 777 ./train_classifier.sh
+   (Pytorch2) kimshan@MacBook-Pro-2 RCNN % chmod 777 ./train_classifier.sh  
    (Pytorch2) kimshan@MacBook-Pro-2 RCNN % ./train_classifier.sh
    ```
 
