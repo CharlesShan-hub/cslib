@@ -7,7 +7,6 @@ matplotlib
 kornia
 scikit-image
 scikit-learn
-scipy
 numpy
 pycocotools
 einops

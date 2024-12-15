@@ -6,6 +6,7 @@ import PIL.Image
 from torchvision.datasets.utils import check_integrity, download_and_extract_archive, download_url, verify_str_arg
 from torchvision.datasets.vision import VisionDataset
 
+__all__ = ['Flowers17']
 
 class Flowers17(VisionDataset):
     """`Oxford 17 Flower <https://www.robots.ox.ac.uk/~vgg/data/flowers/17/>`_ Dataset.
