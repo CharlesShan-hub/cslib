@@ -1,5 +1,6 @@
 from typing import Any, Union, Tuple, Dict, List
 from pathlib import Path
+import shutil
 import torch
 from torchvision.datasets.folder import ImageFolder
 from torchvision.datasets.imagenet import load_meta_file
@@ -90,3 +91,14 @@ def generate_tiny_imagenet_meta(root: Union[str, Path]) -> None:
 
     torch.save((wnid_to_classes, val_wnids), Path(root) / FOLDER_NAME / META_FILE)
     print(f"Meta file saved at {Path(root) / FOLDER_NAME / META_FILE}")
+
+    image_path = Path(root) / FOLDER_NAME / 'val' / 'images'
+    with open(val_annotations_file, "r") as f:
+        for line in f.readlines():
+            parts = line.strip().split("\t")
+            folder_path = Path(root) / FOLDER_NAME / 'val' / parts[1]
+            (folder_path / 'images').mkdir(parents=True, exist_ok=True)
+            shutil.move(image_path / parts[0], folder_path / 'images' / parts[0])
+            with open(folder_path / f'{parts[1]}.txt' , "a+") as f2:
+                f2.write(line)
+    image_path.rmdir()
