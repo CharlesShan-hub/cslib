@@ -1,5 +1,6 @@
 from .collection.flowers17 import Flowers17
 from .collection.tinyimagenet import TinyImageNet
+from .collection.imagenetval import ImageNetVal
 from torchvision.datasets import \
     Caltech101, Caltech256, \
     CelebA, \
