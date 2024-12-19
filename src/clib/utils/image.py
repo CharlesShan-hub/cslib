@@ -6,7 +6,7 @@ converting between PyTorch tensors and NumPy arrays,
 and saving arrays as MATLAB .mat files.
 """
 
-from typing import Union
+from typing import Union, Optional
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
@@ -184,7 +184,8 @@ def glance(
         clip: bool = False,
         title: Union[str, list] = "",
         hide_axis: bool = True,
-        shape: tuple = (1,1)):
+        shape: tuple = (1,1), 
+        figsize: Optional[tuple] = None):
     """
     Display a PyTorch tensor or NumPy array as an image.
 
@@ -209,6 +210,7 @@ def glance(
         image = [to_numpy(image,clip)]
 
     # show image with PIL.Image
+    plt.figure(figsize=figsize)
     (H,W) = shape
     for k in range(H*W):
         plt.subplot(H,W,k+1)
