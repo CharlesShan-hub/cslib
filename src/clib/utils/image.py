@@ -185,7 +185,11 @@ def glance(
         title: Union[str, list] = "",
         hide_axis: bool = True,
         shape: tuple = (1,1), 
-        figsize: Optional[tuple] = None):
+        figsize: Optional[tuple] = None,
+        auto_contrast: Optional[bool] = True,
+        plot_3d: Optional[bool] = False,
+        save: Optional[bool] = False,
+        save_path: Optional[str] = "./glance.png"):
     """
     Display a PyTorch tensor or NumPy array as an image.
 
@@ -205,17 +209,35 @@ def glance(
     if isinstance(image,list) or isinstance(image, tuple):
         if shape[0]*shape[1] != len(image):
             shape = (1,len(image)) 
-        image = [to_numpy(i,clip) for i in image]
+        image = [(None if i is None else to_numpy(i,clip)) for i in image]
     else:
         image = [to_numpy(image,clip)]
+    if isinstance(auto_contrast,bool):
+        auto_contrast = [auto_contrast] * (shape[0] * shape[1])
+    if isinstance(plot_3d,bool):
+        plot_3d = [plot_3d] * (shape[0] * shape[1])
 
     # show image with PIL.Image
     plt.figure(figsize=figsize)
     (H,W) = shape
     for k in range(H*W):
-        plt.subplot(H,W,k+1)
-        plt.imshow((image[k]*255).astype(np.uint8), 
-                cmap='gray' if image[k].ndim == 2 else 'viridis')
+        if image[k] is None:
+            continue
+        ax = plt.subplot(H,W,k+1,projection='3d' if plot_3d[k] else None)
+        if image[k].ndim == 2:
+            if plot_3d[k]: # 3d
+                x = np.arange(image[k].shape[1])
+                y = np.flip(np.arange(image[k].shape[0]))
+                x, y = np.meshgrid(x, y)
+                surf = ax.plot_surface(x, y, image[k], cmap='viridis')
+                plt.colorbar(surf, shrink=0.5, aspect=5)
+            else: # 2d
+                if auto_contrast[k] == False:
+                    plt.imshow((image[k]*255).astype(np.uint8), cmap='gray', vmax=255, vmin=0)
+                else:
+                    plt.imshow((image[k]*255).astype(np.uint8), cmap='gray')
+        else:
+            plt.imshow((image[k]*255).astype(np.uint8), cmap='viridis')
         if len(annotations)>0:
             if hasattr(annotations[k-1],'boxes'):
                 for anno in annotations[k-1]['boxes']:
@@ -225,7 +247,10 @@ def glance(
                     plt.gca().add_patch(rect)
         if title != "": plt.title(title[k] if isinstance(title,list) else title)
         if hide_axis: plt.axis('off')
-    plt.show()
+    if save:
+        plt.savefig(save_path)
+    else:
+        plt.show()
 
 
 def save_array_to_img(
