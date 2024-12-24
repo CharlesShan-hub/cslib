@@ -5,6 +5,11 @@ from torchvision import transforms
 import os
 from PIL import Image
 from pathlib import Path
+from .collection.ino import INO
+
+__all__ = [
+    'INO'
+]
 
 class FusionToy(Dataset):
     """
