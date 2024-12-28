@@ -184,7 +184,9 @@ def glance(
         clip: bool = False,
         title: Union[str, list] = "",
         hide_axis: bool = True,
+        tight_layout: bool = True,
         shape: tuple = (1,1), 
+        suptitle: str = "",
         figsize: Optional[tuple] = None,
         auto_contrast: Optional[bool] = True,
         plot_3d: Optional[bool] = False,
@@ -247,6 +249,8 @@ def glance(
                     plt.gca().add_patch(rect)
         if title != "": plt.title(title[k] if isinstance(title,list) else title)
         if hide_axis: plt.axis('off')
+        if tight_layout: plt.tight_layout()
+    if suptitle != "": plt.suptitle(suptitle)
     if save:
         plt.savefig(save_path)
     else:

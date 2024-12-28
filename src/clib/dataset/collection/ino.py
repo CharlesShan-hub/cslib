@@ -227,14 +227,14 @@ class INO(VisionDataset):
         else:
             ValueError("Not Realise yet!")
         
-    def __len__(self) -> int:
+    def __len__(self):
         if self.mode == 'image':
             return len(self.ir_image)
         else:
             ValueError("Not Realise yet!")
 
     def _check_integrity(self,info):
-        if not check_integrity(self._base_folder / f'{info['addition'].lower()}.zip', info["md5"]):
+        if not check_integrity(self._base_folder / f"{info['addition'].lower()}.zip", info["md5"]):
             return False
         
         if not ((self._base_folder/info['addition']).exists() and (self._base_folder/info['addition']).is_dir()):
@@ -304,7 +304,7 @@ class INO(VisionDataset):
             img_path = self._base_folder / info['addition'] / info['addition']
             ir_path = img_path / 'ir'
             vis_path = img_path / 'vis'
-            mask_path = img_path / f'{info['addition']}_mask.bmp'
+            mask_path = img_path / f"{info['addition']}_mask.bmp"
 
             # Process IR video
             if info['ir']:

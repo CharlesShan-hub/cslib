@@ -6,9 +6,11 @@ import os
 from PIL import Image
 from pathlib import Path
 from .collection.ino import INO
+from .collection.m3fd import M3FD
 
 __all__ = [
-    'INO'
+    'INO',
+    'M3FD',
 ]
 
 class FusionToy(Dataset):
