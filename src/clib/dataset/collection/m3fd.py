@@ -1,10 +1,19 @@
 from typing import Callable, Optional
 from pathlib import Path
 from torchvision.datasets.vision import VisionDataset
-from torchvision.datasets.utils import download_url
+from torchvision.datasets.utils import download_and_extract_archive
 from PIL import Image
+import shutil
 
 __all__ = ['M3FD']
+
+def move_folder_contents(src_folder: Path, dest_folder: Path):
+    dest_folder.mkdir(parents=True, exist_ok=True)
+    for item in src_folder.iterdir():
+        try:
+            item.replace(dest_folder / item.name)
+        except Exception as e:
+            print(f"Fail to move {item} to {dest_folder}: {e}")
 
 class M3FD(VisionDataset):
     """ M3FD
@@ -59,7 +68,8 @@ class M3FD(VisionDataset):
         '03019', '03045', '03100', '03109', '03143', '03173', '03219', '03260', '03281', '03289', '03354', '03375', 
         '03381', '03409', '03417', '03433', '03438', '03462', '03473', '03575', '03589', '03600', '03640', '03708', 
         '03719', '03769', '03813', '03836', '03878', '03989', '04006', '04018', '04026', '04053', '04092', '04160']
-    url_base = 'https://github.com/CharlesShan-hub/M3FD-Fusion-Backup/blob/master/M3FD_Fusion/'
+    url = "https://github.com/CharlesShan-hub/M3FD-Fusion-Backup/archive/refs/heads/master.zip"
+    md5 = "e11dcc73ff6f590d927631467930abb6"
 
     def __init__(
         self,
@@ -93,18 +103,33 @@ class M3FD(VisionDataset):
             (self._base_folder / 'fusion').mkdir()
             (self._base_folder / 'fusion' / 'ir').mkdir()
             (self._base_folder / 'fusion' / 'vis').mkdir()
+        valid = True
         for name in self.file:
             if not (self._base_folder / 'fusion' / 'ir' / f'{name}.png').exists():
-                download_url(
-                    url=self.url_base+f'Ir/{name}.png?raw=true',
-                    root=self._base_folder / 'fusion' / 'ir',
-                    filename=f'{name}.png'
-                )
-                print("Recommanded to download manully from `https://drive.google.com/drive/folders/1H-oO7bgRuVFYDcMGvxstT1nmy0WF_Y_6`")
+                valid = False
+                print(self._base_folder / 'fusion' / 'ir' / f'{name}.png')
+                break
             if not (self._base_folder / 'fusion' / 'vis' / f'{name}.png').exists():
-                download_url(
-                    url=self.url_base+f'Vis/{name}.png?raw=true',
-                    root=self._base_folder / 'fusion' / 'vis',
-                    filename=f'{name}.png'
+                valid = False
+                print(self._base_folder / 'fusion' / 'vis' / f'{name}.png')
+                break
+        if valid:
+            return
+        print("You can also download manully from `https://drive.google.com/drive/folders/1H-oO7bgRuVFYDcMGvxstT1nmy0WF_Y_6`")
+        download_and_extract_archive(
+                    url=self.url,
+                    download_root=self._base_folder,
+                    extract_root=self._base_folder,
+                    filename="m3fd_temp.zip",
+                    md5=self.md5,
+                    remove_finished=True
                 )
-                print("Recommanded to download manully from `https://drive.google.com/drive/folders/1H-oO7bgRuVFYDcMGvxstT1nmy0WF_Y_6`")
+        move_folder_contents(
+            src_folder=self._base_folder / 'M3FD-Fusion-Backup-master' / 'M3FD_Fusion' / 'Ir',
+            dest_folder=self._base_folder / 'fusion' / 'ir'
+        ) 
+        move_folder_contents(
+            src_folder=self._base_folder / 'M3FD-Fusion-Backup-master' / 'M3FD_Fusion' / 'Vis',
+            dest_folder=self._base_folder / 'fusion' / 'vis'
+        )
+        shutil.rmtree(self._base_folder / 'M3FD-Fusion-Backup-master')
