@@ -7,10 +7,12 @@ from PIL import Image
 from pathlib import Path
 from .collection.ino import INO
 from .collection.m3fd import M3FD
+from .collection.tno import TNO 
 
 __all__ = [
     'INO',
     'M3FD',
+    'TNO'
 ]
 
 class FusionToy(Dataset):
