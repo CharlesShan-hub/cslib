@@ -7,6 +7,25 @@ from PIL import Image
 __all__ = ['TNO']
 
 class TNO(VisionDataset):
+    """ TNO dataset for image fusion.
+
+    The TNO dataset is a collection of LWIR, NIR, and visible images for image fusion tasks.
+    It includes both paired and sequential images for different scenarios. 
+    Details: https://figshare.com/articles/dataset/TNO_Image_Fusion_Dataset/1008029
+
+    Args:
+        root (str): Root directory of the dataset where ``TNO_Image_Fusion_Dataset`` exists.
+        transform (callable, optional): E.g, ``transforms.ToTensor``
+        download (bool, optional): If true, downloads the dataset from the internet and
+            puts it in root directory. If dataset is already downloaded, it is not
+            downloaded again.
+        mode (str, optional): Mode of the dataset to use. It can be 'both', 'pairs', or 'sequence'.
+            'both' includes both pairs and sequence data, 'pairs' includes only paired data,
+            and 'sequence' includes only sequential data.
+        img_type (str, optional): Image type to use. It can be 'both', 'lwir', or 'nir'.
+            'both' includes LWIR and NIR images, 'lwir' includes only LWIR images,
+            and 'nir' includes only NIR images.
+    """
     file = {
         'pairs':{
             'tank':{
@@ -531,10 +550,6 @@ class TNO(VisionDataset):
         if self.transform:
             image_list = [self.transform(i) for i in image_list]
         return image_list
-        # if self.mode == 'both': # both: lwir, nir, vis
-        #     return image_list[0],image_list[1],image_list[2]
-        # else: # lwir: lwir, vis | nir: nir, vis
-        #     return image_list[0],image_list[1]
     
     def __len__(self):
         return len(self.data)
