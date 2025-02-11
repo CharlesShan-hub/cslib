@@ -1,4 +1,4 @@
-from clib.algorithms import selective_search
+from clib.algorithms.object_proposals import selective_search
 from clib.dataset.image import astronaut
 # from clib.utils import glance
 import matplotlib.pyplot as plt

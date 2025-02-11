@@ -144,7 +144,7 @@ class LLVIP(VisionDataset):
 
     def download(self):
         if self._src_folder.exists():
-            print(self._src_folder,'exists')
+            # print(self._src_folder,'exists')
             return
         self._base_folder.mkdir()
         (self._base_folder / 'parts').mkdir()
