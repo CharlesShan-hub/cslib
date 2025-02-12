@@ -44,3 +44,7 @@ def ag_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
 # 与 VIFB 统一
 def ag_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return ag(F) * 255.0  # 与 VIFB 统一，需要乘 255
+
+if __name__ == '__main__':
+    from clib.metrics.fusion import vis,ir,fused
+    print(ag_metric(ir,vis,fused).item())

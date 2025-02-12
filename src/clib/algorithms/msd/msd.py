@@ -1,13 +1,10 @@
 from typing import List, Union, Optional
 from typing_extensions import override
 import torch
-# import torch.nn as nn
 import torch.nn.functional as F
 from torchvision import transforms
 import torchvision.transforms.functional as TF
 from PIL import Image
-# import matplotlib.pyplot as plt
-import numpy as np
 
 __all__ = [
     'Laplacian',
@@ -78,7 +75,7 @@ class Base(object):
 
     @staticmethod
     def gaussian_blur(image: torch.Tensor, kernel_size: int = 5,
-        gau_blur_way: str = 'Paper', sigma: Optional[List[float]] = None, bias: float = 0) -> torch.Tensor:
+        gau_blur_way: str = 'Pytorch', sigma: Optional[List[float]] = None, bias: float = 0) -> torch.Tensor:
         """
         Applies Gaussian blur to the input image.
 
@@ -100,19 +97,19 @@ class Base(object):
         elif gau_blur_way == "Paper":
             # Define a Gaussian kernel
             if kernel_size == 3:
-                kernel = torch.tensor([[1, 2, 1],
-                                       [2, 4, 2],
-                                       [1, 2, 1]], dtype=torch.float32) / 16 + bias
+                kernel = torch.tensor([[1., 2., 1.],
+                                       [2., 4., 2.],
+                                       [1., 2., 1.]]) / 16 + bias
             elif kernel_size == 5:
-                kernel = torch.tensor([[1, 4, 6, 4, 1],
-                                    [4, 16, 24, 16, 4],
-                                    [6, 24, 36, 24, 6],
-                                    [4, 16, 24, 16, 4],
-                                    [1, 4, 6, 4, 1]], dtype=torch.float32) / 256 + bias
+                kernel = torch.tensor([[1., 4., 6., 4., 1.],
+                                    [4., 16., 24., 16., 4.],
+                                    [6., 24., 36., 24., 6.],
+                                    [4., 16., 24., 16., 4.],
+                                    [1., 4., 6., 4., 1.]]) / 256 + bias
             else:
                 raise ValueError(f"kernel size in paper only be 3 or 5, not {kernel_size}")
             # Expand dimensions of the kernel for convolution
-            kernel = kernel.unsqueeze(0).unsqueeze(0)
+            kernel = kernel.unsqueeze(0).unsqueeze(0).to(image.dtype)
 
             # Adjust the kernel to match the number of channels in the input image
             kernel = kernel.expand(image.shape[1], -1, -1, -1)
@@ -198,17 +195,16 @@ class Base(object):
         """
         Constructs a Gaussian pyramid from the input image.
         """
-        if self.image is not None:
-            image = self.image
-            _, _, width, height = image.shape
-            if self.layer > int(torch.floor(torch.log2(torch.tensor(min(width, height)))) - 2):
-                raise RuntimeError('Cannot build {} levels, image too small.'.format(self.layer))
-            self.gaussian = [image]
-            for _ in range(self.layer):
-                image = self.pyr_down(image)
-                self.gaussian.append(image)
-        else:
+        if self.image is None:
             raise ValueError("You should first assign a image.")
+        image = self.image
+        _, _, width, height = image.shape
+        if self.layer > int(torch.floor(torch.log2(torch.tensor(min(width, height)))) - 2):
+            raise RuntimeError('Cannot build {} levels, image too small.'.format(self.layer))
+        self.gaussian = [image]
+        for _ in range(self.layer):
+            image = self.pyr_down(image)
+            self.gaussian.append(image)
 
     def _build_base_pyramid(self) -> None:
         """
@@ -422,13 +418,15 @@ class Demo(Base):
 
 class Laplacian(Base):
     """
-    Represents a Laplacian pyramid, derived from the Base class.
+    Laplacian pyramid
 
     This class provides methods for decomposition and reconstruction of the Laplacian pyramid
     using ordinary and orthogonal techniques.
 
-    Attributes:
-        Inherits attributes from the Base class.
+    Reference:
+        P. Burt and E. Adelson, "The Laplacian Pyramid as a Compact Image Code," 
+        in IEEE Transactions on Communications, vol. 31, no. 4, pp. 532-540, 
+        April 1983, doi: 10.1109/TCOM.1983.1095851.
     """
     def __init__(self,**kwargs) -> None:
         super().__init__("Laplacian",**kwargs)
@@ -475,6 +473,10 @@ class Laplacian(Base):
         techniques, which involves subtracting each downsampled version of the Laplacian pyramid from
         the reconstructed image, and then adding each layer of the Laplacian pyramid to the corresponding
         upsampled version of the reconstructed image.
+
+        Reference:
+        M. N. Do and M. Vetterli, "Framing pyramids," in IEEE Transactions on Signal Processing, 
+        vol. 51, no. 9, pp. 2329-2342, Sept. 2003, doi: 10.1109/TSP.2003.815389.
         """
         image_reconstructed = self.gaussian[-1]
         for i in reversed(range(self.layer)):
@@ -489,35 +491,25 @@ class Laplacian(Base):
 
 class Contrust(Base):
     """
-    Represents a Contrast pyramid, derived from the Base class.
+    Contrast pyramid
 
     This class provides methods for decomposition and reconstruction of the Contrast pyramid
     using ordinary techniques.
 
-    Attributes:
-        Inherits attributes from the Base class.
+    Reference:
+        Toet, Alexander et al. “Merging thermal and visual images by a contrast pyramid.” 
+        Optical Engineering 28 (1989): 789-792.
     """
     def __init__(self,**kwargs) -> None:
-        """
-        Initializes a Contrast object.
-
-        Args:
-            **kwargs: Additional keyword arguments to customize object attributes.
-
-        Inherits attributes from the Base class.
-        """
         super().__init__("Contrust",**kwargs)
 
-    def decomposition_ordinary(self) -> None:
+    def decomposition_ordinary(self) -> list[torch.Tensor]:
         """
         Perform decomposition of the Contrast pyramid using ordinary techniques.
 
         This method computes the Contrast pyramid by dividing each layer of the Gaussian pyramid
         by the corresponding upsampled layer of the Gaussian pyramid, subtracting 1, and replacing
         zeros in the denominator with zeros.
-
-        Returns:
-            None
         """
         laplacian_pyramid = []
         for i in range(self.layer):
@@ -528,17 +520,15 @@ class Contrust(Base):
             laplacian_pyramid.append(laplacian)
 
         self.pyramid = laplacian_pyramid
+        return self.pyramid
 
-    def reconstruction_ordinary(self) -> None:
+    def reconstruction_ordinary(self) -> torch.Tensor:
         """
         Perform reconstruction of the Contrast pyramid using ordinary techniques.
 
         This method reconstructs the image from the Contrast pyramid using ordinary reconstruction
         techniques, which involves multiplying each layer of the Contrast pyramid by the corresponding
         upsampled version of the reconstructed image, and then adding 1.
-
-        Returns:
-            None
         """
         image_reconstructed = self.gaussian[-1]
         for i in reversed(range(self.layer)):
@@ -547,90 +537,56 @@ class Contrust(Base):
             image_reconstructed = (self.pyramid[i] + 1) * expanded
 
         self.recon = image_reconstructed
+        return self.recon
 
 
 class FSD(Base):
     """
-    Represents a FSD (Feature Suppression Decomposition) pyramid, derived from the Base class.
+    FSD (Filter Subtract Decimate) pyramid
 
-    This class provides methods for decomposition and reconstruction of the FSD pyramid
-    using ordinary techniques.
+    It can be regarded as a fast and improved version of the Laplacian pyramid.
 
-    Attributes:
-        Inherits attributes from the Base class.
+    Reference:
+        Hahn, M., & Samadzadegan, F. (2004, July). A study of image fusion techniques in remote sensing. 
+        In Proc. 20th ISPRS Congress Geoimagery Bridging Continents (pp. 889-895).
     """
     def __init__(self,**kwargs) -> None:
-        """
-        Initializes a FSD object.
-
-        Args:
-            **kwargs: Additional keyword arguments to customize object attributes.
-
-        Inherits attributes from the Base class.
-        """
         super().__init__("FSD",**kwargs)
 
-    def decomposition_ordinary(self) -> None:
+    def decomposition_ordinary(self) -> List[torch.Tensor]:
         """
         Perform decomposition of the FSD pyramid using ordinary techniques.
 
-        This method computes the FSD pyramid by subtracting the Gaussian-blurred version of each layer
-        from the corresponding layer of the Gaussian pyramid.
-
-        Returns:
-            None
+        * Laplaian: Li = Gi - expand(subsample(gaussian_blur(Gi)))
+        * FSD:      Li = Gi - gaussian_blur(Gi) <- simlified
         """
         fsd_pyramid = []
         for i in range(self.layer):
-            _,_,m,n = self.gaussian[i].shape
             fsd = self.gaussian[i] - self.gaussian_blur(self.gaussian[i])
             fsd_pyramid.append(fsd)
 
         self.pyramid = fsd_pyramid
+        return fsd_pyramid
 
-    def reconstruction_ordinary(self) -> None:
+    def reconstruction_ordinary(self) -> torch.Tensor:
         """
-        Perform reconstruction of the FSD pyramid using ordinary techniques.
-
-        This method reconstructs the image from the FSD pyramid using ordinary reconstruction
-        techniques, which involves iteratively adding the FSD layers to an upsampled version of
-        the reconstructed image, blurring the result, and then repeating the process.
-
-        Returns:
-            None
+        Same as Laplaian ordinary.
         """
-        image_reconstructed = self.up_sample(self.gaussian[-1])*4
+        image_reconstructed = self.gaussian[-1]
         for i in reversed(range(self.layer)):
             _,_,m,n = self.pyramid[i].shape
-            image_reconstructed = image_reconstructed[:,:,:m,:n]
-            image_reconstructed += self.pyramid[i]
-            image_reconstructed = self.gaussian_blur(image_reconstructed)
-            image_reconstructed += self.pyramid[i]
-            if i!=0:
-                image_reconstructed = self.up_sample(image_reconstructed)*4
+            expanded = self.pyr_up(image_reconstructed)[:,:,:m,:n]
+            image_reconstructed = self.pyramid[i] + expanded
 
         self.recon = image_reconstructed
+        return self.recon
 
 
 class Graident(Base):
     """
-    Represents a Gradient pyramid, derived from the Base class.
-
-    This class provides methods for decomposition and reconstruction of the Gradient pyramid
-    using ordinary techniques.
-
-    Attributes:
-        Inherits attributes from the Base class.
+    Gradient pyramid
     """
     def __init__(self,**kwargs) -> None:
-        """
-        Initializes a Gradient object.
-
-        Args:
-            **kwargs: Additional keyword arguments to customize object attributes.
-
-        Inherits attributes from the Base class.
-        """
         super().__init__("Graident",**kwargs)
 
     @staticmethod
@@ -650,7 +606,7 @@ class Graident(Base):
         h2 = torch.tensor([[0,0,0],[0, 0,-1],[0,1,0]], dtype=torch.float32) / torch.sqrt(torch.tensor(2))
         h3 = torch.tensor([[0,0,0],[0,-1, 0],[0,1,0]], dtype=torch.float32)
         h4 = torch.tensor([[0,0,0],[0,-1, 0],[0,0,1]], dtype=torch.float32) / torch.sqrt(torch.tensor(2))
-        h = [k.unsqueeze(0).unsqueeze(0).repeat(image[0].shape[1], 1, 1, 1) for k in [h1,h2,h3,h4]]
+        h = [k.unsqueeze(0).unsqueeze(0).repeat(image[0].shape[1], 1, 1, 1).to(image[0].dtype) for k in [h1,h2,h3,h4]]
         return [F.conv2d(_i, _h, stride=1, padding=1, groups=_i.shape[1]) for _i,_h in zip(image,h)]
 
     def decomposition_ordinary(self) -> None:
@@ -838,101 +794,59 @@ class Morphological(Base):
         self.recon = image_reconstructed
 
 
-# class Steerable(Base):
-#     """
-#     Ref: https://github.com/tomrunia/PyTorchSteerablePyramid
-#     """
-#     def __init__(self, **kwargs) -> None:
-#         self.nbands = 4 # number of orientation bands
-#         self.scale_factor = 2
-#         super().__init__("Steerable", **kwargs)
+def test_laplacian():
+    # Gray & ordinary construction
+    pyramid = Laplacian(image=ir)
+    glance(pyramid.pyramid)
+    glance([ir,pyramid.recon])
+    # Comment: Good
 
-#     @staticmethod
-#     def prepare_grid(m, n):
-#         x = np.linspace(-(m // 2)/(m / 2), (m // 2)/(m / 2) - (1 - m % 2)*2/m, num=m)
-#         y = np.linspace(-(n // 2)/(n / 2), (n // 2)/(n / 2) - (1 - n % 2)*2/n, num=n)
-#         xv, yv = np.meshgrid(y, x)
-#         angle = np.arctan2(yv, xv)
-#         rad = np.sqrt(xv**2 + yv**2)
-#         rad[m//2][n//2] = rad[m//2][n//2 - 1]
-#         log_rad = np.log2(rad)
-#         return log_rad, angle
+    # Gray & orthogonal construction
+    pyramid = Laplacian(image=vis,recon_way='orthogonal')
+    glance(pyramid.pyramid)
+    glance([vis,pyramid.recon])
+    # Comment: Especially for blued images
 
-#     @staticmethod
-#     def rcosFn(width, position):
-#         N = 256  # abritrary
-#         X = np.pi * np.array(range(-N-1, 2))/2/N
-#         Y = np.cos(X)**2
-#         Y[0] = Y[1]
-#         Y[N+2] = Y[N+1]
-#         X = position + 2*width/np.pi*(X + np.pi/4)
-#         return X, Y
+def test_contrust():
+    pyramid = Contrust(image=ir)
+    glance(pyramid.pyramid)
+    glance([ir,pyramid.recon])
+    # Comment: better than laplacian for fusion
 
-#     @staticmethod
-#     def pointOp(im, Y, X):
-#         out = np.interp(im.flatten(), X, Y)
-#         return np.reshape(out, im.shape)
+def test_fsd():
+    # layer=5
+    pyramid = FSD(image=ir)
+    glance(pyramid.pyramid)
+    glance([ir,pyramid.recon]) # One Bad point!
 
-#     @override
-#     def _init_after_change_image(self) -> None:
-#         """
-#         Initializes after set a image.
-#         """
-#         # self._build_base_pyramid()
-#         # Check Image
-#         if self.image is None:
-#             raise ValueError("No Image to do decomposition")
-#         _, _, height, width = self.image.shape
+    # layer=3
+    pyramid = FSD(image=ir,layer=3)
+    glance(pyramid.pyramid)
+    glance([ir,pyramid.recon]) # Many bad points!!!
 
-#         # Prepare a grid
-#         self.log_rad, self.angle = self.prepare_grid(height, width)
+    # layer=6
+    pyramid = FSD(image=ir,layer=6)
+    glance(pyramid.pyramid)
+    glance([ir,pyramid.recon]) # No bad points~
+    # Comment: bad, sacrifice quality for speed
 
-#         # Radial transition function (a raised cosine in log-frequency):
-#         self.Xrcos, self.Yrcos = self.rcosFn(1, -0.5)
-#         self.Yrcos = torch.sqrt(self.Yrcos)
-#         self.YIrcos = torch.sqrt(1 - self.Yrcos**2)
-#         self.lo0mask = self.pointOp(self.log_rad, self.YIrcos, self.Xrcos)
-#         self.hi0mask = self.pointOp(self.log_rad, self.Yrcos, self.Xrcos)
-#         # Note that we expand dims to support broadcasting later
-#         self.lo0mask = torch.from_numpy(self.lo0mask).float()[None,:,:,None]
-#         self.hi0mask = torch.from_numpy(self.hi0mask).float()[None,:,:,None]
+def test_graident():
+    pyramid = Graident(image=ir)
+    # glance(pyramid.pyramid)
+    glance([ir,pyramid.recon])
+    # Comment: bad
 
-#     def decomposition_ordinary(self) -> None:
-#         """
-#         Perform decomposition of the Laplacian pyramid using ordinary techniques.
+def test_morphological():
+    pyramid = Morphological(image=ir)
+    glance(pyramid.pyramid)
+    glance([ir,pyramid.recon])
+    # Comment: good
 
-#         This method computes the Laplacian pyramid by subtracting each layer of the Gaussian pyramid
-#         from the corresponding upsampled layer of the Gaussian pyramid.
-
-#         Returns:
-#             None
-#         """
-
-#         steerable_pyramid = []
-#         for i in range(self.layer):
-#         #     _,_,m,n = self.gaussian[i].shape
-#         #     expanded = self.pyr_up(self.gaussian[i+1])[:,:,:m,:n]
-#         #     laplacian = self.gaussian[i] - expanded
-#         #     laplacian_pyramid.append(laplacian)
-
-#         # self.pyramid = laplacian_pyramid
-
-#     def reconstruction_ordinary(self) -> None:
-#         """
-#         Perform reconstruction of the Laplacian pyramid using ordinary techniques.
-
-#         This method reconstructs the image from the Laplacian pyramid using ordinary reconstruction
-#         techniques, which involves adding each layer of the Laplacian pyramid to the corresponding
-#         upsampled version of the reconstructed image.
-
-#         Returns:
-#             None
-#         """
-#         image_reconstructed = self.gaussian[-1]
-#         for i in reversed(range(self.layer)):
-#             _,_,m,n = self.pyramid[i].shape
-#             expanded = self.pyr_up(image_reconstructed)[:,:,:m,:n]
-#             image_reconstructed = self.pyramid[i] + expanded
-
-#         self.recon = image_reconstructed
-
+if __name__ == '__main__':
+    from clib.metrics.fusion import ir,vis
+    from clib.utils import glance
+    # test_laplacian()
+    # test_contrust()
+    # test_fsd()
+    # test_graident()
+    # test_morphological()
