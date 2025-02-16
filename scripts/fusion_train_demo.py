@@ -6,7 +6,7 @@ import torch
 from torch.utils.data import DataLoader
 from pathlib import Path
 
-from clib.model.fusion import DeepFuse as Method
+from clib.projects.fusion import DeepFuse as Method
 from clib.dataset.fusion import FusionToy
 import config
 

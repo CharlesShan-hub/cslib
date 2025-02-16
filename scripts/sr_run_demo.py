@@ -4,7 +4,7 @@ from pathlib import Path
 from tqdm import tqdm
 import click
 
-import clib.model.sr as sr
+import clib.projects.sr as sr
 import clib.dataset.sr as sr_data
 from clib.utils import save_array_to_img
 import config

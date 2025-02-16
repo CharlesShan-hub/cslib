@@ -12,7 +12,7 @@ batch_size = 32
 dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=True)
 
 # Load Model, Loss and Train
-model = clib.model.LinearModel(len(true_w))
+model = clib.projects.LinearModel(len(true_w))
 loss_function = nn.MSELoss()
 optimizer = optim.SGD(model.parameters(), lr=0.003)
 num_epochs = 100

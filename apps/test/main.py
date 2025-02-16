@@ -1,7 +1,7 @@
 from ui import UI
 
-from clib.utils.io import tensor_to_image
-from clib.model import classify 
+from clib.utils import to_image
+from clib.projects import classify 
 
 import sys
 from pathlib import Path
@@ -50,7 +50,7 @@ class App(UI):
 
     def inference(self):
         def _get_image(tensor):
-            img = tensor_to_image(tensor)
+            img = to_image(tensor)
             return self.pics[0].resize(img)
 
         with torch.no_grad():

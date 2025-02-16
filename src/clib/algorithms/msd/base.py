@@ -51,10 +51,11 @@ class Base(object):
         self.layer = 5
         self.recon = None
         self.auto = True
-        self.down_way = 'zero'     # Downsample method
-        self.up_way = 'zero'       # Upsample method
-        self.dec_way = 'ordinary'  # Decomposition method
-        self.rec_way = 'ordinary'  # Reconstruction method
+        self.down_way = 'zero'        # Downsample method
+        self.up_way = 'zero'          # Upsample method
+        self.dec_way = 'ordinary'     # Decomposition method
+        self.rec_way = 'ordinary'     # Reconstruction method
+        self.gau_blur_way = 'Pytorch' # Gaussian kernel method
 
         # Update attributes based on additional keyword arguments
         for key, value in kwargs.items():
@@ -69,8 +70,15 @@ class Base(object):
                 self.reconstruction()
 
     @staticmethod
-    def gaussian_blur(image: torch.Tensor, kernel_size: int = 5,
-        gau_blur_way: str = 'Pytorch', sigma: Optional[List[float]] = None, bias: float = 0) -> torch.Tensor:
+    def gaussian_blur(
+        image: torch.Tensor, 
+        kernel_size: int = 5,
+        gau_blur_way: str = 'Pytorch', 
+        sigma: Optional[List[float]] = None, 
+        bias: float = 0,
+        current_layer: int = 0,
+        total_layer: int =0,
+    ) -> torch.Tensor:
         """
         Applies Gaussian blur to the input image.
 
@@ -111,6 +119,11 @@ class Base(object):
 
             # Apply 2D convolution with the Gaussian kernel
             return F.conv2d(image, kernel, stride=1, padding=(kernel_size - 1) // 2, groups=image.shape[1])
+        elif gau_blur_way == 'Adaptive':
+            kernel_size = 2*(total_layer-current_layer+1) + 1
+            sigma = [(kernel_size-1) / 6.0]
+            # print(kernel_size,total_layer,current_layer,sigma)
+            return TF.gaussian_blur(image, kernel_size=[kernel_size, kernel_size], sigma=sigma)
         else:
             raise ValueError(f"`gau_blur_way` should only be 'Pytorch' or 'Paper', not {gau_blur_way}.")
 
@@ -157,7 +170,7 @@ class Base(object):
         return padded_img
 
     @staticmethod
-    def pyr_down(image: torch.Tensor) -> torch.Tensor:
+    def pyr_down(image: torch.Tensor, **kwargs) -> torch.Tensor:
         """
         Downsamples the input image using Gaussian blur and max pooling.
 
@@ -167,7 +180,7 @@ class Base(object):
         Returns:
             torch.Tensor: Downsampled image tensor.
         """
-        blurred = Base.gaussian_blur(image)
+        blurred = Base.gaussian_blur(image, **kwargs)
         downsampled = Base.down_sample(blurred)
         return downsampled
 
@@ -197,8 +210,11 @@ class Base(object):
         if self.layer > int(torch.floor(torch.log2(torch.tensor(min(width, height)))) - 2):
             raise RuntimeError('Cannot build {} levels, image too small.'.format(self.layer))
         self.gaussian = [image]
-        for _ in range(self.layer):
-            image = self.pyr_down(image)
+        for i in range(self.layer):
+            image = self.pyr_down(
+                image, gau_blur_way = self.gau_blur_way,
+                current_layer = i+1, 
+                total_layer = self.layer)
             self.gaussian.append(image)
 
     def _build_base_pyramid(self) -> None:

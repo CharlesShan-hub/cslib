@@ -1,4 +1,5 @@
 from . import dataset
 from . import utils
-from . import model
+from . import projects
+from . import models
 from . import metrics

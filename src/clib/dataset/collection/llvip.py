@@ -31,7 +31,7 @@ def split_file(file_path, num_chunks):
                 chunk_data = f.read(bytes_to_read)
                 chunk_file.write(chunk_data)
                 print(f"Created chunk: {chunk_file_path}")
-# split_file('LLVIP', 400)
+# split_file('llvip', 400)
 
 def merge_files(basefolder, num_chunks, output_file):
     """
@@ -115,8 +115,8 @@ class LLVIP(VisionDataset):
             train: bool = False,
         ) -> None:
         super().__init__(root, transform=transform)
-        self._base_folder = Path(self.root) / "LLVIP-temp"
-        self._src_folder = Path(self.root) / "LLVIP"
+        self._base_folder = Path(self.root) / "llvip-temp"
+        self._src_folder = Path(self.root) / "llvip"
         if download:
             self.download()
         if train:

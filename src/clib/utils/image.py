@@ -25,6 +25,8 @@ __all__ = [
     'glance',
     'path_to_gray',
     'path_to_rgb',
+    'rgb_to_gray',
+    'gray_to_rgb',
     'path_to_ycbcr',
     'rgb_to_ycbcr',
     'ycbcr_to_rgb',
@@ -118,6 +120,39 @@ def to_image(
         image = _clip(image) if clip else image
         image = _tensor_to_image(image) # type: ignore
     return image
+
+
+def gray_to_rgb(
+        image: Union[np.ndarray, torch.Tensor, Image.Image]
+    ) -> Union[np.ndarray, torch.Tensor, Image.Image]:
+    if isinstance(image, np.ndarray):
+        return color.gray2rgb(image)
+    elif isinstance(image, Image.Image):
+        return image.convert('RGB')
+    else:
+        assert 1 < image.ndim < 5
+        if image.ndim == 2:
+            return image.unsqueeze(0).repeat(3, 1, 1)
+        else:
+            assert(image.shape[-3] == 1)
+            return image.repeat(1, 3, 1, 1) if image.ndim == 4 else image.repeat(3, 1, 1)
+
+
+def rgb_to_gray(
+        image: Union[np.ndarray, torch.Tensor, Image.Image]
+    ) -> Union[np.ndarray, torch.Tensor, Image.Image]:
+    if isinstance(image, np.ndarray):
+        return color.rgb2gray(image)
+    elif isinstance(image, Image.Image):
+        return image.convert('L')
+    else:
+        assert image.ndim in [3, 4], "Input must be a 3-channel RGB image or a batch of 3-channel RGB images."
+        assert image.shape[-3] == 3, "Input must have 3 channels for RGB."
+        coeffs = torch.tensor([0.2125, 0.7154, 0.0721], dtype=image.dtype, device=image.device)
+        if image.ndim == 4:
+            return (image * coeffs.view(1, 3, 1, 1)).sum(dim=1, keepdim=True)
+        else:
+            return (image * coeffs.view(3, 1, 1)).sum(dim=0, keepdim=True)
 
 
 def path_to_gray(path: Union[str, Path]) -> np.ndarray:

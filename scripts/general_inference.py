@@ -28,8 +28,8 @@ def main(name: str, field: str, param: List[Tuple[str, str, str]]) -> None:
     - None
     """
     # Validate the field exists in clib.model
-    assert hasattr(clib.model, field), f"Field '{field}' not found in clib.model"
-    all_algorithms = getattr(clib.model, field)
+    assert hasattr(clib.projects, field), f"Field '{field}' not found in clib.model"
+    all_algorithms = getattr(clib.projects, field)
     
     # Validate the algorithm name exists in the field
     assert hasattr(all_algorithms, name), f"Algorithm '{name}' not found in field '{field}'"
