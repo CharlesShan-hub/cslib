@@ -125,7 +125,7 @@ class Base(object):
             # print(kernel_size,total_layer,current_layer,sigma)
             return TF.gaussian_blur(image, kernel_size=[kernel_size, kernel_size], sigma=sigma)
         else:
-            raise ValueError(f"`gau_blur_way` should only be 'Pytorch' or 'Paper', not {gau_blur_way}.")
+            raise ValueError(f"`gau_blur_way` should only be 'Pytorch', 'Adaptive' or 'Paper', not {gau_blur_way}.")
 
     @staticmethod
     def down_sample(image: torch.Tensor, dawn_sample_way: str = "Zero") -> torch.Tensor:

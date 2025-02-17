@@ -155,6 +155,46 @@ def rgb_to_gray(
             return (image * coeffs.view(3, 1, 1)).sum(dim=0, keepdim=True)
 
 
+def rgb_to_ycbcr(
+        image: Union[np.ndarray, torch.Tensor, Image.Image]
+    ) -> Union[np.ndarray, torch.Tensor, Image.Image]:
+    if isinstance(image, np.ndarray):
+        return color.rgb2ycbcr(image)
+    elif isinstance(image, Image.Image):
+        return image.convert('YCbCr')
+    else:
+        assert image.ndim in [3, 4], "Input must be a 3-channel RGB image or a batch of 3-channel RGB images."
+        assert image.shape[-3] == 3, "Input must have 3 channels for RGB."
+        rgb_to_ycbcr_matrix = torch.tensor([
+            [65.481, 128.553, 24.966], [-37.797, -74.203, 112.0], [112.0, -93.786, -18.214]
+        ], dtype=image.dtype, device=image.device)
+        offset = torch.tensor([16, 128, 128], dtype=image.dtype, device=image.device)
+        if image.ndim == 4:
+            return torch.einsum('nchw,cd->ndhw', image, rgb_to_ycbcr_matrix.T) + offset.view(1, 3, 1, 1)
+        else:
+            return torch.einsum('chw,cd->dhw', image, rgb_to_ycbcr_matrix.T) + offset.view(3, 1, 1)
+
+
+def ycbcr_to_rgb(
+        image: Union[np.ndarray, torch.Tensor, Image.Image]
+    ) -> Union[np.ndarray, torch.Tensor, Image.Image]:
+    if isinstance(image, np.ndarray):
+        return color.ycbcr2rgb(image)
+    elif isinstance(image, Image.Image):
+        return image.convert('RGB')
+    else:
+        assert image.ndim in [3, 4], "Input must be a 3-channel RGB image or a batch of 3-channel RGB images."
+        assert image.shape[-3] == 3, "Input must have 3 channels for RGB."
+        ycbcr_to_rgb_matrix = torch.tensor([
+            [65.481, 128.553, 24.966], [-37.797, -74.203, 112.0], [112.0, -93.786, -18.214]
+        ], dtype=image.dtype, device=image.device).inverse()
+        offset = torch.tensor([-16, -128, -128], dtype=image.dtype, device=image.device)
+        if image.ndim == 4:
+            return (torch.einsum('nchw,cd->ndhw', image + offset.view(1, 3, 1, 1), ycbcr_to_rgb_matrix.T))
+        else:
+            return (torch.einsum('chw,cd->dhw', image + offset.view(3, 1, 1), ycbcr_to_rgb_matrix.T))
+
+
 def path_to_gray(path: Union[str, Path]) -> np.ndarray:
     """
     Load an image from the given path and convert it to Gray format.
@@ -193,24 +233,6 @@ def path_to_ycbcr(path: Union[str, Path]) -> np.ndarray:
     if len(image.shape) == 2:
         image = color.gray2rgb(image)
     return color.rgb2ycbcr(image)
-
-
-def rgb_to_ycbcr(image: np.ndarray) -> np.ndarray:
-    """
-    Load RGB format Image and convert to YCbCr format.
-
-    Input & Output: YCbCr image, range from 0 to 1, channel number is 3
-    """
-    return color.rgb2ycbcr(image)
-
-
-def ycbcr_to_rgb(image: np.ndarray) -> np.ndarray:
-    """
-    Load YCbCr format Image and convert to RGB format.
-
-    Input & Output: YCbCr image, range from 0 to 1, channel number is 3
-    """
-    return color.ycbcr2rgb(image)
 
 
 def glance(
@@ -326,3 +348,16 @@ def save_array_to_mat(
     else:
         raise ValueError("Image array should be 2D(Gray) or 3D (RGB).")
 
+if __name__ == "__main__":
+    # 创建一个随机的 RGB 图像张量
+    image = torch.randn(2, 3, 256, 256)  # 示例：批量大小为 2 的 RGB 图像
+    print("输入张量形状:", image.shape)
+
+    # 转换为 YCbCr
+    ycbcr_image = rgb_to_ycbcr(image)
+    print("转换后的 YCbCr 张量形状:", ycbcr_image.shape)
+
+    # 检查通道范围
+    print("Y 通道的最小值和最大值:", ycbcr_image[:, 0, :, :].min(), ycbcr_image[:, 0, :, :].max())
+    print("Cb 通道的最小值和最大值:", ycbcr_image[:, 1, :, :].min(), ycbcr_image[:, 1, :, :].max())
+    print("Cr 通道的最小值和最大值:", ycbcr_image[:, 2, :, :].min(), ycbcr_image[:, 2, :, :].max())
