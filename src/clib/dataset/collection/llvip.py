@@ -130,14 +130,13 @@ class LLVIP(VisionDataset):
         assert len(self.ir_path) == len(self.vis_path)
 
     def __getitem__(self, idx: int):
-        ir_file = self._src_folder / 'fusion' / 'ir' / f'{self.ir_path[idx]}'
-        ir = Image.open(ir_file).convert("L")
-        vis_file = self._src_folder / 'fusion' / 'vis' / f'{self.vis_path[idx]}'
-        vis = Image.open(vis_file).convert("RGB")
+        ir = self._src_folder / 'fusion' / 'ir' / f'{self.ir_path[idx]}'
+        vis = self._src_folder / 'fusion' / 'vis' / f'{self.vis_path[idx]}'
         if self.transform:
-            ir = self.transform(ir)
-            vis = self.transform(vis)
-        return ir,vis
+            ir = self.transform(Image.open(ir).convert("L"))
+            vis = self.transform(Image.open(vis).convert("RGB"))
+            return ir, vis
+        return str(ir),str(vis)
 
     def __len__(self):
         return len(self.ir_path)

@@ -1,38 +1,24 @@
-# import torch
-import torchvision.transforms as transforms
-import matplotlib.pyplot as plt
-import numpy as np
+import torch
+import torch.nn.functional as F
 
-from PIL import Image
-from skimage import color as c
+# 假设我们有一个 BCHW 形状的图片张量，这里随机生成一个示例
+# 假设批量大小 B=1，通道数 C=3，高度 H=5，宽度 W=5
+B, C, H, W = 1, 3, 5, 5
+image_tensor = torch.randn(B, C, H, W)
 
-from clib.utils import *
-from clib.metrics.fusion import ir,vis
-import clib.transforms as ctransforms
+# 定义一个3x3的二维张量，这里随机生成一个示例
+# 这将作为卷积核
+kernel = torch.randn(3, 3)
 
-# path = "/Volumes/Charles/DateSets/Fusion/Toy/ir/105.png"
-# image = np.array(Image.open(path))
-# image = c.gray2rgb(image)
-# plt.imshow(np.array(image))
-# plt.show()
+# 将3x3的二维张量扩展为4D张量，使其能够进行卷积操作
+# 扩展后的形状为 [out_channels, in_channels, kernel_height, kernel_width]
+# 由于我们是对每个通道进行卷积，所以out_channels和in_channels都设置为1
+kernel_expanded = kernel.unsqueeze(0).unsqueeze(0)
 
-# image = c.rgb2ycbcr(image)
-# plt.imshow(np.array(image))
-# plt.show()
+# 进行卷积操作
+# stride=1, padding=0 是默认参数，可以根据需要进行调整
+convolved = F.conv2d(image_tensor, kernel_expanded, stride=1, padding=0)
 
-image = path_to_rgb("/Volumes/Charles/DateSets/Fusion/Toy/ir/105.png")
-path = "/Volumes/Charles/DateSets/SR/Set5/X2/GT/woman.png"
-# image1 = path_to_ycbcr(path)
-# image2 = ycbcr_to_rgb(image1)
-image1 = transforms.ToTensor()(path_to_rgb(path))
-image2 = ctransforms.rgb_to_ycbcr(image1)
-image3 = ctransforms.ycbcr_to_rgb(image2)
-
-plt.subplot(1,2,1)
-plt.imshow(transforms.ToPILImage()(image1))
-plt.subplot(1,2,2)
-plt.imshow(transforms.ToPILImage()(image3))
-plt.show()
-
-# a = np.arange(0,255)
-# print(a)
+print("Image Tensor:\n", image_tensor)
+print("Kernel:\n", kernel)
+print("Convolved Tensor:\n", convolved)

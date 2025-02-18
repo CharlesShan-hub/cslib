@@ -52,7 +52,7 @@ def asm_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tenso
 ###########################################################################################
 
 def test():
-    from .utils import ir,vis,fused
+    from clib.metrics.fusion import vis,ir,fused
 
     print(f'ASM:{asm_metric(vis, ir, fused)}')
 

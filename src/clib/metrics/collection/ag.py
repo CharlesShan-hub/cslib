@@ -1,3 +1,4 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
 
@@ -7,9 +8,10 @@ __all__ = [
     'ag_metric'
 ]
 
+
 def ag(tensor: torch.Tensor, eps: float = 1e-10) -> torch.Tensor:
     """
-    Calculate the average gradient (AG) of a tensor.
+    Calculate the average gradient (AG) of a grayscale image.
 
     Args:
         tensor (torch.Tensor): Input tensor, assumed to be in the range [0, 1].
@@ -42,9 +44,12 @@ def ag_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return torch.abs(ag(A) - ag(F))
 
 # 与 VIFB 统一
+@fusion_preprocessing
 def ag_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return ag(F) * 255.0  # 与 VIFB 统一，需要乘 255
 
 if __name__ == '__main__':
     from clib.metrics.fusion import vis,ir,fused
     print(ag_metric(ir,vis,fused).item())
+    print(ag_metric(ir,vis.repeat(1, 3, 1, 1),fused.repeat(1, 3, 1, 1)).item())
+    print(ag_metric(ir,vis.repeat(1, 3, 1, 1),fused).item())

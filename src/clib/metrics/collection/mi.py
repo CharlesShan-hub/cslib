@@ -1,3 +1,4 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
 from sklearn.metrics.cluster import mutual_info_score as mi_sklearn
@@ -59,6 +60,19 @@ def mi_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return torch.abs(1 - mi(A,F) / mi(A,A))
 
 # 与调整过的 VIFB 统一（传入的图片未进行normalize）
+@fusion_preprocessing
 def mi_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     w0 = w1 = 1 # MEFB里边没有除 2
-    return w0 * mi(A, F) + w1 * mi(B, F)
+    # if F.shape[1] == 3:
+    #     res_a = torch.stack([mi(A[:,i:i+1,:,:],F[:,i:i+1,:,:]) for i in range(F.shape[1])]).mean()
+    #     res_b = torch.stack([mi(B[:,i:i+1,:,:],F[:,i:i+1,:,:]) for i in range(F.shape[1])]).mean()
+    #     res = w0 * res_a + w1 * res_b
+    # else:
+    res = w0 * mi(A,F) + w1 * mi(B,F)
+    return res
+
+if __name__ == '__main__':
+    from clib.metrics.fusion import vis,ir,fused
+    print(mi_metric(ir,vis,fused).item())
+    print(mi_metric(ir,vis.repeat(1, 3, 1, 1),fused.repeat(1, 3, 1, 1)).item())
+    print(mi_metric(ir,vis.repeat(1, 3, 1, 1),fused).item())

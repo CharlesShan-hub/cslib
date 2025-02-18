@@ -1,30 +1,22 @@
 import torch
-import torch.nn.functional as F
-import matplotlib.pyplot as plt
 
-from torch import nn
-from torch import Tensor
-from PIL import Image
-from torchvision.transforms import Compose, Resize, ToTensor
-from einops import rearrange, reduce, repeat
-from einops.layers.torch import Rearrange, Reduce
-from torchsummary import summary
+# 假设我们有两个二维矩阵 A 和 B
+# A 的维度是 [m, n]
+# B 的维度是 [n, p]
+# m, n, p 分别是矩阵的行数和列数
 
-from clib.utils import *
-from clib.metrics.fusion import ir,vis
+# 创建两个二维张量
+A = torch.tensor([[1, 2], [3, 4]], dtype=torch.float32)
+B = torch.tensor([[2, 0], [1, 3]], dtype=torch.float32)
 
-# tensor_to_image(vis).show()
+# 方法1: 使用 torch.mm() 函数进行矩阵乘法
+C_mm = torch.mm(A, B)
 
-# plt.imshow(tensor_to_numpy(vis))
-# plt.show()
+# 方法2: 使用 @ 操作符进行矩阵乘法
+C_at = A @ B
 
-# resize to imagenet size 
-# transform = Compose([Resize((224, 224)), ToTensor()])
-transform = Compose([Resize((224, 224))])
-x = transform(vis)
-# x = x.unsqueeze(0) # add batch dim
-# print(x.shape) (1,1,224,224)
-
-patch_size = 16 # 16 pixels
-pathes = rearrange(x, 'b c (h s1) (w s2) -> b (h w) (s1 s2 c)', s1=patch_size, s2=patch_size)
-breakpoint()
+# 输出结果
+print("使用 torch.mm() 函数的结果:")
+print(C_mm)
+print("使用 @ 操作符的结果:")
+print(C_at)

@@ -73,8 +73,9 @@ cc_metric = cc
 ###########################################################################################
 
 def cc_test():
-    from .utils import ir,vis,fused,tensor_to_numpy
-    [ir_arr, vis_arr, fused_arr] = [tensor_to_numpy(i) for i in [ir, vis, fused]]
+    from clib.metrics.fusion import ir,vis,fused
+    from clib.utils import to_numpy
+    [ir_arr, vis_arr, fused_arr] = [to_numpy(i) for i in [ir, vis, fused]]
 
     print(f'CC(ir,vis,fused) by Charles:{cc(ir,vis,fused)}')
     print(f'CC(ir,vis,fused) by Tang   :{cc_tang(ir_arr,vis_arr,fused_arr)}')

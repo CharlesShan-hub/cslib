@@ -1,3 +1,4 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
 
@@ -47,6 +48,11 @@ def ce_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return -ce(A, F)
 
 # 与 VIFB 统一
+@fusion_preprocessing
 def ce_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     w0 = w1 = 0.5
     return w0 * ce(A,F) + w1 * ce(B,F)
+
+if __name__ == '__main__':
+    from clib.metrics.fusion import vis,ir,fused
+    print(ce_metric(ir,vis,fused).item())
