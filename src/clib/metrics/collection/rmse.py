@@ -1,3 +1,4 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 
 __all__ = [
@@ -29,6 +30,13 @@ def rmse(y_true: torch.Tensor, y_pred: torch.Tensor, eps: float = 1e-10) -> torc
 rmse_approach_loss = rmse
 
 # 与 VIFB 统一
+@fusion_preprocessing
 def rmse_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     w0 = w1 = 0.5
     return w0 * rmse(A, F) + w1 * rmse(B, F)
+
+if __name__ == '__main__':
+    from clib.metrics.fusion import vis,ir,fused
+    print(rmse_metric(ir,vis,fused).item())
+    print(rmse_metric(ir,vis.repeat(1, 3, 1, 1),fused.repeat(1, 3, 1, 1)).item())
+    print(rmse_metric(ir,vis.repeat(1, 3, 1, 1),fused).item())

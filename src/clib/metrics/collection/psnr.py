@@ -1,3 +1,4 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 
 __all__ = [
@@ -41,6 +42,7 @@ def psnr_approach_loss(A: torch.Tensor, B: torch.Tensor,
     return -psnr(A, B, F, MAX=MAX)
 
 # 与 VIFB 统一
+@fusion_preprocessing
 def psnr_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     # w0 = w1 = 0.5
     # return w0 * psnr_kornia(imgF,imgA,max_val=1) + w1 * psnr_kornia(imgF,imgB,max_val=1)
@@ -48,3 +50,9 @@ def psnr_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tens
     # 发现原来 VIFB 里边的两个 MAE 竟然在一个 log 里边！所以不能分开算两个 PSNR 再求平均。
     return psnr(A, B, F, MAX=1) # 0-1与 0-255 的输入进去只要 MAX 设置对，结果一样
 
+
+if __name__ == '__main__':
+    from clib.metrics.fusion import vis,ir,fused
+    print(psnr_metric(ir,vis,fused).item())
+    print(psnr_metric(ir,vis.repeat(1, 3, 1, 1),fused.repeat(1, 3, 1, 1)).item())
+    print(psnr_metric(ir,vis.repeat(1, 3, 1, 1),fused).item())

@@ -1,3 +1,4 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
 
@@ -148,15 +149,24 @@ def q_cvd_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
 def q_cva_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_cva(A, A, F, window_size=16, border_type='constant', normalize=True, eps=1e-10)
 
+@fusion_preprocessing
 def q_cv_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_cvm(A, B, F, window_size=16, border_type='constant', normalize=True, eps=1e-10)
 
+@fusion_preprocessing
 def q_cvm_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_cvm(A, B, F, window_size=16, border_type='constant', normalize=True, eps=1e-10)
 
+@fusion_preprocessing
 def q_cvd_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_cvd(A, B, F, window_size=16, border_type='constant', normalize=True, eps=1e-10)
 
+@fusion_preprocessing
 def q_cva_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_cva(A, B, F, window_size=16, border_type='constant', normalize=True, eps=1e-10)
 
+if __name__ == '__main__':
+    from clib.metrics.fusion import vis,ir,fused
+    print(q_cv_metric(ir,vis,fused).item())
+    print(q_cv_metric(ir,vis.repeat(1, 3, 1, 1),fused.repeat(1, 3, 1, 1)).item())
+    print(q_cv_metric(ir,vis.repeat(1, 3, 1, 1),fused).item())

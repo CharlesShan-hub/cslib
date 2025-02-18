@@ -1,3 +1,4 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
 
@@ -29,7 +30,7 @@ def _freq_meshgrid(size, d=1.0):
     return torch.meshgrid(_line(m,d)*2, _line(n,d)*2, indexing='ij')
 
 def gaussian2d(sigma,size=31):
-      meshgrid = kornia.create_meshgrid(size, size, normalized_coordinates=False)
+      meshgrid = kornia.create_meshgrid(size, size, normalized_coordinates=False) # type: ignore
       x = meshgrid[0, :, :, 0] - (size - 1) / 2
       y = meshgrid[0, :, :, 1] - (size - 1) / 2
       gaussian_filter = torch.exp(-(x**2 + y**2) / (2 * sigma**2)) / (2 * torch.tensor([torch.pi], dtype=torch.float64) * sigma**2)
@@ -81,6 +82,7 @@ def contrast_sensitivity_filtering_Sd(size=None,mode='frequency',filter='DoG'):
 def contrast_sensitivity_filtering_freq(im, mode='frequency',filter='DoG'):
     # 计算 Sd 用于滤波
     Sd = contrast_sensitivity_filtering_Sd(im.size(),mode,filter)
+    assert Sd is not None
     #print(Sd.shape)
     if mode == 'frequency': # VIFB 的方法, 但是会导致梯度消失
         # 进行二维傅里叶变换
@@ -225,13 +227,23 @@ def q_cbd_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return 1-q_cbd(A, A, F)
 
 # 与 VIFB 统一
+@fusion_preprocessing
 def q_cb_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     # 论文方案mode是frequency，结果复现较为准确, 改成spatial会明显单提速，但是误差提高
     # 论文方案normalize=True
     return q_cb(A, B, F, border_type='constant', mode='frequency', normalize=True)
+@fusion_preprocessing
 def q_cbm_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_cbm(A, B, F, border_type='constant', mode='frequency', normalize=True)
+@fusion_preprocessing
 def q_cbb_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_cbb(A, B, F, border_type='constant', mode='frequency', normalize=True)
+@fusion_preprocessing
 def q_cbd_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_cbd(A, B, F, border_type='constant', mode='frequency', normalize=True)
+
+if __name__ == '__main__':
+    from clib.metrics.fusion import vis,ir,fused
+    print(q_cb_metric(ir,vis,fused).item())
+    print(q_cb_metric(ir,vis.repeat(1, 3, 1, 1),fused.repeat(1, 3, 1, 1)).item())
+    print(q_cb_metric(ir,vis.repeat(1, 3, 1, 1),fused).item())

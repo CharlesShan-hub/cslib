@@ -1,3 +1,4 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 
 __all__ = [
@@ -27,5 +28,12 @@ def sd_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return torch.abs(sd(A) - sd(F))
 
 # 与 VIFB 统一
+@fusion_preprocessing
 def sd_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return sd(F) * 255.0  # 与 VIFB 统一，需要乘 255
+
+if __name__ == '__main__':
+    from clib.metrics.fusion import vis,ir,fused
+    print(sd_metric(ir,vis,fused).item())
+    print(sd_metric(ir,vis.repeat(1, 3, 1, 1),fused.repeat(1, 3, 1, 1)).item())
+    print(sd_metric(ir,vis.repeat(1, 3, 1, 1),fused).item())

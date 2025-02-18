@@ -1,3 +1,4 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
 
@@ -34,5 +35,12 @@ def sf_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return torch.abs(sf(A) - sf(F))
 
 # 与 VIFB 统一
+@fusion_preprocessing
 def sf_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return sf(F) * 255.0  # 与 VIFB 统一，需要乘 255
+
+if __name__ == '__main__':
+    from clib.metrics.fusion import vis,ir,fused
+    print(sf_metric(ir,vis,fused).item())
+    print(sf_metric(ir,vis.repeat(1, 3, 1, 1),fused.repeat(1, 3, 1, 1)).item())
+    print(sf_metric(ir,vis.repeat(1, 3, 1, 1),fused).item())

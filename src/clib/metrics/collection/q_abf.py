@@ -1,3 +1,4 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
 
@@ -89,5 +90,13 @@ def q_abf_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return 0.9748 - q_abf(A, A, F)
 
 # 与 VIFB 统一
+@fusion_preprocessing
 def q_abf_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_abf(A, B, F)
+
+
+if __name__ == '__main__':
+    from clib.metrics.fusion import vis,ir,fused
+    print(q_abf_metric(ir,vis,fused).item())
+    print(q_abf_metric(ir,vis.repeat(1, 3, 1, 1),fused.repeat(1, 3, 1, 1)).item())
+    print(q_abf_metric(ir,vis.repeat(1, 3, 1, 1),fused).item())

@@ -1,3 +1,4 @@
+from clib.metrics.utils import fusion_preprocessing
 import kornia
 import torch
 
@@ -37,6 +38,13 @@ def ssim_approach_loss(A: torch.Tensor, F: torch.Tensor,
     return kornia.losses.ssim_loss(A, F, window_size, max_val, eps, reduction, padding)
 
 # 与 VIFB 统一
+@fusion_preprocessing
 def ssim_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     w0 = w1 = 0.5 # VIFB 忘了除二
     return torch.mean(w0 * ssim(A, F,window_size=11) + w1 * ssim(B ,F,window_size=11)) # 论文的窗大小就是 11
+
+if __name__ == '__main__':
+    from clib.metrics.fusion import vis,ir,fused
+    print(ssim_metric(ir,vis,fused).item())
+    print(ssim_metric(ir,vis.repeat(1, 3, 1, 1),fused.repeat(1, 3, 1, 1)).item())
+    print(ssim_metric(ir,vis.repeat(1, 3, 1, 1),fused).item())

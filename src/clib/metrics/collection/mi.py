@@ -63,11 +63,6 @@ def mi_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
 @fusion_preprocessing
 def mi_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     w0 = w1 = 1 # MEFB里边没有除 2
-    # if F.shape[1] == 3:
-    #     res_a = torch.stack([mi(A[:,i:i+1,:,:],F[:,i:i+1,:,:]) for i in range(F.shape[1])]).mean()
-    #     res_b = torch.stack([mi(B[:,i:i+1,:,:],F[:,i:i+1,:,:]) for i in range(F.shape[1])]).mean()
-    #     res = w0 * res_a + w1 * res_b
-    # else:
     res = w0 * mi(A,F) + w1 * mi(B,F)
     return res
 
