@@ -1,9 +1,8 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
 from skimage.feature import graycomatrix
 from typing import List
-
-###########################################################################################
 
 __all__ = [
     'asm',
@@ -46,6 +45,7 @@ def asm(tensor: torch.Tensor, distances: List[int] = [1, 2], angles: List[int] =
 def asm_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return torch.abs(asm(A)-asm(F))
 
+@fusion_preprocessing
 def asm_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return asm(F)
 

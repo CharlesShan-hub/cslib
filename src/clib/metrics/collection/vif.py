@@ -1,12 +1,9 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import numpy as np
-import kornia
-
-###########################################################################################
 
 __all__ = [
     'vif',
-    'vif_approach_loss',
     'vif_metric'
 ]
 
@@ -258,31 +255,35 @@ def vif_approach_loss(A, B, F):
     return 1-vif_metric(A, B, F)
 
 
+@fusion_preprocessing
 def vif_metric(A, B, F):
     [A, B, F] = [I.squeeze().squeeze() for I in [A,B,F]]
-    return 0.5* vif(A,F) + 0.5*vif(B,F)
+    return torch.tensor(0.5* vif(A,F) + 0.5*vif(B,F))
 
 ###########################################################################################
 
 def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
+    # from torchvision import transforms
+    # from torchvision.transforms.functional import to_tensor
+    # from PIL import Image
+    from clib.metrics.fusion import ir,vis,fused
 
-    torch.manual_seed(42)
+    print(vif_metric(ir,vis,fused).item())
 
-    transform = transforms.Compose([transforms.ToTensor()])
+    # torch.manual_seed(42)
+
+    # transform = transforms.Compose([transforms.ToTensor()])
 
     # vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
     # ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
     # fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
-    vis = Image.open('../imgs/TNO/vis/9.bmp')
-    ir = Image.open('../imgs/TNO/ir/9.bmp')
-    fused = Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')
+    # vis = Image.open('../imgs/TNO/vis/9.bmp')
+    # ir = Image.open('../imgs/TNO/ir/9.bmp')
+    # fused = Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')
 
-    print(f'VIF(vis,vis):{vif(vis, vis)}')
-    print(f'VIF(vis,fuse):{vif(vis, fused)}')
-    print(f'VIF(vis,ir):{vif(vis, ir)}')
+    # print(f'VIF(vis,vis):{vif_metric(vis, vis)}')
+    # print(f'VIF(vis,fuse):{vif(vis, fused)}')
+    # print(f'VIF(vis,ir):{vif(vis, ir)}')
     # Download from https://github.com/abhinaukumar/vif/blob/main/vif_utils.py
     # This is not Differentable!!!!
 

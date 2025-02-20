@@ -24,7 +24,7 @@ from .collection.mi import *              # VIFB - 互信息
 from .collection.psnr import *            # VIFB - 峰值信噪比
 # from .cc import *       # Tang - 相关系数(正在改)
 # from metrics.scc import *
-# from metrics.scd import *      # Tang - 差异相关和
+from .collection.scd import *      # Tang - 差异相关和
 
 # 结构相似性
 from .collection.ssim import *            # VIFB - 结构相似度测量
@@ -66,7 +66,7 @@ from .collection.q_abf import *           # VIFB - 基于梯度的融合性能
 # 视觉感知
 from .collection.q_cv import *            # VIFB - H. Chen and P. K. Varshney
 from .collection.q_cb import *            # VIFB - 图像模糊与融合的质量评估 包含 cbb,cbm,cmd
-# from metrics.vif import *      # 视觉保真度 - 不可微!! 优化用 VIFF 就行
+from .collection.vif import *    # 视觉保真度 - 不可微!! 优化用 VIFF 就行
 # from metrics.viff import *     # Tang - 视觉保真度
 
 # 新指标暂时没分类

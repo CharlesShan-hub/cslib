@@ -1,15 +1,14 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import numpy as np
-
-###########################################################################################
 
 __all__ = [
     'cc','cc_tang',
     'cc_approach_loss',
-    'cc_metric',
-    'cc_test'
+    'cc_metric'
 ]
 
+@fusion_preprocessing
 def cc(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, eps: float = 1e-10) -> torch.Tensor:
     """
     Calculate the correlation coefficient (CC) between two input images and a fused image.
@@ -70,9 +69,7 @@ def cc_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
 # 与 Tang 统一
 cc_metric = cc
 
-###########################################################################################
-
-def cc_test():
+if __name__ == '__main__':
     from clib.metrics.fusion import ir,vis,fused
     from clib.utils import to_numpy
     [ir_arr, vis_arr, fused_arr] = [to_numpy(i) for i in [ir, vis, fused]]

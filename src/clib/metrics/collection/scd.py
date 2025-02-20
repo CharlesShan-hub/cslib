@@ -1,3 +1,4 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import numpy as np
 
@@ -9,8 +10,7 @@ __all__ = [
     'scd_metric'
 ]
 
-import torch
-
+@fusion_preprocessing
 def scd(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, eps: float = 1e-10) -> torch.Tensor:
     """
     Calculate the Symmetric Conditional Dependence (SCD) between three variables A, B, and F using PyTorch.
