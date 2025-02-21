@@ -2,8 +2,6 @@ from clib.metrics.utils import fusion_preprocessing
 import torch
 import numpy as np
 
-###########################################################################################
-
 __all__ = [
     'scd','scd_tang',
     'scd_approach_loss',
@@ -103,16 +101,16 @@ def main():
     fused_array = np.array(fused_image).astype(np.int32)
     fused_tensor = to_tensor(fused_image).unsqueeze(0)
 
-    print(f'CC(ir,vis,fused) by Tang:{scd_tang(ir_array,vis_array,fused_array)}')      # 输入的是 0-255 的整数
-    print(f'CC(ir,vis,fused) by self:{scd(ir_tensor,vis_tensor,fused_tensor)}')        # 输入的是 0-1 的小数
-    print(f'CC(ir,ir,ir) by Tang:{scd_tang(ir_array,ir_array,ir_array)}')              # 输入的是 0-255 的整数
-    print(f'CC(ir,ir,ir) by self:{scd(ir_tensor,ir_tensor,ir_tensor)}')                # 输入的是 0-1 的小数
-    print(f'CC(vis,vis,vis) by Tang:{scd_tang(vis_array,vis_array,vis_array)}')        # 输入的是 0-255 的整数
-    print(f'CC(vis,vis,vis) by self:{scd(vis_tensor,vis_tensor,vis_tensor)}')          # 输入的是 0-1 的小数
-    print(f'CC(vis,vis,ir) by Tang:{scd_tang(vis_array,vis_array,ir_array)}')          # 输入的是 0-255 的小数
-    print(f'CC(vis,vis,ir) by self:{scd(vis_tensor,vis_tensor,ir_tensor)}')            # 输入的是 0-1 的小数
-    print(f'CC(vis,vis,fused) by Tang:{scd_tang(vis_array,vis_array,fused_array)}')    # 输入的是 0-255 的整数
-    print(f'CC(vis,vis,fused) by self:{scd(vis_tensor,vis_tensor,fused_tensor)}')      # 输入的是 0-1 的小数
+    print(f'SCD(ir,vis,fused) by Tang:{scd_tang(ir_array,vis_array,fused_array)}')      # 输入的是 0-255 的整数
+    print(f'SCD(ir,vis,fused) by self:{scd(ir_tensor,vis_tensor,fused_tensor)}')        # 输入的是 0-1 的小数
+    print(f'SCD(ir,ir,ir) by Tang:{scd_tang(ir_array,ir_array,ir_array)}')              # 输入的是 0-255 的整数
+    print(f'SCD(ir,ir,ir) by self:{scd(ir_tensor,ir_tensor,ir_tensor)}')                # 输入的是 0-1 的小数
+    print(f'SCD(vis,vis,vis) by Tang:{scd_tang(vis_array,vis_array,vis_array)}')        # 输入的是 0-255 的整数
+    print(f'SCD(vis,vis,vis) by self:{scd(vis_tensor,vis_tensor,vis_tensor)}')          # 输入的是 0-1 的小数
+    print(f'SCD(vis,vis,ir) by Tang:{scd_tang(vis_array,vis_array,ir_array)}')          # 输入的是 0-255 的小数
+    print(f'SCD(vis,vis,ir) by self:{scd(vis_tensor,vis_tensor,ir_tensor)}')            # 输入的是 0-1 的小数
+    print(f'SCD(vis,vis,fused) by Tang:{scd_tang(vis_array,vis_array,fused_array)}')    # 输入的是 0-255 的整数
+    print(f'SCD(vis,vis,fused) by self:{scd(vis_tensor,vis_tensor,fused_tensor)}')      # 输入的是 0-1 的小数
 
 if __name__ == '__main__':
     main()

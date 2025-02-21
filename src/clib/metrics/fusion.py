@@ -57,7 +57,7 @@ from .collection.q_abf import *           # VIFB - 基于梯度的融合性能
 # from metrics.eva import *      # Zhihu - 点锐度
 # from metrics.asm import *      # Zhihu - 角二阶矩 - 不可微!!!
 # from metrics.sam import *      # Zhihu - 光谱角测度 - 要修改
-# from metrics.con import *      # 对比度
+from .collection.con import *      # 对比度
 # from metrics.fmi import *      # OE - fmi_w(Discrete Meyer wavelet),fmi_g(Gradient),fmi_d(DCT),fmi_e(Edge),fmi_p(Raw pixels (no feature extraction))
 # from metrics.q_p import *      # MEFB
 # from metrics.n_abf import *    # Tang - 基于噪声评估的融合性能
@@ -70,18 +70,18 @@ from .collection.vif import *    # 视觉保真度 - 不可微!! 优化用 VIFF 
 # from metrics.viff import *     # Tang - 视觉保真度
 
 # 新指标暂时没分类
-# # from metrics.df import *       #
-# # from metrics.q_mi import *     #
-# # from metrics.q_s import *      #
-# # from metrics.q_e import *      #
-# # from metrics.uqi import *      # Many
-# # from metrics.qi import *       # Many
-# # from metrics.theta import *    # Many
-# # from metrics.fqi import *      # Many
-# # from metrics.fsm import *      # Many
-# # from metrics.wfqi import *     # Many
-# # from metrics.efqi import *     # Many
-# # from metrics.d import *        # Many
+# from metrics.df import *       #
+# from metrics.q_mi import *     #
+# from metrics.q_s import *      #
+# from metrics.q_e import *      #
+# from metrics.uqi import *      # Many
+# from metrics.qi import *       # Many
+# from metrics.theta import *    # Many
+# from metrics.fqi import *      # Many
+# from metrics.fsm import *      # Many
+# from metrics.wfqi import *     # Many
+# from metrics.efqi import *     # Many
+# from metrics.d import *        # Many
 
 info_summary_dict = {
     'en':{

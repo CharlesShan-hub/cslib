@@ -6,7 +6,6 @@ from typing import List
 
 __all__ = [
     'asm',
-    'asm_approach_loss',
     'asm_metric'
 ]
 
@@ -41,9 +40,6 @@ def asm(tensor: torch.Tensor, distances: List[int] = [1, 2], angles: List[int] =
     asm_mean = asm_sum / (len(distances)*len(angles))
 
     return torch.tensor(asm_mean)
-
-def asm_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
-    return torch.abs(asm(A)-asm(F))
 
 @fusion_preprocessing
 def asm_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
