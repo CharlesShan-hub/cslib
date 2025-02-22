@@ -43,7 +43,7 @@ def psnr_approach_loss(A: torch.Tensor, B: torch.Tensor,
 
 # 与 VIFB 统一
 @fusion_preprocessing
-def psnr_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
+def psnr_metric(Noi: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     # w0 = w1 = 0.5
     # return w0 * psnr_kornia(imgF,imgA,max_val=1) + w1 * psnr_kornia(imgF,imgB,max_val=1)
     # return w0 * psnr_kornia(imgF*255,imgA*255,max_val=255) + w1 * psnr_kornia(imgF*255,imgB*255,max_val=255) # 为了与VIFB 统一

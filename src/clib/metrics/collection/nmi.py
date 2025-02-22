@@ -1,8 +1,7 @@
+from clib.metrics.utils import fusion_preprocessing
 from typing import Tuple
 import torch
 import kornia
-
-###########################################################################################
 
 __all__ = [
     'nmi',
@@ -42,6 +41,7 @@ def _mi(image1: torch.Tensor, image2: torch.Tensor,
 
     return mi, en_xy, en_x, en_y
 
+@fusion_preprocessing
 def nmi(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
     bandwidth: float = 0.1, eps: float = 1e-10, normalize: bool = False) -> torch.Tensor:
     """
@@ -57,6 +57,10 @@ def nmi(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 
     Returns:
         torch.Tensor: The NMI value between the two input images and their fusion.
+
+    Reference:
+        M. Hossny, S. Nahavandi, D. Creighton, Comments on `information measure for 
+        performance of image fusion`, Electron. Lett. 44 (18) (2008) 1066-1067.
     """
     mi_AF, en_AF, en_A, en_F1 = _mi(A,F,bandwidth,eps,normalize)
     mi_BF, en_BF, en_B, en_F2 = _mi(B,F,bandwidth,eps,normalize)
@@ -69,26 +73,6 @@ def nmi_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
 # 与 MEFB 统一
 nmi_metric = nmi
 
-###########################################################################################
-
-def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
-
-    print(f'NMI metric:{nmi_metric(ir,vis,fused)}')
-    # print(f'TE(vis,fused):{te(vis,fused)}') # 73.67920684814453 正确
-    # # print(f'TE(vis,fused):{te(vis,fused,normalize=True)}') # 48536.9453125错了
-    # print(f'TE(fused,fused):{te(fused,fused)}')
-    # print(f'TE_metric(ir,vis,fused):{te_metric(ir,vis,fused)}')
-
 if __name__ == '__main__':
-    main()
+    from clib.metrics.fusion import vis,ir,fused
+    print(nmi_metric(ir,vis,fused).item())

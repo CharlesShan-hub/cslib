@@ -1,30 +1,36 @@
-'''
- * 方法(): 默认输入都是 0-1 的张量
- * 方法_metric(): 默认输入都是 0-1 的张量, 但会调整调用方法()的输入，会与 VIFB 一致
- * 方法_approach_loss()：默认输入都是 0-1 的张量，用于趋近测试
-'''
+''' Metrics for Image Fusion
+Introduction:
+    * xx(): 默认输入都是 0-1 的张量
+    * xx_metric(): 默认输入都是 0-1 的张量, 但会调整调用方法()的输入，会与 Matlab 源码一致
+    * xx_approach_loss()：默认输入都是 0-1 的张量，用于趋近测试
 
-# TODO
-# EN, CE, MI有一些例子, 再改一改
-
-# 打开一个注释需要满足的要求
-# 1. 更改了 if __main__里边的测试函数
-# 2. 写了 Reference
-# 3. 下边的字典完善了
-# 4. 找到了对应的 matlab 代码,并且修改完毕
+Reference:
+    VIFB: X. Zhang, P. Ye and G. Xiao, "VIFB: A Visible and Infrared Image Fusion Benchmark," 
+        2020 IEEE/CVF Conference on Computer Vision and Pattern Recognition Workshops (CVPRW), 
+        Seattle, WA, USA, 2020, pp. 468-478, doi: 10.1109/CVPRW50498.2020.00060.
+    MEFB: Zhang X. Benchmarking and comparing multi-exposure image fusion algorithms[J]. 
+        Information Fusion, 2021, 74: 111-131.
+    OE: Zheng Liu, Erik Blasch, Zhiyun Xue, Jiying Zhao, Robert Laganiere, and Wei Wu. 
+        2012. Objective Assessment of Multiresolution Image Fusion Algorithms for Context 
+        Enhancement in Night Vision: A Comparative Study. IEEE Trans. Pattern Anal. Mach. 
+        Intell. 34, 1 (January 2012), 94-109. https://doi.org/10.1109/TPAMI.2011.109
+    RS(没有 matlab 代码): Yuhendra, et al. “Assessment of Pan-Sharpening Methods Applied to Image Fusion of 
+        Remotely Sensed Multi-Band Data.” International Journal of Applied Earth Observation 
+        and Geoinformation, Aug. 2012, pp. 165-75, https://doi.org/10.1016/j.jag.2012.01.013.
+'''
 
 # 信息论
 from .collection.ce import *              # VIFB - 交叉熵
 from .collection.en import *              # VIFB - 信息熵
-# from metrics.te import *       # MEFB - tsallis熵
+from .collection.te import *              # MEFB - tsallis熵
 from .collection.mi import *              # VIFB - 互信息
-# from metrics.nmi import *      # MEFB - 标准化互信息
-# from metrics.q_ncie import *   # MEFB - 非线性相关性
-# from metrics.snr import *      # Many - 信噪比
+from .collection.nmi import *             # MEFB - 标准化互信息
+from .collection.q_ncie import *          # MEFB - 非线性相关性
+# from .collection.snr import *             # RS   - 信噪比 这个其实是去噪的!!
 from .collection.psnr import *            # VIFB - 峰值信噪比
 # from .cc import *       # Tang - 相关系数(正在改)
 # from metrics.scc import *
-from .collection.scd import *      # Tang - 差异相关和
+from .collection.scd import *             # Tang - 差异相关和
 
 # 结构相似性
 from .collection.ssim import *            # VIFB - 结构相似度测量

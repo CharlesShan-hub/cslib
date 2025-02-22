@@ -1,3 +1,4 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
 
@@ -79,28 +80,19 @@ def efqi(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 def efqi_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return 1 - efqi(A,A,F)
 
+@fusion_preprocessing
 def efqi_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return efqi(A,B,F)
 
 ###########################################################################################
 
 def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
+    from clib.metrics.fusion import ir, vis, fused
 
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
-
-    print(f'EFQI(vis,ir,fused):{efqi(vis,ir,fused)}')
-    print(f'EFQI(vis,vis,vis):{efqi(vis,vis,vis)}')
-    print(f'EFQI(vis,vis,fused):{efqi(vis,vis,fused)}')
-    print(f'EFQI(vis,vis,ir):{efqi(vis,vis,ir)}')
+    print(f'EFQI(vis,ir,fused):{efqi_metric(vis,ir,fused)}')
+    print(f'EFQI(vis,vis,vis):{efqi_metric(vis,vis,vis)}')
+    print(f'EFQI(vis,vis,fused):{efqi_metric(vis,vis,fused)}')
+    print(f'EFQI(vis,vis,ir):{efqi_metric(vis,vis,ir)}')
 
 if __name__ == '__main__':
     main()

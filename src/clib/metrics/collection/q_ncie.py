@@ -1,7 +1,6 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
-
-###########################################################################################
 
 __all__ = [
     'q_ncie',
@@ -56,6 +55,12 @@ def q_ncie(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 
     Returns:
         torch.Tensor: The NCIE quality index between the two input images and their fusion.
+
+    Reference:
+        [1]Q. Wang, Y. Shen, J.Q. Zhang, A nonlinear correlation measure for multivariable 
+            data set, Physica D 200 (3-4) (2005) 287-295.
+        [2]Q. Wang, Y. Shen, J. Jin, Performance evaluation of image fusion techniques, 
+            Image Fusion Algorithms Appl. 19 (2008) 469-492.
     """
     # Calculate Normalized Cross-Correlation (NCC) between * and *
     NCC_AB = _mi(A,B,bandwidth,eps,normalize)
@@ -81,31 +86,11 @@ def q_ncie(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 def q_ncie_approach_loss(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return -q_ncie(A, B, F, bandwidth=0.1, eps=1e-10, normalize=False)
 
+@fusion_preprocessing
 def q_ncie_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_ncie(A, B, F, bandwidth=0.1, eps=1e-10, normalize=False)
 
-###########################################################################################
-
-def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
-
-    print(f'Q_NCIE:{q_ncie(vis,ir,fused)}')
-    print(f'Q_NCIE:{q_ncie(vis,vis,vis)}')
-    print(f'Q_NCIE:{q_ncie(vis,vis,fused)}')
-    print(f'Q_NCIE:{q_ncie(vis,vis,ir)}')
-    print(f'Q_NCIE:{q_ncie(ir,ir,ir)}')
-    print(f'Q_NCIE:{q_ncie(ir,ir,fused)}')
-    print(f'Q_NCIE:{q_ncie(ir,ir,vis)}')
-
 if __name__ == '__main__':
-    main()
+    from clib.metrics.fusion import vis,ir,fused
+    print(q_ncie_metric(ir,vis,fused).item()) # should be 0.8077
+
