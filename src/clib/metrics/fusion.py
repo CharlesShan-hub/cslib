@@ -19,6 +19,8 @@ Reference:
         and Geoinformation, Aug. 2012, pp. 165-75, https://doi.org/10.1016/j.jag.2012.01.013.
     MA: J. Ma, Y. Ma, C. Li, Infrared and visible image fusion methods 
         and applications: A survey, Inf. Fusion 45 (2019) 153-178.
+    Many: P. Jagalingam, Arkal Vittal Hegde, A Review of Quality Metrics for Fused Image, 
+        Aquatic Procedia, Volume 4, 2015, Pages 133-142, ISSN 2214-241X, https://doi.org/10.1016/j.aqpro.2015.02.019.
 '''
 
 # 信息论
@@ -36,12 +38,12 @@ from .collection.scd import *             # Tang - 差异相关和
 # 结构相似性
 from .collection.ssim import *            # VIFB - 结构相似度测量
 from .collection.ms_ssim import *         # Tang - 多尺度结构相似度测量
-# from metrics.q_s import *      # MEFB - 利用 SSIM 的指标 Piella's Fusion Quality Index
-# from metrics.q_w import *      # MEFB - 利用 SSIM 的指标 Weighted Fusion Quality Index
-# from metrics.q_e import *      # MEFB - 利用 SSIM 的指标 Piella's Edge-dependent Fusion Quality Index
-# from metrics.q_c import *      # MEFB - Cvejic
-# from metrics.q_y import *      # MEFB - Yang
-# from metrics.mb import *       # Mean bias
+# from .collection.q_s import *      # MEFB - 利用 SSIM 的指标 Piella's Fusion Quality Index
+# from .collection.q_w import *      # MEFB - 利用 SSIM 的指标 Weighted Fusion Quality Index
+# from .collection.q_e import *      # MEFB - 利用 SSIM 的指标 Piella's Edge-dependent Fusion Quality Index
+# from .collection.q_c import *      # MEFB - Cvejic
+# from .collection.q_y import *      # MEFB - Yang
+from .collection.mb import *              # Many - Mean bias (遥感的指标)
 from .collection.mae import *             # RS   - Mean absolute error
 from .collection.mse import *             # VIFB - Mean squared error 均方误差
 from .collection.rmse import *            # VIFB - Root mean squared error 均方误差
@@ -73,7 +75,7 @@ from .collection.con import *      # 对比度
 # 视觉感知
 from .collection.q_cv import *            # VIFB - H. Chen and P. K. Varshney
 from .collection.q_cb import *            # VIFB - 图像模糊与融合的质量评估 包含 cbb,cbm,cmd
-from .collection.vif import *    # 视觉保真度 - 不可微!! 优化用 VIFF 就行
+from .collection.vif import *             # 视觉保真度 - 不可微!! 优化用 VIFF 就行
 # from metrics.viff import *     # Tang - 视觉保真度
 
 # 新指标暂时没分类

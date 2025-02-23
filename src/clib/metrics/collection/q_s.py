@@ -1,7 +1,6 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
-
-###########################################################################################
 
 __all__ = [
     'q_s',
@@ -59,31 +58,10 @@ def q_s(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 def q_s_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return 1-q_s(A, A, F, window_size=11, eps=1e-10)
 
+@fusion_preprocessing
 def q_s_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_s(A*255.0, B*255.0, F*255.0, window_size=11, eps=1e-10)
 
-###########################################################################################
-
-def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
-
-    print(f'Q_S:{q_s_metric(vis,ir,fused)}')
-    # print(f'Q_S:{q_s(vis,vis,vis)}')
-    # print(f'Q_S:{q_s(vis,vis,fused)}')
-    # print(f'Q_S:{q_s(vis,vis,ir)}')
-    # print(f'Q_S:{q_s(ir,ir,ir)}')
-    # print(f'Q_S:{q_s(ir,ir,fused)}')
-    # print(f'Q_S:{q_s(ir,ir,vis)}')
-
 if __name__ == '__main__':
-    main()
+    from clib.metrics.fusion import vis,ir,fused
+    print(q_s_metric(ir,vis,fused).item())
