@@ -23,6 +23,10 @@ def q_sf(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 
     Returns:
         torch.Tensor: The SF quality metric value.
+
+    Reference:
+        M. Hossny, S. Nahavandi, D. Creighton, Comments on`information measure for performance of 
+        image fusion`, Electron. Lett. 44 (18) (2008) 1066-1067.
     """
 
     def calculate_grad(I):
@@ -57,17 +61,19 @@ def q_sf(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 def q_sf_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return 1 - q_sf(A,A,F)
 
+# 和 OE 保持一致
 @fusion_preprocessing
 def q_sf_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_sf(A*255, B*255, F*255)
 
-
 if __name__ == '__main__':
-    from clib.metrics.fusion import vis,ir,fused
+    from clib.metrics.fusion import vis,ir,fused,densefuse,adf
     print(q_sf_metric(ir,vis,fused).item())
-    print(q_sf_metric(ir,vis.repeat(1, 3, 1, 1),fused.repeat(1, 3, 1, 1)).item())
-    print(q_sf_metric(ir,vis.repeat(1, 3, 1, 1),fused).item())
-    print(q_sf_metric(vis,vis,vis).item())
-    print(q_sf_metric(vis,vis,fused).item())
-    print(q_sf_metric(vis,vis,ir).item())
-    print(q_sf_metric(vis,ir,fused).item())
+    print(q_sf_metric(ir,vis,densefuse).item())
+    print(q_sf_metric(ir,vis,adf).item())
+    # print(q_sf_metric(ir,vis.repeat(1, 3, 1, 1),fused.repeat(1, 3, 1, 1)).item())
+    # print(q_sf_metric(ir,vis.repeat(1, 3, 1, 1),fused).item())
+    # print(q_sf_metric(vis,vis,vis).item())
+    # print(q_sf_metric(vis,vis,fused).item())
+    # print(q_sf_metric(vis,vis,ir).item())
+    # print(q_sf_metric(vis,ir,fused).item())

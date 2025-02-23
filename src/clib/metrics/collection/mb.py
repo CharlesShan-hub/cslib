@@ -1,6 +1,5 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
-
-###########################################################################################
 
 __all__ = [
     'mb',
@@ -13,7 +12,7 @@ def mb(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     Calculate the mean bias (MB).
 
     Args:
-        A (torch.Tensor): Input tensor A.
+        I (torch.Tensor): Input tensor A.
         B (torch.Tensor): Input tensor B.
         F (torch.Tensor): Input tensor F.
 
@@ -29,25 +28,10 @@ def mb(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
 def mb_approach_loss(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return mb(A, B, F)
 
+@fusion_preprocessing
 def mb_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return mb(A, B, F) # 不乘 255 也一样
 
-###########################################################################################
-
-def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
-
-    print(f'MB(vis,ir,fuse):{mb(vis,ir,fused)}')
-
 if __name__ == '__main__':
-    main()
+    from clib.metrics.fusion import vis,ir,fused
+    print(mb_metric(ir,vis,fused).item())

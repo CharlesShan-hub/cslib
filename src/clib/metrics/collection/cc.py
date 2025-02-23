@@ -8,28 +8,26 @@ __all__ = [
     'cc_metric'
 ]
 
-@fusion_preprocessing
-def cc(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, eps: float = 1e-10) -> torch.Tensor:
+def cc(A: torch.Tensor, B: torch.Tensor, eps: float = 1e-10) -> torch.Tensor:
     """
-    Calculate the correlation coefficient (CC) between two input images and a fused image.
+    Calculate the correlation coefficient (CC) between two input images.
 
     Args:
         A (torch.Tensor): The first input image tensor.
         B (torch.Tensor): The second input image tensor.
-        F (torch.Tensor): The fused image tensor.
         eps (float, optional): A small value to avoid numerical instability. Default is 1e-10.
 
     Returns:
         torch.Tensor: The correlation coefficient value.
+    
+    Reference:
+        [1] X. X. Zhu and R. Bamler, "A Sparse Image Fusion Algorithm With Application to 
+            Pan-Sharpening," in IEEE Transactions on Geoscience and Remote Sensing, 
+            vol. 51, no. 5, pp. 2827-2836, May 2013, doi: 10.1109/TGRS.2012.2213604.
     """
-    A_mean = torch.mean(A)
-    B_mean = torch.mean(B)
-    F_mean = torch.mean(F)
-
-    rAF = torch.sum((A - A_mean) * (F - F_mean)) / torch.sqrt(eps + torch.sum((A - A_mean) ** 2) * torch.sum((F - F_mean) ** 2))
-    rBF = torch.sum((B - B_mean) * (F - F_mean)) / torch.sqrt(eps + torch.sum((B - B_mean) ** 2) * torch.sum((F - F_mean) ** 2))
-
-    return torch.mean(torch.stack([rAF, rBF]))
+    [mA, mB] = [torch.mean(I) for I in [A, B]]
+    rAB = torch.sum((A - mA) * (B - mB)) / torch.sqrt(eps + torch.sum((A - mA) ** 2) * torch.sum((B - mB) ** 2))
+    return torch.mean(rAB)
 
 def cc_tang(A: np.ndarray, B: np.ndarray, F: np.ndarray) -> float:
     """
@@ -64,15 +62,25 @@ def cc_tang(A: np.ndarray, B: np.ndarray, F: np.ndarray) -> float:
     return float(np.mean([rAF, rBF]))
 
 def cc_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
-    return cc(A,A,A) - cc(A,A,F)
+    return cc_metric(A,A,A) - cc_metric(A,A,F)
 
 # 与 Tang 统一
-cc_metric = cc
+@fusion_preprocessing
+def cc_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
+    '''
+    Reference:
+        [1] Luo, Y.; Luo, Z. Infrared and Visible Image Fusion: Methods, Datasets, Applications, 
+            and Prospects. Appl. Sci. 2023, 13, 10891. https://doi.org/10.3390/app131910891
+    '''
+    w0 = w1 = 0.5
+    return w0 * cc(A,F) + w1 * cc(B,F)
 
 if __name__ == '__main__':
     from clib.metrics.fusion import ir,vis,fused
     from clib.utils import to_numpy
     [ir_arr, vis_arr, fused_arr] = [to_numpy(i) for i in [ir, vis, fused]]
 
-    print(f'CC(ir,vis,fused) by Charles:{cc(ir,vis,fused)}')
+    print(f'CC(ir,fused):{cc(ir,fused)}')
+    print(f'CC(vis,fused):{cc(vis,fused)}')
+    print(f'CC(ir,vis,fused) by Charles:{cc_metric(ir,vis,fused)}')
     print(f'CC(ir,vis,fused) by Tang   :{cc_tang(ir_arr,vis_arr,fused_arr)}')

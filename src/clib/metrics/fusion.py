@@ -17,6 +17,8 @@ Reference:
     RS(没有 matlab 代码): Yuhendra, et al. “Assessment of Pan-Sharpening Methods Applied to Image Fusion of 
         Remotely Sensed Multi-Band Data.” International Journal of Applied Earth Observation 
         and Geoinformation, Aug. 2012, pp. 165-75, https://doi.org/10.1016/j.jag.2012.01.013.
+    MA: J. Ma, Y. Ma, C. Li, Infrared and visible image fusion methods 
+        and applications: A survey, Inf. Fusion 45 (2019) 153-178.
 '''
 
 # 信息论
@@ -26,25 +28,23 @@ from .collection.te import *              # MEFB - tsallis熵
 from .collection.mi import *              # VIFB - 互信息
 from .collection.nmi import *             # MEFB - 标准化互信息
 from .collection.q_ncie import *          # MEFB - 非线性相关性
-# from .collection.snr import *             # RS   - 信噪比 这个其实是去噪的!!
 from .collection.psnr import *            # VIFB - 峰值信噪比
-# from .cc import *       # Tang - 相关系数(正在改)
-# from metrics.scc import *
+from .collection.cc import *              # Tang - 相关系数
+from .collection.scc import *             # pytorch - 空间相关系数
 from .collection.scd import *             # Tang - 差异相关和
 
 # 结构相似性
 from .collection.ssim import *            # VIFB - 结构相似度测量
-# from metrics.ms_ssim import *  # Tang - 多尺度结构相似度测量
+from .collection.ms_ssim import *         # Tang - 多尺度结构相似度测量
 # from metrics.q_s import *      # MEFB - 利用 SSIM 的指标 Piella's Fusion Quality Index
 # from metrics.q_w import *      # MEFB - 利用 SSIM 的指标 Weighted Fusion Quality Index
 # from metrics.q_e import *      # MEFB - 利用 SSIM 的指标 Piella's Edge-dependent Fusion Quality Index
 # from metrics.q_c import *      # MEFB - Cvejic
 # from metrics.q_y import *      # MEFB - Yang
 # from metrics.mb import *       # Mean bias
-# from metrics.eme import *
-# from metrics.mae import *
-# from metrics.mse import *      # VIFB - 均方误差
-from .collection.rmse import *            # VIFB - 均方误差
+from .collection.mae import *             # RS   - Mean absolute error
+from .collection.mse import *             # VIFB - Mean squared error 均方误差
+from .collection.rmse import *            # VIFB - Root mean squared error 均方误差
 # from metrics.nrmse import *    # Normalized Root Mean Square Error
 # from metrics.ergas import *    # Normalized Global Error
 # from metrics.q_h import *      # OB
@@ -54,11 +54,12 @@ from .collection.rmse import *            # VIFB - 均方误差
 
 # 图片信息
 from .collection.ag import *              # VIFB - 平均梯度
+from .collection.mg import *              # MA   - Mean Graident (similar to AG)
 from .collection.ei import *              # VIFB - 边缘强度
 # # from metrics.pfe import *      # Many
 from .collection.sd import *              # VIFB - 标准差
 from .collection.sf import *              # VIFB - 空间频率
-# from metrics.q_sf import *     # OE - 基于空间频率的指标
+from .collection.q_sf import *            # OE - 基于空间频率的指标 (metricZheng)
 from .collection.q_abf import *           # VIFB - 基于梯度的融合性能
 # from metrics.eva import *      # Zhihu - 点锐度
 # from metrics.asm import *      # Zhihu - 角二阶矩 - 不可微!!!

@@ -1,7 +1,6 @@
+from clib.metrics.utils import fusion_preprocessing
 import pytorch_msssim
 import torch
-
-###########################################################################################
 
 __all__ = [
     'ms_ssim',
@@ -23,6 +22,11 @@ def ms_ssim(X: torch.Tensor, Y: torch.Tensor,
 
     Returns:
         torch.Tensor: The MS-SSIM value between the two input tensors.
+
+    Reference:
+        Z. Wang, E. P. Simoncelli and A. C. Bovik, "Multiscale structural similarity for image quality assessment," 
+        The Thrity-Seventh Asilomar Conference on Signals, Systems & Computers, 2003, Pacific Grove, CA, USA, 2003, 
+        pp. 1398-1402 Vol.2, doi: 10.1109/ACSSC.2003.1292216.
     """
     return pytorch_msssim.ms_ssim(X, Y, data_range, size_average)
 
@@ -31,28 +35,15 @@ def ms_ssim_approach_loss(X: torch.Tensor, Y: torch.Tensor,
     data_range: int = 1, size_average: bool = False) -> torch.Tensor:
     return 1 - ms_ssim(X,Y,data_range,size_average)
 
+@fusion_preprocessing
 def ms_ssim_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     w0 = w1 = 0.5
     return torch.mean(w0 * ms_ssim(A, F) + w1 * ms_ssim(B ,F))
 
-###########################################################################################
-
-def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
+if __name__ == '__main__':
+    from clib.metrics.fusion import ir,vis,fused
 
     print(f'MSSIM(ir,ir):{torch.mean(ms_ssim(ir,ir))}')
     print(f'MSSIM(ir,fused):{torch.mean(ms_ssim(ir,fused))}')
     print(f'MSSIM(vis,fused):{torch.mean(ms_ssim(vis,fused))}')
-
-if __name__ == '__main__':
-    main()
+    print(ms_ssim_metric(ir,vis,fused).item()) 

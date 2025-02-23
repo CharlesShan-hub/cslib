@@ -1,7 +1,6 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import torch.nn.functional as F
-
-###########################################################################################
 
 __all__ = [
     'mse',
@@ -25,28 +24,11 @@ def mse(y_true: torch.Tensor, y_pred: torch.Tensor, eps: float = 1e-10) -> torch
 
 mse_approach_loss = mse
 
+@fusion_preprocessing
 def mse_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     w0 = w1 = 0.5
     return w0 * mse(A, F) + w1 * mse(B, F)
 
-###########################################################################################
-
-def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
-
-    print(f'MSE(ir,ir):{mse(ir,ir)}')
-    print(f'MSE(ir,vis):{mse(ir,vis)}')
-    print(f'MSE(ir,fused):{mse(ir,fused)}')
-
 if __name__ == '__main__':
-    main()
+    from clib.metrics.fusion import vis,ir,fused
+    print(mse_metric(ir,vis,fused).item())
