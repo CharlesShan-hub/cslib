@@ -22,6 +22,10 @@ def q_c(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 
     Returns:
         torch.Tensor: The Q_C quality index between the two input images and their fusion.
+
+    Reference:
+        N. Cvejic, A. Loza, D. Bull, N. Canagarajah, A similarity metric for assessment of image fusion 
+        algorithms, Int. J. Signal Process. 2 (3) (2005) 178-182.
     """
     def ssim_yang(A,B): # SSIM_Yang
         C1 = 2e-16
@@ -46,9 +50,11 @@ def q_c(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 def q_c_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return 1-q_c(A, A, F, window_size=7)
 
+@fusion_preprocessing
 def q_c_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_c(A, B, F, window_size=7)
 
+# 与 OE 保持一致
 if __name__ == '__main__':
     from clib.metrics.fusion import vis,ir,fused
-    print(q_c_metric(ir,vis,fused).item())
+    print(q_c_metric(ir,vis,fused).item()) # should be 0.7187

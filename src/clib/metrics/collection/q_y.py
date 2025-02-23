@@ -22,6 +22,10 @@ def q_y(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 
     Returns:
         torch.Tensor: The Q_Y quality index between the two input images and their fusion.
+
+    Reference:
+        C. Yang, J.-Q. Zhang, X.-R. Wang, X. Liu, A novel similarity based quality metric for 
+        image fusion, Inf. Fusion 9 (2) (2008) 156-160.
     """
     def ssim_yang(A,B): # SSIM_Yang
         C1 = 2e-16
@@ -49,6 +53,7 @@ def q_y(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 def q_y_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return 1-q_y(A, A, F, window_size=7, eps=1e-10)
 
+@fusion_preprocessing
 def q_y_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_y(A, B, F, window_size=7, eps=1e-10)
 

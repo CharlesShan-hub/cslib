@@ -1,19 +1,12 @@
+from clib.metrics.utils import fusion_preprocessing
 from typing import Tuple
 import torch
-import kornia
-import numpy as np
-
-###########################################################################################
 
 __all__ = [
     'q_p',
     'q_p_approach_loss',
     'q_p_metric'
 ]
-
-import torch
-import torch.fft as fft
-import torch.nn.functional as F
 
 def lowpassfilter(sze: Tuple[int, int], cutoff: float, n: int) -> torch.Tensor:
     """
@@ -174,7 +167,7 @@ def myphasecong3(im: torch.Tensor, nscale: int = 4, norient: int = 6,
             print(torch.mean(filt))
             print(torch.mean(imagefft))
             print(torch.mean(EO))
-            aaa
+            breakpoint()
             An = torch.abs(EO)                 # Amplitude of even & odd filter response.
             sumAn_ThisOrient += An             # Sum of amplitude responses.
             sumE_ThisOrient += torch.real(EO)  # Sum of even filter convolution results.
@@ -279,6 +272,7 @@ def q_p(A, B, F):
 def q_p_approach_loss(A, F):
     pass
 
+@fusion_preprocessing
 def q_p_metric(A, B, F):
     return q_p(A*255.0,B*255.0,F*255.0)
 

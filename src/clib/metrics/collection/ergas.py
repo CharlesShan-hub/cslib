@@ -1,7 +1,6 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import numpy as np
-
-###########################################################################################
 
 __all__ = [
     'ergas','ergas_numpy',
@@ -14,12 +13,15 @@ def ergas(A: torch.Tensor, F: torch.Tensor, eps: float = 1e-10) -> torch.Tensor:
     Calculate the Error Relative Global Accuracy (ERGAS) metric between images A and F.
 
     Args:
-    - A (torch.Tensor): The original image.
-    - F (torch.Tensor): The fused image.
-    - eps (float): A small value to avoid division by zero. Default is 1e-10.
+        A (torch.Tensor): The original image.
+        F (torch.Tensor): The fused image.
+        eps (float): A small value to avoid division by zero. Default is 1e-10.
 
     Returns:
-    - torch.Tensor: The computed ERGAS metric.
+        torch.Tensor: The computed ERGAS metric.
+
+    Reference:
+        https://blog.csdn.net/qq_49729636/article/details/134502721
     """
     # Get the image dimensions
     _, _, height, width = A.shape
@@ -91,35 +93,16 @@ def ergas_numpy(reference_image: np.ndarray, processed_image: np.ndarray) -> flo
 def ergas_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return -ergas(A,F)
 
+@fusion_preprocessing
 def ergas_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return ergas(A*255,F*255)+ergas(B*255,F*255)
 
-###########################################################################################
-
-def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis_image = Image.open('../imgs/TNO/vis/9.bmp')
-    vis_array = np.array(vis_image).astype(np.int32)
-    vis_tensor = to_tensor(vis_image).unsqueeze(0)
-    ir_image = np.array(Image.open('../imgs/TNO/ir/9.bmp'))
-    ir_array = np.array(ir_image).astype(np.int32)
-    ir_tensor = to_tensor(ir_image).unsqueeze(0)
-    fused_image = np.array(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp'))
-    fused_array = np.array(fused_image).astype(np.int32)
-    fused_tensor = to_tensor(fused_image).unsqueeze(0)
-
-    print(f'ergas(ir,fused) by numpy:{ergas_numpy(ir_array,fused_array)}')
-    print(f'ergas(ir,fused) by self: {ergas(ir_tensor*255,fused_tensor*255)}')
-    print(f'ergas(ir,ir) by self: {ergas(ir_tensor*255,ir_tensor*255)}')
-    print(f'ergas(ir,vis) by self: {ergas(ir_tensor*255,vis_tensor*255)}')
-
-
 if __name__ == '__main__':
-    main()
+    from clib.metrics.fusion import ir,vis,fused
+    from clib.utils import to_numpy
+
+    print(f'ergas(ir,fused) by numpy:{ergas_numpy(to_numpy(ir)*255.0,to_numpy(fused)*255.0)}')
+    print(f'ergas(ir,fused) by self: {ergas(ir*255.0,fused*255.0)}')
+    print(f'ergas(ir,ir) by self: {ergas(ir*255.0,ir*255.0)}')
+    print(f'ergas(ir,vis) by self: {ergas(ir*255.0,vis*255.0)}')
+    print(f'ergas metric: {ergas_metric(ir,vis,fused)}')

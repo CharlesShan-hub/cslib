@@ -1,7 +1,6 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
-
-###########################################################################################
 
 __all__ = [
     'eva',
@@ -18,6 +17,10 @@ def eva(A: torch.Tensor) -> torch.Tensor:
 
     Returns:
         torch.Tensor: The evaluation value.
+
+    Reference:
+        [1] https://zhuanlan.zhihu.com/p/136013000
+        [2] 王鸿南,钟文,汪静,等.图像清晰度评价方法研究[J].中国图象图形学报: A辑,2004(7):828-831.
     """
     corner = 1 / 2 ** 0.5
     border = 1.0
@@ -39,25 +42,10 @@ def eva(A: torch.Tensor) -> torch.Tensor:
 def eva_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return torch.abs(eva(A)-eva(F))
 
+@fusion_preprocessing
 def eva_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return eva(F) * 255.0
 
-###########################################################################################
-
-def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
-
-    print(f'EVA:{eva_metric(vis, ir, fused)}')
-
 if __name__ == '__main__':
-    main()
+    from clib.metrics.fusion import ir,vis,fused
+    print(f'EVA:{eva_metric(vis, ir, fused)}')

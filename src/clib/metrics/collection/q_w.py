@@ -22,6 +22,10 @@ def q_w(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 
     Returns:
         torch.Tensor: The q_w quality index between the two input images and their fusion.
+
+    Reference:
+        G. Piella, H. Heijmans, A new quality metric for image fusion, in: Proceedings of International 
+        Conference on Image Processing, Vol. 3, IEEE, 2003, pp. III-173 - III-176.
     """
 
     def sigma2(A):
@@ -61,9 +65,11 @@ def q_w(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 def q_w_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return 1-q_w(A, A, F, window_size=11, eps=1e-10)
 
+# 与 OE 保持一致
+@fusion_preprocessing
 def q_w_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_w(A*255.0, B*255.0, F*255.0, window_size=11, eps=1e-10)
 
 if __name__ == '__main__':
     from clib.metrics.fusion import vis,ir,fused
-    print(q_w_metric(ir,vis,fused).item())
+    print(q_w_metric(ir,vis,fused).item()) # should be 0.8013

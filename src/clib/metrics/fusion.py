@@ -21,6 +21,9 @@ Reference:
         and applications: A survey, Inf. Fusion 45 (2019) 153-178.
     Many: P. Jagalingam, Arkal Vittal Hegde, A Review of Quality Metrics for Fused Image, 
         Aquatic Procedia, Volume 4, 2015, Pages 133-142, ISSN 2214-241X, https://doi.org/10.1016/j.aqpro.2015.02.019.
+    Zhihu: 
+        https://blog.csdn.net/qq_49729636/article/details/134502721
+        https://zhuanlan.zhihu.com/p/136013000
 '''
 
 # 信息论
@@ -38,17 +41,17 @@ from .collection.scd import *             # Tang - 差异相关和
 # 结构相似性
 from .collection.ssim import *            # VIFB - 结构相似度测量
 from .collection.ms_ssim import *         # Tang - 多尺度结构相似度测量
-# from .collection.q_s import *      # MEFB - 利用 SSIM 的指标 Piella's Fusion Quality Index
-# from .collection.q_w import *      # MEFB - 利用 SSIM 的指标 Weighted Fusion Quality Index
-# from .collection.q_e import *      # MEFB - 利用 SSIM 的指标 Piella's Edge-dependent Fusion Quality Index
-# from .collection.q_c import *      # MEFB - Cvejic
-# from .collection.q_y import *      # MEFB - Yang
+from .collection.q_s import *             # OE   - 利用 SSIM 的指标 Piella's Fusion Quality Index
+from .collection.q_w import *             # MEFB - 利用 SSIM 的指标 Weighted Fusion Quality Index
+from .collection.q_e import *             # OE   - 利用 SSIM 的指标 Piella's Edge-dependent Fusion Quality Index
+from .collection.q_c import *             # MEFB - Cvejic
+from .collection.q_y import *             # MEFB - Yang
 from .collection.mb import *              # Many - Mean bias (遥感的指标)
 from .collection.mae import *             # RS   - Mean absolute error
 from .collection.mse import *             # VIFB - Mean squared error 均方误差
 from .collection.rmse import *            # VIFB - Root mean squared error 均方误差
 # from metrics.nrmse import *    # Normalized Root Mean Square Error
-# from metrics.ergas import *    # Normalized Global Error
+from .collection.ergas import *           # Zhihu- Normalized Global Error (遥感的指标)
 # from metrics.q_h import *      # OB
 # from metrics.q import *        # REV
 # from metrics.wfqi import *
@@ -61,22 +64,22 @@ from .collection.ei import *              # VIFB - 边缘强度
 # # from metrics.pfe import *      # Many
 from .collection.sd import *              # VIFB - 标准差
 from .collection.sf import *              # VIFB - 空间频率
-from .collection.q_sf import *            # OE - 基于空间频率的指标 (metricZheng)
+from .collection.q_sf import *            # OE   - 基于空间频率的指标 (metricZheng)
 from .collection.q_abf import *           # VIFB - 基于梯度的融合性能
-# from metrics.eva import *      # Zhihu - 点锐度
-# from metrics.asm import *      # Zhihu - 角二阶矩 - 不可微!!!
-# from metrics.sam import *      # Zhihu - 光谱角测度 - 要修改
+from .collection.eva import *             # Zhihu - 点锐度 (遥感的指标, 中文期刊)
+from .collection.asm import *             # Zhihu- 角二阶矩 - 不可微!!! (遥感的指标)
+from .collection.sam import *             # Zhihu - 光谱角测度 - 要修改 (遥感的指标)
 from .collection.con import *      # 对比度
 # from metrics.fmi import *      # OE - fmi_w(Discrete Meyer wavelet),fmi_g(Gradient),fmi_d(DCT),fmi_e(Edge),fmi_p(Raw pixels (no feature extraction))
-# from metrics.q_p import *      # MEFB
+# from .collection.q_p import *             # MEFB 没弄完
 # from metrics.n_abf import *    # Tang - 基于噪声评估的融合性能
 # from metrics.pww import *      # Many - Pei-Wei Wang's algorithms
 
 # 视觉感知
 from .collection.q_cv import *            # VIFB - H. Chen and P. K. Varshney
 from .collection.q_cb import *            # VIFB - 图像模糊与融合的质量评估 包含 cbb,cbm,cmd
-from .collection.vif import *             # 视觉保真度 - 不可微!! 优化用 VIFF 就行
-# from metrics.viff import *     # Tang - 视觉保真度
+# from .collection.vif import *             # 视觉保真度 - 不可微!! 优化用 VIFF 就行
+from .collection.viff import *            # Tang - 视觉保真度 ( VIF for fusion)
 
 # 新指标暂时没分类
 # from metrics.df import *       #

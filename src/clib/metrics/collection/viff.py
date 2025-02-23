@@ -1,7 +1,6 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
-
-###########################################################################################
 
 __all__ = [
     'viff',
@@ -20,6 +19,11 @@ def viff(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, eps: float = 1e-10) 
 
     Returns:
         torch.Tensor: The VIF metric value.
+
+    Reference:
+        [1] Yu Han, Yunze Cai, Yin Cao, Xiaoming Xu, A new image fusion performance metric 
+        based on visual information fidelity, information fusion, Volume 14, Issue 2, April 2013, Pages 127-135
+        [2] https://github.com/HarrisXia/image-fusion-evaluation/blob/c4173cf45a83754b59c375ebc1ab2036a47245cb/VIFF_Public.m
     """
     def gaussian_kernel(kernel_size, sigma):
         # Create a grid of points centered at the kernel origin
@@ -116,28 +120,11 @@ def viff(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, eps: float = 1e-10) 
 def viff_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return 1-viff(A,A,F)
 
+# 和原 matlab 结果保持一致
+@fusion_preprocessing
 def viff_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return viff(A*255.0, B*255.0, F*255.0)
 
-###########################################################################################
-
-def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
-
-    print(f'VIFF:{viff_metric(vis,ir,fused)}')
-    # print(f'VIFF:{viff_metric(vis,vis,vis)}')
-    # print(f'VIFF:{viff_metric(vis,vis,fused)}')
-    # print(f'VIFF:{viff_metric(vis,vis,ir)}')
-
 if __name__ == '__main__':
-    main()
+    from clib.metrics.fusion import ir,vis,fused
+    print(f'VIFF:{viff_metric(vis, ir, fused)}') # should be 0.3755

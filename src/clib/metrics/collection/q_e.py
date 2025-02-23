@@ -22,6 +22,11 @@ def q_e(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 
     Returns:
         torch.Tensor: The q_w quality index between the two input images and their fusion.
+
+    Reference:
+        G. Piella and H. Heijmans, "A new quality metric for image fusion," Proceedings 
+        2003 International Conference on Image Processing (Cat. No.03CH37429), 
+        Barcelona, Spain, 2003, pp. III-173, doi: 10.1109/ICIP.2003.1247209.
     """
     def modify(A):
         X = kornia.filters.filter2d(A*255,torch.tensor([[[1,0,-1],[1,0,-1],[ 1, 0,-1]]]),border_type='constant')
@@ -66,9 +71,11 @@ def q_e(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 def q_e_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return 1-q_e(A, A, F, window_size=11, eps=1e-10)
 
+# 与 OE 保持一致
+@fusion_preprocessing
 def q_e_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_e(A, B, F, window_size=11, eps=1e-10)
 
 if __name__ == '__main__':
     from clib.metrics.fusion import vis,ir,fused
-    print(q_e_metric(ir,vis,fused).item())
+    print(q_e_metric(ir,vis,fused).item()) # should be 0.7662
