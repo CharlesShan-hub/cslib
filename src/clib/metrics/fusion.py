@@ -82,15 +82,7 @@ from .collection.pww import *             # Many - Pei-Wei Wang's algorithms (ma
 # 视觉感知
 from .collection.q_cv import *            # VIFB - H. Chen and P. K. Varshney
 from .collection.q_cb import *            # VIFB - 图像模糊与融合的质量评估 包含 cbb,cbm,cmd
-from .collection.vif import *             # MEFB - 视觉保真度
-from .collection.viff import *            # Tang - 视觉保真度 ( VIF for fusion)
-
-# 新指标暂时没分类
-# from .collection.df import *       #
-# from .collection.q_mi import *     #
-# from .collection.q_s import *      #
-# from .collection.fqi import *      # Many
-# from .collection.fsm import *      # Many
+from .collection.vif import *             # MEFB - 视觉保真度 VIF / VIFF
 
 info_summary_dict = {
     'en':{
