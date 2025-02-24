@@ -1,291 +1,174 @@
 from clib.metrics.utils import fusion_preprocessing
 import torch
-import numpy as np
+import torch.nn.functional as F
+from torchvision.transforms import GaussianBlur
 
 __all__ = [
     'vif',
+    'vif_approach_loss',
     'vif_metric'
 ]
 
+def ComVidVindG(ref, dist, sq):
+    """
+    Compute visual information with and without distortion.
+    
+    Parameters:
+    ref (torch.Tensor): Reference image tensor (C x H x W).
+    dist (torch.Tensor): Distorted image tensor (C x H x W).
+    sq (float): Visual noise.
+    
+    Returns:
+    Tg1 (list of torch.Tensor): Matrix of visual information with distortion information (VID).
+    Tg2 (list of torch.Tensor): Matrix of visual information without distortion information (VIND).
+    Tg3 (list of torch.Tensor): Matrix of scalar value gi.
+    """
+    ref = ref.unsqueeze(0)
+    dist = dist.unsqueeze(0)
 
-def im2col(img, k, stride=1):
-    # Parameters
-    m, n = img.shape
-    s0, s1 = img.strides
-    nrows = m - k + 1
-    ncols = n - k + 1
-    shape = (k, k, nrows, ncols)
-    arr_stride = (s0, s1, s0, s1)
+    sigma_nsq = sq
+    scales = 4
+    Tg1 = []
+    Tg2 = []
+    Tg3 = []
 
-    ret = np.lib.stride_tricks.as_strided(img, shape=shape, strides=arr_stride)
-    return ret[:, :, ::stride, ::stride].reshape(k*k, -1)
+    for scale in range(1, scales + 1):
+        N = 2 ** (4 - scale + 1) + 1
+        H = int(N/2)
+        win = GaussianBlur(N,(N/5,N/5))
+        
+        if scale > 1:
+            ref = win(ref)[:,H:-H,H:-H] # matlab 'valid'
+            dist = win(dist)[:,H:-H,H:-H]# matlab 'valid'
+            ref = ref[:, ::2, ::2]
+            dist = dist[:, ::2, ::2]
 
+        mu1 = win(ref)[:,H:-H,H:-H]# matlab 'valid'
+        mu2 = win(dist)[:,H:-H,H:-H]# matlab 'valid'
+        mu1_sq = mu1 ** 2
+        mu2_sq = mu2 ** 2
+        mu1_mu2 = mu1 * mu2
+        sigma1_sq = win(ref**2)[:,H:-H,H:-H] - mu1_sq
+        sigma2_sq = win(dist**2)[:,H:-H,H:-H] - mu2_sq
+        sigma12 = win(dist*ref)[:,H:-H,H:-H] - mu1_mu2
 
-def integral_image(x):
-    M, N = x.shape
-    int_x = np.zeros((M+1, N+1))
-    int_x[1:, 1:] = np.cumsum(np.cumsum(x, 0), 1)
-    return int_x
+        sigma1_sq = torch.clamp(sigma1_sq, min=0)
+        sigma2_sq = torch.clamp(sigma2_sq, min=0)
 
+        g = sigma12 / (sigma1_sq + 1e-10)
+        sv_sq = sigma2_sq - g * sigma12
 
-def moments(x, y, k, stride):
-    kh = kw = k
+        g = torch.clamp(g, min=0)
+        sv_sq = torch.clamp(sv_sq, min=1e-10)
 
-    k_norm = k**2
+        # g = torch.clamp(g, max=1)
+        # sv_sq = torch.clamp(sv_sq, max=1)
 
-    x_pad = np.pad(x, int((kh - stride)/2), mode='reflect')
-    y_pad = np.pad(y, int((kw - stride)/2), mode='reflect')
+        g[sigma1_sq < 1e-10] = 0
+        sv_sq[sigma1_sq < 1e-10] = sigma2_sq[sigma1_sq < 1e-10]
+        sigma1_sq[sigma1_sq < 1e-10] = 0
 
-    int_1_x = integral_image(x_pad)
-    int_1_y = integral_image(y_pad)
+        g[sigma2_sq < 1e-10] = 0
+        sv_sq[sigma2_sq < 1e-10] = 0
 
-    int_2_x = integral_image(x_pad*x_pad)
-    int_2_y = integral_image(y_pad*y_pad)
-
-    int_xy = integral_image(x_pad*y_pad)
-
-    mu_x = (int_1_x[:-kh:stride, :-kw:stride] - int_1_x[:-kh:stride, kw::stride] - int_1_x[kh::stride, :-kw:stride] + int_1_x[kh::stride, kw::stride])/k_norm
-    mu_y = (int_1_y[:-kh:stride, :-kw:stride] - int_1_y[:-kh:stride, kw::stride] - int_1_y[kh::stride, :-kw:stride] + int_1_y[kh::stride, kw::stride])/k_norm
-
-    var_x = (int_2_x[:-kh:stride, :-kw:stride] - int_2_x[:-kh:stride, kw::stride] - int_2_x[kh::stride, :-kw:stride] + int_2_x[kh::stride, kw::stride])/k_norm - mu_x**2
-    var_y = (int_2_y[:-kh:stride, :-kw:stride] - int_2_y[:-kh:stride, kw::stride] - int_2_y[kh::stride, :-kw:stride] + int_2_y[kh::stride, kw::stride])/k_norm - mu_y**2
-
-    cov_xy = (int_xy[:-kh:stride, :-kw:stride] - int_xy[:-kh:stride, kw::stride] - int_xy[kh::stride, :-kw:stride] + int_xy[kh::stride, kw::stride])/k_norm - mu_x*mu_y
-
-    mask_x = (var_x < 0)
-    mask_y = (var_y < 0)
-
-    var_x[mask_x] = 0
-    var_y[mask_y] = 0
-
-    cov_xy[mask_x + mask_y] = 0
-
-    return (mu_x, mu_y, var_x, var_y, cov_xy)
-
-
-def vif_gsm_model(pyr, subband_keys, M):
-    tol = 1e-15
-    s_all = []
-    lamda_all = []
-
-    for subband_key in subband_keys:
-        y = pyr[subband_key]
-        y_size = (int(y.shape[0]/M)*M, int(y.shape[1]/M)*M)
-        y = y[:y_size[0], :y_size[1]]
-
-        y_vecs = im2col(y, M, 1)
-        cov = np.cov(y_vecs)
-        lamda, V = np.linalg.eigh(cov)
-        lamda[lamda < tol] = tol
-        cov = V@np.diag(lamda)@V.T
-
-        y_vecs = im2col(y, M, M)
-
-        s = np.linalg.inv(cov)@y_vecs
-        s = np.sum(s * y_vecs, 0)/(M*M)
-        s = s.reshape((int(y_size[0]/M), int(y_size[1]/M)))
-
-        s_all.append(s)
-        lamda_all.append(lamda)
-
-    return s_all, lamda_all
-
-
-def vif_channel_est(pyr_ref, pyr_dist, subband_keys, M):
-    tol = 1e-15
-    g_all = []
-    sigma_vsq_all = []
-
-    for i, subband_key in enumerate(subband_keys):
-        y_ref = pyr_ref[subband_key]
-        y_dist = pyr_dist[subband_key]
-
-        lev = int(np.ceil((i+1)/2))
-        winsize = 2**lev + 1
-
-        y_size = (int(y_ref.shape[0]/M)*M, int(y_ref.shape[1]/M)*M)
-        y_ref = y_ref[:y_size[0], :y_size[1]]
-        y_dist = y_dist[:y_size[0], :y_size[1]]
-
-        mu_x, mu_y, var_x, var_y, cov_xy = moments(y_ref, y_dist, winsize, M)
-
-        g = cov_xy / (var_x + tol)
-        sigma_vsq = var_y - g*cov_xy
-
-        g[var_x < tol] = 0
-        sigma_vsq[var_x < tol] = var_y[var_x < tol]
-        var_x[var_x < tol] = 0
-
-        g[var_y < tol] = 0
-        sigma_vsq[var_y < tol] = 0
-
-        sigma_vsq[g < 0] = var_y[g < 0]
+        sv_sq[g < 0] = sigma2_sq[g < 0]
         g[g < 0] = 0
+        sv_sq[sv_sq <= 1e-10] = 1e-10
 
-        sigma_vsq[sigma_vsq < tol] = tol
+        Tg3.append(g)
+        VID = torch.log10(1 + g ** 2 * sigma1_sq / (sv_sq + sigma_nsq))
+        VIND = torch.log10(1 + sigma1_sq / sigma_nsq)
+        Tg1.append(VID)
+        Tg2.append(VIND)
 
-        g_all.append(g)
-        sigma_vsq_all.append(sigma_vsq)
+    return Tg1, Tg2, Tg3
 
-    return g_all, sigma_vsq_all
+def vif(Im1, Im2, ImF):
+    """
+    Compute the Visual Information Fidelity (VIF) metric.
 
+    Parameters
+    ----------
+    Im1 : torch.Tensor
+        Source image 1 tensor.
+    Im2 : torch.Tensor
+        Source image 2 tensor.
+    ImF : torch.Tensor
+        Fused image tensor.
 
-def vif(img_ref, img_dist, wavelet='steerable', full=False):
-    # https://github.com/abhinaukumar/vif/blob/main/vif_utils.py
-    assert wavelet in ['steerable', 'haar', 'db2', 'bio2.2'], 'Invalid choice of wavelet'
-    M = 3
-    sigma_nsq = 0.1
+    Returns
+    -------
+    output : torch.Tensor
+        Fusion assessment value.
+    """
+    # Visual noise
+    sq = 0.005 * 255 * 255
+    # Error comparison parameter
+    C = 1e-7
 
-    if wavelet == 'steerable':
-        from pyrtools.pyramids import SteerablePyramidSpace as SPyr
-        pyr_ref = SPyr(img_ref, 4, 5, 'reflect1').pyr_coeffs
-        pyr_dist = SPyr(img_dist, 4, 5, 'reflect1').pyr_coeffs
-        subband_keys = []
-        for key in list(pyr_ref.keys())[1:-2:3]:
-            subband_keys.append(key)
-    else:
-        from pywt import wavedec2
-        ret_ref = wavedec2(img_ref, wavelet, 'reflect', 4)
-        ret_dist = wavedec2(img_dist, wavelet, 'reflect', 4)
-        pyr_ref = {}
-        pyr_dist = {}
-        subband_keys = []
-        for i in range(4):
-            pyr_ref[(3-i, 0)] = ret_ref[i+1][0]
-            pyr_ref[(3-i, 1)] = ret_ref[i+1][1]
-            pyr_dist[(3-i, 0)] = ret_dist[i+1][0]
-            pyr_dist[(3-i, 1)] = ret_dist[i+1][1]
-            subband_keys.append((3-i, 0))
-            subband_keys.append((3-i, 1))
-        pyr_ref[4] = ret_ref[0]
-        pyr_dist[4] = ret_dist[0]
+    # r, s, l = Im1.shape
 
-    subband_keys.reverse()
-    n_subbands = len(subband_keys)
+    # Color space transformation
+    # if l == 3:
+    #     # Convert to Lab color space
+    #     cform = transforms.ColorJitter.get_params("srgb", "lab")
+    #     T1 = cform(Im1)
+    #     T2 = cform(Im2)
+    #     TF = cform(ImF)
+    #     Ix1 = T1[:, 0, :, :]
+    #     Ix2 = T2[:, 0, :, :]
+    #     IxF = TF[:, 0, :, :]
+    # else:
+    #     Ix1 = Im1
+    #     Ix2 = Im2
+    #     IxF = ImF
+    Ix1 = Im1[0,0,:,:]
+    Ix2 = Im2[0,0,:,:]
+    IxF = ImF[0,0,:,:]
 
-    [g_all, sigma_vsq_all] = vif_channel_est(pyr_ref, pyr_dist, subband_keys, M)
+    T1p = Ix1.double()
+    T2p = Ix2.double()
+    Trp = IxF.double()
 
-    [s_all, lamda_all] = vif_gsm_model(pyr_ref, subband_keys, M)
+    p = torch.tensor([1, 0, 0.15, 1]) / 2.15
+    T1N, T1D, T1G = ComVidVindG(T1p, Trp, sq)
+    T2N, T2D, T2G = ComVidVindG(T2p, Trp, sq)
 
-    nums = np.zeros((n_subbands,))
-    dens = np.zeros((n_subbands,))
-    for i in range(n_subbands):
-        g = g_all[i]
-        sigma_vsq = sigma_vsq_all[i]
-        s = s_all[i]
-        lamda = lamda_all[i]
+    VID = []
+    VIND = []
 
-        n_eigs = len(lamda)
+    # Multiscale image level
+    for i in range(1, 5):
+        M_Z1 = T1N[i-1]
+        M_Z2 = T2N[i-1]
+        M_M1 = T1D[i-1]
+        M_M2 = T2D[i-1]
+        M_G1 = T1G[i-1]
+        M_G2 = T2G[i-1]
+        L = M_G1 < M_G2
+        M_G = M_G2
+        M_G[L] = M_G1[L]
+        M_Z12 = M_Z2
+        M_Z12[L] = M_Z1[L]
+        M_M12 = M_M2
+        M_M12[L] = M_M1[L]
 
-        lev = int(np.ceil((i+1)/2))
-        winsize = 2**lev + 1
-        offset = (winsize - 1)/2
-        offset = int(np.ceil(offset/M))
+        VID.append((M_Z12 + C).sum())
+        VIND.append((M_M12 + C).sum())
+        F = torch.tensor(VID) / torch.tensor(VIND)
+    output = torch.sum(F * p)
 
-        g = g[offset:-offset, offset:-offset]
-        sigma_vsq = sigma_vsq[offset:-offset, offset:-offset]
-        s = s[offset:-offset, offset:-offset]
-
-        for j in range(n_eigs):
-            nums[i] += np.mean(np.log(1 + g*g*s*lamda[j]/(sigma_vsq+sigma_nsq)))
-            dens[i] += np.mean(np.log(1 + s*lamda[j]/sigma_nsq))
-
-    if not full:
-        return np.mean(nums + 1e-4)/np.mean(dens + 1e-4)
-    else:
-        return np.mean(nums + 1e-4)/np.mean(dens + 1e-4), (nums + 1e-4), (dens + 1e-4)
-
-
-def vif_spatial(img_ref, img_dist, k=11, sigma_nsq=0.1, stride=1, full=False):
-    x = img_ref.astype('float32')
-    y = img_dist.astype('float32')
-
-    mu_x, mu_y, var_x, var_y, cov_xy = moments(x, y, k, stride)
-
-    g = cov_xy / (var_x + 1e-10)
-    sv_sq = var_y - g * cov_xy
-
-    g[var_x < 1e-10] = 0
-    sv_sq[var_x < 1e-10] = var_y[var_x < 1e-10]
-    var_x[var_x < 1e-10] = 0
-
-    g[var_y < 1e-10] = 0
-    sv_sq[var_y < 1e-10] = 0
-
-    sv_sq[g < 0] = var_x[g < 0]
-    g[g < 0] = 0
-    sv_sq[sv_sq < 1e-10] = 1e-10
-
-    vif_val = np.sum(np.log(1 + g**2 * var_x / (sv_sq + sigma_nsq)) + 1e-4)/np.sum(np.log(1 + var_x / sigma_nsq) + 1e-4)
-    if (full):
-        # vif_map = (np.log(1 + g**2 * var_x / (sv_sq + sigma_nsq)) + 1e-4)/(np.log(1 + var_x / sigma_nsq) + 1e-4)
-        # return (vif_val, vif_map)
-        return (np.sum(np.log(1 + g**2 * var_x / (sv_sq + sigma_nsq)) + 1e-4), np.sum(np.log(1 + var_x / sigma_nsq) + 1e-4), vif_val)
-    else:
-        return vif_val
-
-
-def msvif_spatial(img_ref, img_dist, k=11, sigma_nsq=0.1, stride=1, full=False):
-    x = img_ref.astype('float32')
-    y = img_dist.astype('float32')
-
-    n_levels = 5
-    nums = np.ones((n_levels,))
-    dens = np.ones((n_levels,))
-    for i in range(n_levels-1):
-        if np.min(x.shape) <= k:
-            break
-        nums[i], dens[i], _ = vif_spatial(x, y, k, sigma_nsq, stride, full=True)
-        x = x[:(x.shape[0]//2)*2, :(x.shape[1]//2)*2]
-        y = y[:(y.shape[0]//2)*2, :(y.shape[1]//2)*2]
-        x = (x[::2, ::2] + x[1::2, ::2] + x[1::2, 1::2] + x[::2, 1::2])/4
-        y = (y[::2, ::2] + y[1::2, ::2] + y[1::2, 1::2] + y[::2, 1::2])/4
-
-    if np.min(x.shape) > k:
-        nums[-1], dens[-1], _ = vif_spatial(x, y, k, sigma_nsq, stride, full=True)
-    msvifval = np.sum(nums) / np.sum(dens)
-
-    if full:
-        return msvifval, nums, dens
-    else:
-        return msvifval
-
+    return output
 
 def vif_approach_loss(A, B, F):
     return 1-vif_metric(A, B, F)
 
-
+# 和 matlab 保持一致
 @fusion_preprocessing
 def vif_metric(A, B, F):
     [A, B, F] = [I.squeeze().squeeze() for I in [A,B,F]]
-    return torch.tensor(0.5* vif(A,F) + 0.5*vif(B,F))
-
-###########################################################################################
-
-def main():
-    # from torchvision import transforms
-    # from torchvision.transforms.functional import to_tensor
-    # from PIL import Image
-    from clib.metrics.fusion import ir,vis,fused
-
-    print(vif_metric(ir,vis,fused).item())
-
-    # torch.manual_seed(42)
-
-    # transform = transforms.Compose([transforms.ToTensor()])
-
-    # vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    # ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    # fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
-    # vis = Image.open('../imgs/TNO/vis/9.bmp')
-    # ir = Image.open('../imgs/TNO/ir/9.bmp')
-    # fused = Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')
-
-    # print(f'VIF(vis,vis):{vif_metric(vis, vis)}')
-    # print(f'VIF(vis,fuse):{vif(vis, fused)}')
-    # print(f'VIF(vis,ir):{vif(vis, ir)}')
-    # Download from https://github.com/abhinaukumar/vif/blob/main/vif_utils.py
-    # This is not Differentable!!!!
+    return torch.tensor(vif(A*255,B*255,F*255))
 
 if __name__ == '__main__':
-    main()
+    from clib.metrics.fusion import ir,vis,fused
+    print(f'vif(vis,ir,fused):{vif(ir,vis,fused)}') # should be 0.3755

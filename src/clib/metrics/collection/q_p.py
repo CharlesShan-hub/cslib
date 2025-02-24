@@ -261,6 +261,12 @@ def myphasecong3(im: torch.Tensor, nscale: int = 4, norient: int = 6,
 
 
 def q_p(A, B, F):
+    '''
+    Reference:
+        J. Zhao, R. Laganiere, Z. Liu, Performance assessment of combinative 
+        pixellevel image fusion based on an absolute feature measurement, 
+        Int. J. Innovative Comput. Inf. Control 3 (6) (2007) 1433-1447.
+    '''
     # 0) some global parameters
     fea_threshold=0.1 # threshold value for the feature
 
@@ -276,21 +282,8 @@ def q_p_approach_loss(A, F):
 def q_p_metric(A, B, F):
     return q_p(A*255.0,B*255.0,F*255.0)
 
-###########################################################################################
-
 def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
-
+    from clib.metrics.fusion import ir,vis,fused
     print(f'Q_p(vis,ir,fused):{q_p_metric(vis,ir,fused)}')
 
 if __name__ == '__main__':

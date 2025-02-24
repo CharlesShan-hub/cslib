@@ -1,8 +1,7 @@
+from clib.metrics.utils import fusion_preprocessing
 from typing import Tuple
 import torch
 import kornia
-
-###########################################################################################
 
 __all__ = [
     'n_abf',
@@ -41,6 +40,10 @@ def n_abf(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 
     Returns:
         torch.Tensor: NABF metric value.
+    
+    Reference:
+        Modified Fusion Artifacts measure proposed by B. K. Shreyamsha Kumar
+        https://github.com/Linfeng-Tang/Image-Fusion/blob/main/General%20Evaluation%20Metric/Evaluation/analysis_nabf.m
     """
     # Edge Strength & Orientation
     gvA, ghA = _sobel_fn(A)
@@ -85,33 +88,23 @@ def n_abf(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
     na = torch.where((gF > gA) & (gF > gB), torch.ones_like(gF), torch.zeros_like(gF))
     NABF = torch.sum(na * ((1 - QAF) * wtA + (1 - QBF) * wtB)) / wt_sum
 
+    breakpoint()
+
     return NABF
 
 def n_abf_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return n_abf(A, A, F)
 
+# 和 matlab 保持一致
+@fusion_preprocessing
 def n_abf_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return n_abf(A*255.0, B*255.0, F*255.0)
 
-###########################################################################################
-
-def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
+if __name__ == '__main__':
+    from clib.metrics.fusion import ir,vis,fused,densefuse
 
     print(f'N_ABF(vis,vis,vis):{n_abf_metric(vis,vis,vis)}')
     print(f'N_ABF(vis,vis,fused):{n_abf_metric(vis,vis,fused)}')
     print(f'N_ABF(vis,vis,ir):{n_abf_metric(vis,vis,ir)}')
-    print(f'N_ABF(vis,ir,fused):{n_abf_metric(vis,ir,fused)}')
-
-if __name__ == '__main__':
-    main()
+    print(f'N_ABF(vis,ir,fused):{n_abf_metric(vis,ir,fused)}') # should be 0.0159
+    print(f'N_ABF(vis,ir,fused2):{n_abf_metric(vis,ir,densefuse)}')

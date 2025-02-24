@@ -1,6 +1,5 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
-
-###########################################################################################
 
 __all__ = [
     'nrmse',
@@ -8,10 +7,9 @@ __all__ = [
     'nrmse_metric'
 ]
 
-def nrmse(y_true: torch.Tensor, y_pred: torch.Tensor, eps: float = 1e-10) -> torch.Tensor:
+def nrmse(y_true: torch.Tensor, y_pred: torch.Tensor, normalization='euclidean', eps: float = 1e-10) -> torch.Tensor:
     """
     Calculate the Normalized Root Mean Squared Error (NRMSE) between true and predicted values.
-    https://blog.csdn.net/weixin_43465015/article/details/105524728
 
     Args:
         y_true (torch.Tensor): The true values tensor.
@@ -20,36 +18,54 @@ def nrmse(y_true: torch.Tensor, y_pred: torch.Tensor, eps: float = 1e-10) -> tor
 
     Returns:
         torch.Tensor: The NRMSE between true and predicted values.
+
+    Reference:
+        [1] https://scikit-image.org/docs/stable/api/skimage.metrics.html#skimage.metrics.normalized_root_mse
+        [2] https://blog.csdn.net/weixin_43465015/article/details/105524728 
     """
-    mse_loss = torch.mean((y_true - y_pred)**2)
-    rmse_loss = torch.sqrt(mse_loss + eps)
-    nrmse_loss = rmse_loss / (torch.max(y_pred)-torch.min(y_pred)+eps)
-    return nrmse_loss
+    mse = torch.nn.functional.mse_loss(target=y_true, input=y_pred)
+    if normalization == 'euclidean':
+        denom = torch.sqrt(torch.mean(y_true ** 2))
+    elif normalization == 'min-max':
+        denom = y_true.max() - y_true.min()
+    elif normalization == 'mean':
+        denom = y_true.mean()
+    else:
+        raise ValueError("Unsupported normalization method. Choose from 'euclidean', 'min-max', or 'mean'.")
+    return torch.sqrt(mse + eps) / denom
 
 nrmse_approach_loss = nrmse
 
+# 与 skimage 保持一致
+@fusion_preprocessing
 def nrmse_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
-    w0 = w1 = 0.5
-    return w0 * nrmse(A, F) + w1 * nrmse(B, F)
-
-###########################################################################################
+    w0 = w1 = 0.5 # skimage is default normalization='euclidean'
+    return w0 * nrmse(A, F, normalization='euclidean') + w1 * nrmse(B, F, normalization='euclidean')
 
 def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
+    from clib.metrics.fusion import ir,vis,fused
+    from clib.utils import to_numpy
+    from skimage.metrics import normalized_root_mse
 
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
+    [ir_array, vis_array, fused_array] = [to_numpy(i) for i in [ir,vis,fused]]
 
     print(f'NRMSE(ir,ir):{nrmse(ir,ir)}')
     print(f'NRMSE(ir,vis):{nrmse(ir,vis)}')
-    print(f'NRMSE(ir,fused):{nrmse(ir,fused)}')
+    print(f'NRMSE(ir,fused):{nrmse(ir,fused)}\n')
+
+    print(f'NRMSE(ir,ir) skimage euclidean:{normalized_root_mse(ir_array,ir_array, normalization='euclidean')}')
+    print(f'NRMSE(ir,vis) skimage euclidean:{normalized_root_mse(ir_array,vis_array, normalization='euclidean')}')
+    print(f'NRMSE(ir,fused) skimage euclidean:{normalized_root_mse(ir_array,fused_array, normalization='euclidean')}\n')
+
+    print(f'NRMSE(ir,ir) skimage min-max:{normalized_root_mse(ir_array,ir_array, normalization='min-max')}')
+    print(f'NRMSE(ir,vis) skimage min-max:{normalized_root_mse(ir_array,vis_array, normalization='min-max')}')
+    print(f'NRMSE(ir,fused) skimage min-max:{normalized_root_mse(ir_array,fused_array, normalization='min-max')}\n')
+    
+    print(f'NRMSE(ir,ir) skimage mean:{normalized_root_mse(ir_array,ir_array, normalization='mean')}')
+    print(f'NRMSE(ir,vis) skimage mean:{normalized_root_mse(ir_array,vis_array, normalization='mean')}')
+    print(f'NRMSE(ir,fused) skimage mean:{normalized_root_mse(ir_array,fused_array, normalization='mean')}\n')
+
+    print(f'NRMSE metric:{nrmse_metric(vis, ir, fused)}')
 
 if __name__ == '__main__':
     main()

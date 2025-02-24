@@ -1,7 +1,6 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
-
-###########################################################################################
 
 __all__ = [
     'pww',
@@ -23,6 +22,10 @@ def pww(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, N: int = 2, alpha1: f
 
     Returns:
         res: Metric value.
+
+    Reference:
+        A novel image fusion metric based on multi-scale analysis, 
+        pp.965-968, ICSP 2008.
     """
     def corrDn(I,filt,step,start): # 因为 Haar 的形状确定了，所以 stag 也确定了 为 2
         # matlab的 reflect 是在最前边的反转，pyhton 的是在最后边的反转，只能采取手动 padding
@@ -101,7 +104,7 @@ def pww(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, N: int = 2, alpha1: f
 
         start_idx = ind
         end_idx = ind + torch.prod(pind[band - 1]) - 1
-        indices = torch.arange(start_idx, end_idx + 1)
+        indices = torch.arange(start_idx, end_idx + 1) # type: ignore
 
         # print(torch.mean(pyr[indices].reshape(pind[band-1, 0], pind[band-1, 1]).T))
         return pyr[indices].reshape(pind[band-1, 0], pind[band-1, 1]).T
@@ -148,23 +151,13 @@ def pww(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, N: int = 2, alpha1: f
 def pww_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return 3.0 - pww(A,A,F)
 
+@fusion_preprocessing
 def pww_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return pww(A*255.0,B*255.0,F*255.0)
 
-###########################################################################################
-
 def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
+    from clib.metrics.fusion import ir,vis,fused
 
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
     # toy = torch.tensor([[[[1,2],[3,4],[5,6]]]])
     # toy = torch.tensor([[[[1],[2],[3],[4]]]])*1.0
     # toy = torch.tensor([[[[1,2,3,4]]]])*1.0
@@ -174,7 +167,7 @@ def main():
     print(f'PWW:{pww_metric(vis, vis, vis)}')
     print(f'PWW:{pww_metric(vis, vis, fused)}')
     print(f'PWW:{pww_metric(vis, vis, ir)}')
-    # print(f'PWW:{pww(toy,toy,toy)}')
+    print(f'PWW:{pww(toy,toy,toy)}')
 
 if __name__ == '__main__':
     main()

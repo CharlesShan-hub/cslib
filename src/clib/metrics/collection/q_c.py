@@ -50,11 +50,11 @@ def q_c(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
 def q_c_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return 1-q_c(A, A, F, window_size=7)
 
+# 与 OE 保持一致
 @fusion_preprocessing
 def q_c_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_c(A, B, F, window_size=7)
 
-# 与 OE 保持一致
 if __name__ == '__main__':
     from clib.metrics.fusion import vis,ir,fused
     print(q_c_metric(ir,vis,fused).item()) # should be 0.7187

@@ -48,11 +48,6 @@ def asm(tensor: torch.Tensor, distances: List[int] = [1, 2], angles: List[int] =
 def asm_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return asm(F)
 
-def test():
-    from clib.metrics.fusion import vis,ir,fused
-
-    print(f'ASM:{asm_metric(vis, ir, fused)}')
-
 if __name__ == '__main__':
     from clib.metrics.fusion import ir,vis,fused
     print(f'ergas metric: {asm_metric(ir,vis,fused)}')

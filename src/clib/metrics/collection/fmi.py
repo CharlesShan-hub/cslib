@@ -1,8 +1,8 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
 import scipy
-
-###########################################################################################
+from pathlib import Path
 
 __all__ = [
     'fmi',
@@ -17,10 +17,11 @@ def _wavelet(I, dwtEXTM='sym'):
     # M. Misiti, Y. Misiti, G. Oppenheim, J.M. Poggi 12-Mar-96.
     #
     # dwtEXTM: 'sym', 'per'(per是周期延拓的意思) 目前只写了sym方式
+    path = Path(__file__).resolve().parent.parent / 'resources' / 'dmey.mat'
     try:
-        W = torch.tensor(scipy.io.loadmat('../utils/dmey.mat')['dmey'])
+        W = torch.tensor(scipy.io.loadmat(path)['dmey'])
     except:
-        W = torch.tensor(scipy.io.loadmat('./utils/dmey.mat')['dmey'])
+        W = torch.tensor(scipy.io.loadmat(path)['dmey'])
     Lo_R = W * torch.sqrt(torch.tensor(2))
     Hi_D = Lo_R.clone()
     Hi_D[:,0::2] *= -1
@@ -135,25 +136,32 @@ def fmi(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, feature: str = 'pixel
     Calculate the Feature Mutual Information (FMI) between two images A and B with respect to a reference image F.
 
     Args:
-    - A (torch.Tensor): Image A.
-    - B (torch.Tensor): Image B.
-    - F (torch.Tensor): Reference image F.
-    - feature (str): Type of feature to use. Options are 'pixel', 'wavelet', 'edge', 'dct', 'gradient'. Default is 'pixel'.
-    - window_size (int): Size of the sliding window. Default is 3.
+        A (torch.Tensor): Image A.
+        B (torch.Tensor): Image B.
+        F (torch.Tensor): Reference image F.
+        feature (str): Type of feature to use. Options are 'pixel', 'wavelet', 'edge', 'dct', 'gradient'. Default is 'pixel'.
+        window_size (int): Size of the sliding window. Default is 3.
 
     Returns:
-    - torch.Tensor: FMI value.
+        torch.Tensor: FMI value.
+
+    Reference:
+        [1] M.B.A. Haghighat, A. Aghagolzadeh, H. Seyedarabi, A non-reference image 
+            fusion metric based on mutual information of image features, Comput. 
+            Electr. Eng. 37 (5) (2011) 744-756.
+        [2] G. Qu, D. Zhang, P. Yan, Information measure for performance of image 
+            fusion, Electron. Lett. 38 (7) (2002) 313-315.
     """
     if feature == 'pixel':
-        [A,B,F] = [A*255,B*255,F*255]
+        [A,B,F] = [A.float()*255,B.float()*255,F.float()*255]
     elif feature == 'wavelet':
-        [A,B,F] = [_wavelet(I*255) for I in [A, B, F]]
+        [A,B,F] = [_wavelet(I.float()*255) for I in [A, B, F]]
     elif feature == 'dct':
-        [A,B,F] = [_dct(I*255) for I in [A, B, F]]
+        [A,B,F] = [_dct(I.float()*255) for I in [A, B, F]]
     elif feature == 'edge': # 未完全复现，没有按照 thin 的方案
-        [A,B,F] = [_edge(I*255) for I in [A, B, F]]
+        [A,B,F] = [_edge(I.float()*255) for I in [A, B, F]]
     elif feature == 'gradient':
-        [A,B,F] = [_gradient(I*255) for I in [A, B, F]]
+        [A,B,F] = [_gradient(I.float()*255) for I in [A, B, F]]
     else:
         raise ValueError("feature should be: 'gradient', 'edge', 'dct', 'wavelet', 'pixel'")
 
@@ -344,40 +352,34 @@ def fmi_approach_loss(A: torch.Tensor, F: torch.Tensor,
     feature: str = 'pixel', window_size: int = 3) -> torch.Tensor:
     return 1-fmi(A, A, F, feature, window_size)
 
+@fusion_preprocessing
 def fmi_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
     feature: str = 'pixel', window_size: int = 3) -> torch.Tensor:
     return fmi(A, B, F, feature, window_size)
 
+@fusion_preprocessing
 def fmi_p_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return fmi(A, B, F, feature='pixel', window_size=3)
 
+@fusion_preprocessing
 def fmi_w_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return fmi(A, B, F, feature='wavelet', window_size=3)
 
+@fusion_preprocessing
 def fmi_e_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return fmi(A, B, F, feature='edge', window_size=3)
 
+@fusion_preprocessing
 def fmi_d_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return fmi(A, B, F, feature='dct', window_size=3)
 
+@fusion_preprocessing
 def fmi_g_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return fmi(A, B, F, feature='gradient', window_size=3)
 
+if __name__ == '__main__':
+    from clib.metrics.fusion import ir,vis,fused
 
-###########################################################################################
-
-def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
     toy1 = torch.tensor([[[[1,1,1,1,1,1],
                            [1,0,0,0,0,0],
                            [2,1,0,0,0,0],
@@ -416,7 +418,3 @@ def main():
     # # fmi(toy3,toy3,toy4,feature="pixel")
     # # fmi(toy1,toy1,toy2)
     # fmi(vis,ir,fused,feature="pixel")
-
-
-if __name__ == '__main__':
-    main()

@@ -1,8 +1,6 @@
 import torch
 import kornia
 
-###########################################################################################
-
 __all__ = [
     'q_h',
     'q_h_approach_loss',
@@ -22,6 +20,12 @@ def q_h(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, window_size: int = 7)
 
     Returns:
         torch.Tensor: The Hossny's fusion metric value.
+    
+    Reference:
+        Hossny, M., Nahavandi, S., Crieghton, D. (2008). Feature-Based Image Fusion Quality Metrics. 
+        In: Xiong, C., Huang, Y., Xiong, Y., Liu, H. (eds) Intelligent Robotics and Applications. 
+        ICIRA 2008. Lecture Notes in Computer Science(), vol 5314. Springer, Berlin, Heidelberg. 
+        https://doi.org/10.1007/978-3-540-88513-9_51
     """
     # 展开
     _, _, m, n = A.shape
@@ -99,20 +103,8 @@ def q_h_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
 def q_h_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return q_h(A, B, F)
 
-###########################################################################################
-
 def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
+    from clib.metrics.fusion import vis,ir,fused
 
     print(f'Q_H(vis,ir,fused):{q_h(vis,ir,fused)}')
     print(f'Q_H(vis,vis,vis):{q_h(vis,vis,vis)}')

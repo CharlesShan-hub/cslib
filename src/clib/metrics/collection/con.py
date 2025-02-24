@@ -8,35 +8,6 @@ __all__ = [
     'con_metric'
 ]
 
-# def con(A: torch.Tensor) -> torch.Tensor:
-#     """
-#     Calculate the Contrast (CON) metric of an image.
-#     https://blog.csdn.net/zsc201825/article/details/89645190
-
-#     Args:
-#         A (torch.Tensor): The input image tensor.
-
-#     Returns:
-#         torch.Tensor: The calculated CON value.
-#     """
-#     # padding
-#     A = torch.nn.functional.pad(A*255, (1, 1, 1, 1), mode='replicate')
-#     # con
-#     res1 = kornia.filters.filter2d(A,torch.tensor([[[0,1,0],[0,-1,0],[0,0,0]]]),padding='valid')
-#     res2 = kornia.filters.filter2d(A,torch.tensor([[[0,0,0],[1,-1,0],[0,0,0]]]),padding='valid')
-#     res3 = kornia.filters.filter2d(A,torch.tensor([[[0,0,0],[0,-1,1],[0,0,0]]]),padding='valid')
-#     res4 = kornia.filters.filter2d(A,torch.tensor([[[0,0,0],[0,-1,0],[0,1,0]]]),padding='valid')
-
-#     res1 = torch.sum(torch.abs(res1) ** 2)
-#     res2 = torch.sum(torch.abs(res2) ** 2)
-#     res3 = torch.sum(torch.abs(res3) ** 2)
-#     res4 = torch.sum(torch.abs(res4) ** 2)
-
-#     _,_,M,N = A.shape
-#     M-=2
-#     N-=2
-#     return (res1+res2+res3+res4)/(4*M*N - 2*M - 2*N)
-
 def con(A: torch.Tensor) -> torch.Tensor:
     """
     Calculate the Contrast (CON) metric of an image.
@@ -86,7 +57,7 @@ def con_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
 def con_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return con(F)
 
-def main():
+if __name__ == '__main__':
     from clib.metrics.fusion import ir, vis, fused
 
     toy = torch.tensor([[[[1,3,9,9],[2,1,3,7],[3,6,0,6],[6,8,2,0]]]])/255.0
@@ -95,6 +66,3 @@ def main():
     print(f'CON(ir):{con_metric(ir,ir,ir)}')
     print(f'CON(vis):{con_metric(vis,vis,vis)}')
     print(f'CON(fused):{con_metric(fused,fused,fused)}')
-
-if __name__ == '__main__':
-    main()

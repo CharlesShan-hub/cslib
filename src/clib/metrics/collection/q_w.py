@@ -12,6 +12,7 @@ def q_w(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
         window_size: int = 11, eps: float = 1e-10) -> torch.Tensor:
     """
     Calculate the Peilla's quality index (q_w) for image fusion.
+    It's also called WFQI metric.
 
     Args:
         A (torch.Tensor): The first input image tensor.
