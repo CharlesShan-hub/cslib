@@ -534,6 +534,7 @@ class TNO(VisionDataset):
         img_type: Optional[str] = 'lwir',
     ) -> None:
         super().__init__(root, transform=transform)
+        self.folder = 'TNO_Image_Fusion_Dataset'
         self._base_folder = Path(self.root) / "tno"
         assert mode in ['both', 'pairs', 'sequence']
         self.mode = mode
@@ -555,7 +556,6 @@ class TNO(VisionDataset):
         return len(self.data)
     
     def build(self):
-        folder = 'TNO_Image_Fusion_Dataset'
         self.data = []
         if self.mode in ['both', 'pairs']:
             for _,v in self.file['pairs'].items():
@@ -565,23 +565,23 @@ class TNO(VisionDataset):
                     if 'lwir' not in v:
                         continue
                     self.data.append({
-                        'lwir': self._base_folder / folder / v['lwir'],
-                        'vis': self._base_folder / folder / v['vis']
+                        'lwir': self._base_folder / self.folder / v['lwir'],
+                        'vis': self._base_folder / self.folder / v['vis']
                     })
                 if self.img_type == 'nir':
                     if 'nir' not in v:
                         continue
                     self.data.append({
-                        'nir': self._base_folder / folder / v['nir'],
-                        'vis': self._base_folder / folder / v['vis']
+                        'nir': self._base_folder / self.folder / v['nir'],
+                        'vis': self._base_folder / self.folder / v['vis']
                     })
                 if self.img_type == 'both':
                     if ('lwir' not in v) or ('nir' not in v) :
                         continue
                     self.data.append({
-                        'lwir': self._base_folder / folder / v['lwir'],
-                        'nir': self._base_folder / folder / v['nir'],
-                        'vis': self._base_folder / folder / v['vis']
+                        'lwir': self._base_folder / self.folder / v['lwir'],
+                        'nir': self._base_folder / self.folder / v['nir'],
+                        'vis': self._base_folder / self.folder / v['vis']
                     })
         if self.mode in ['both', 'sequence']:
             for _,v in self.file['sequence'].items():
@@ -592,26 +592,42 @@ class TNO(VisionDataset):
                         continue
                     for i,j in zip(v['lwir']['content'], v['vis']['content']):
                         self.data.append({
-                            'lwir': self._base_folder / folder / v['lwir']['base'] / i,
-                            'vis': self._base_folder / folder / v['vis']['base'] / j
+                            'lwir': self._base_folder / self.folder / v['lwir']['base'] / i,
+                            'vis': self._base_folder / self.folder / v['vis']['base'] / j
                         })
                 if self.img_type == 'nir':
                     if 'nir' not in v:
                         continue
                     for i,j in zip(v['nir']['content'], v['vis']['content']):
                         self.data.append({
-                            'nir': self._base_folder / folder / v['nir']['base'] / i,
-                            'vis': self._base_folder / folder / v['vis']['base'] / j
+                            'nir': self._base_folder / self.folder / v['nir']['base'] / i,
+                            'vis': self._base_folder / self.folder / v['vis']['base'] / j
                         })
                 if self.img_type == 'both':
                     if ('lwir' not in v) or ('nir' not in v) :
                         continue
                     for i,j,k in zip(v['lwir']['content'], v['nir']['content'], v['vis']['content']):
                         self.data.append({
-                            'lwir': self._base_folder / folder / v['lwir']['base'] / i,
-                            'nir': self._base_folder / folder / v['nir']['base'] / j,
-                            'vis': self._base_folder / folder / v['vis']['base'] / k
+                            'lwir': self._base_folder / self.folder / v['lwir']['base'] / i,
+                            'nir': self._base_folder / self.folder / v['nir']['base'] / j,
+                            'vis': self._base_folder / self.folder / v['vis']['base'] / k
                         })
+    
+    def _scale_bad_image(self,bad_scale_img_dir):
+        bad_scale_img = Image.open(bad_scale_img_dir)
+        width, height = bad_scale_img.size
+        cropped_image = bad_scale_img.crop((0, 10, width, height))
+        cropped_image.save(bad_scale_img_dir)
+    
+    def _resize_bad_image(self,bad_size_img_dir):
+        bad_img = Image.open(bad_size_img_dir)
+        resized_image = bad_img.resize((640,480), resample=1) # Resampling.LANCZOS
+        resized_image.save(bad_size_img_dir)
+    
+    def _rgb_to_gray(self,bad_color_image_dir):
+        bad_img = Image.open(bad_color_image_dir)
+        gray_image = bad_img.convert('L')
+        gray_image.save(bad_color_image_dir)
 
     def download(self):
         valid = True
@@ -626,5 +642,130 @@ class TNO(VisionDataset):
                         extract_root=self._base_folder,
                         filename="tno_temp.zip",
                         md5=self.md5,
-                        remove_finished=True
+                        remove_finished=False
                     )
+            self._scale_bad_image(self._base_folder / self.folder / 'Triclobs_images' / 'Marne_15' / 'Marne_15_IR.bmp')
+            self._scale_bad_image(self._base_folder / self.folder / 'Triclobs_images' / 'Marne_15' / 'Marne_15_II.bmp')
+            self._resize_bad_image(self._base_folder / self.folder / 'Triclobs_images' / 'Movie_24' / 'Movie_24_IR.bmp')
+            self._rgb_to_gray(self._base_folder / self.folder / 'DHV_images' / 'bench' / 'IR_37rad.bmp')
+            self._rgb_to_gray(self._base_folder / self.folder / 'DHV_images' / 'wall' / 'IR_163rad.bmp')
+            
+            if (self._base_folder / 'tno').exists() == False:
+                (self._base_folder / 'tno').mkdir() # export default dir
+    
+    def export(self, dest_dir = None):
+        '''
+        Export TNO dataset to a folder for operation with matlab.
+        '''
+        # make dir
+        if dest_dir is None:
+            dest_dir = Path(self.root) / 'tno' / 'tno'
+        dest_dir = Path(dest_dir)
+        assert dest_dir.exists()
+        dest_vis_dir = dest_dir / 'vis'
+        dest_lwir_dir = dest_dir / 'lwir'
+        dest_nir_dir = dest_dir / 'nir'
+        if dest_vis_dir.exists() == False:
+            dest_vis_dir.mkdir()
+        if dest_lwir_dir.exists() == False:
+            dest_lwir_dir.mkdir()
+        if dest_nir_dir.exists() == False:
+            dest_nir_dir.mkdir()
+        export_list = []
+        index_counter = 1
+        
+        # pair images
+        for _,v in self.file['pairs'].items():
+            d = {
+                'id': index_counter,
+                'vis': self._base_folder / self.folder / v['vis']
+            }
+            if 'lwir' in v:
+                d['lwir'] = self._base_folder / self.folder / v['lwir']
+            if 'nir' in v:
+                d['nir'] = self._base_folder / self.folder / v['nir']
+            export_list.append(d)
+            index_counter = index_counter + 1
+        
+        # sequence images
+        for _,v in self.file['sequence'].items(): # all sequence are lwir and vis
+            for i,j in zip(v['lwir']['content'], v['vis']['content']):
+                export_list.append({
+                    'id': index_counter,
+                    'lwir': self._base_folder / self.folder / v['lwir']['base'] / i,
+                    'vis': self._base_folder / self.folder / v['vis']['base'] / j
+                })
+                index_counter = index_counter + 1
+
+        # copy images
+        import shutil
+        for d in export_list:
+            shutil.copy(d['vis'],dest_vis_dir / f'{d['id']}.{d['vis'].name.split(".")[-1]}')
+            if 'nir' in d:
+                shutil.copy(d['nir'],dest_nir_dir / f'{d['id']}.{d['nir'].name.split(".")[-1]}')
+            if 'lwir' in d:
+                shutil.copy(d['lwir'],dest_lwir_dir / f'{d['id']}.{d['lwir'].name.split(".")[-1]}')
+
+        # save config file
+        import json
+        vis_json = {}            # Mapping vis id to origin path
+        nir_json = {}            # Mapping nir id to origin path
+        lwir_json = {}           # Mapping lwir id to origin path
+        vis_nir = []             # id of vis and nir pairs
+        vis_lwir = []            # id of vis and lwir pairs
+        vis_nir_lwir = []        # id of vis nir and lwir pairs
+        for d in export_list:
+            vis_json[str(d['id'])] = str(d['vis'])
+            if 'nir' in d:
+                nir_json[str(d['id'])] = str(d['nir'])
+            if 'lwir' in d:
+                lwir_json[str(d['id'])] = str(d['lwir'])
+            if 'nir' in d and 'lwir' in d:
+                vis_nir_lwir.append(d['id'])
+            if 'nir' in d:
+                vis_nir.append(d['id'])
+            if 'lwir' in d:
+                vis_lwir.append(d['id'])
+        config_data = {
+            "vis": vis_json,
+            "nir": nir_json,
+            "lwir": lwir_json,
+            "vis_nir_pairs": vis_nir,
+            "vis_lwir_pairs": vis_lwir,
+            "vis_nir_lwir_pairs": vis_nir_lwir
+        }
+        dest_config_dir = dest_dir / "config.json"
+        with open(dest_config_dir, 'w') as json_file:
+            json.dump(config_data, json_file, indent=4)
+
+''' matlab demo
+
+% 读取 JSON 文件
+filename = 'config.json';
+fileID = fopen(filename, 'r', 'n', 'utf8');
+jsonData = fread(fileID, inf, 'uint8');
+jsonData = char(jsonData');
+fclose(fileID);
+
+% 解析 JSON 数据
+config = jsondecode(jsonData);
+
+% 显示解析后的数据
+disp(config);
+
+% 访问特定字段
+visJson = config.vis_json;
+nirJson = config.nir_json;
+lwirJson = config.lwir_json;
+visNirPairs = config.vis_nir_pairs;
+visLwirPairs = config.vis_lwir_pairs;
+visNirLwirPairs = config.vis_nir_lwir_pairs;
+
+% 示例：访问 vis_json 中的内容
+disp(visJson);
+
+'''
+
+if __name__ == '__main__':
+    dataset_path = '/Volumes/Charles/data/vision/torchvision'
+    TNO(root=dataset_path).export()
