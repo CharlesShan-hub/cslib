@@ -166,9 +166,8 @@ def vif_approach_loss(A, B, F):
 # 和 matlab 保持一致
 @fusion_preprocessing
 def vif_metric(A, B, F):
-    [A, B, F] = [I.squeeze().squeeze() for I in [A,B,F]]
-    return torch.tensor(vif(A*255,B*255,F*255))
+    return vif(A*255,B*255,F*255)
 
 if __name__ == '__main__':
     from clib.metrics.fusion import ir,vis,fused
-    print(f'vif(vis,ir,fused):{vif(ir,vis,fused)}') # should be 0.3755
+    print(f'vif(vis,ir,fused):{vif_metric(ir,vis,fused)}') # should be 0.3755

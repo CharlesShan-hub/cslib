@@ -10,7 +10,7 @@ __all__ = [
 
 def ergas(A: torch.Tensor, F: torch.Tensor, eps: float = 1e-10) -> torch.Tensor:
     """
-    Calculate the Error Relative Global Accuracy (ERGAS) metric between images A and F.
+    Calculate the Error Relative Global Dimensionless Synthesis (ERGAS) metric between images A and F.
 
     Args:
         A (torch.Tensor): The original image.
@@ -43,7 +43,7 @@ def ergas(A: torch.Tensor, F: torch.Tensor, eps: float = 1e-10) -> torch.Tensor:
 
 def ergas_numpy(reference_image: np.ndarray, processed_image: np.ndarray) -> float:
     """
-    Calculate the Error Relative Global Accuracy (ERGAS) metric between reference and processed images.
+    Calculate the Error Relative Global Dimensionless Synthesis (ERGAS) metric between reference and processed images.
     https://blog.csdn.net/qq_49729636/article/details/134502721
 
     Args:

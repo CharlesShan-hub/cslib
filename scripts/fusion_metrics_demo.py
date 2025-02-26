@@ -17,21 +17,21 @@ from config import opts
 6. 注意需要提前组织好融合图片的存储结构
 '''
 @click.command()
-@click.option('--database','-n',default='MetricsToy', help='Name of images database.')
-@click.option('--root_dir','-r',default=Path(opts['_'].FusionPath, 'Toy'), help='Root directory containing the dataset.')
+@click.option('--dataset','-n',default='MetricsToy', help='Name of images dataset.')
+@click.option('--root_dir','-r',default="Path to datset", help='Root directory containing the dataset.')
 @click.option('--db_name','-n',default='metrics.db', help='Name of database file.')
 @click.option('--algorithm','-a',default=(),multiple=True, help='Fusion algorithm.')
 @click.option('--img_id','-i',default=(),multiple=True, help='Image IDs to compute metrics for.')
 @click.option('--metric_group','-m',default='VIFB', help='Methods Group to compute metrics for.')
-@click.option('--device','-d',default=opts['_'].device, help='Device to compute metrics on.')
-@click.option('--update','-u',default=False, help='Update Metrics that calculated before.')
-def main(database, root_dir, db_name, metric_group, algorithm, img_id, device, update):
+@click.option('--device','-d',default='cpu', help='Device to compute metrics on.')
+@click.option('--jump','-u',default=False, help='Jump Metrics that calculated before.')
+def main(dataset, root_dir, db_name, metric_group, algorithm, img_id, device, jump):
     # Modify Params
-    assert hasattr(fusion_data, database)
+    assert hasattr(fusion_data, dataset)
     [img_id, algorithm] = [None if len(item)==0 else item for item in [img_id, algorithm]]
     
     # Connect to Database
-    conn = sqlite3.connect(Path(root_dir,db_name))
+    conn = sqlite3.connect(Path(root_dir,'fused',db_name))
     cursor = conn.cursor()
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS fusion_metrics (
@@ -44,7 +44,7 @@ def main(database, root_dir, db_name, metric_group, algorithm, img_id, device, u
     ''')
 
     # Load Dataset and Dataloader
-    dataset = getattr(fusion_data,database)(root_dir=root_dir,method=algorithm,img_id=img_id)
+    dataset = getattr(fusion_data,dataset)(root_dir=root_dir,method=algorithm,img_id=img_id)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
 
     # Load metrics
@@ -105,12 +105,16 @@ def main(database, root_dir, db_name, metric_group, algorithm, img_id, device, u
             # Skip Unneeded Metrics
             if k not in group[metric_group]: continue
 
-            # Skip Calculated Metrics
-            if update == False:
-                cursor.execute('''
-                SELECT value FROM fusion_metrics WHERE method=? AND id=? AND name=?;
-                ''', (batch['method'][0], batch['id'][0], k))
-                if cursor.fetchone(): continue # If Exist -> Skip
+            # Check if the metric has already been calculated
+            cursor.execute('''
+            SELECT value FROM fusion_metrics WHERE method=? AND id=? AND name=?;
+            ''', (batch['method'][0], batch['id'][0], k))
+            result = cursor.fetchone()
+
+            if result and jump:
+                value = result[0]
+                print(f"{k} - {batch['method'][0]} - {batch['id'][0]}: {value} (skipped)")
+                continue  # Skip calculation if the metric already exists and jump is True
 
             # Calculate
             value = v['metric'](batch['ir'].to(device),batch['vis'].to(device),batch['fused'].to(device))

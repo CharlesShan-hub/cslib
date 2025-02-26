@@ -10,7 +10,7 @@ __all__ = [
 
 def cc(A: torch.Tensor, B: torch.Tensor, eps: float = 1e-10) -> torch.Tensor:
     """
-    Calculate the correlation coefficient (CC) between two input images.
+    Calculate the Correlation Coefficient (CC) between two input images.
 
     Args:
         A (torch.Tensor): The first input image tensor.

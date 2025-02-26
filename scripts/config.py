@@ -1,12 +1,12 @@
 from pathlib import Path
 from clib.deprecated import ConfigDict
+from torch.cuda import is_available
         
 opts = ConfigDict(data_root_path_list=[
-            '/root/autodl-fs/DateSets',
-            '/Volumes/Charles/DateSets',
-            '/Users/kimshan/resources/DataSets'
+            '/root/autodl-tmp',
+            '/Volumes/Charles/data',
+            '/Users/kimshan/public/data'
         ])
-
 
 opts['DeepFuse'] = {
     # pytorch复现版的, https://github.com/SunnerLi/DeepFuse.pytorch

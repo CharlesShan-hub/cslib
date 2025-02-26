@@ -11,7 +11,7 @@ __all__ = [
 @fusion_preprocessing
 def scd(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, eps: float = 1e-10) -> torch.Tensor:
     """
-    Calculate the Symmetric Conditional Dependence (SCD) between three variables A, B, and F using PyTorch.
+    Calculate the THE SUM OF THE CORRELATIONS OF DIFFERENCES (SCD) between three variables A, B, and F using PyTorch.
 
     Parameters:
     - A (torch.Tensor): Tensor representing variable A.
@@ -20,7 +20,7 @@ def scd(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, eps: float = 1e-10) -
     - eps (float, optional): A small value to avoid numerical instability. Default is 1e-10.
 
     Returns:
-    - torch.Tensor: Symmetric Conditional Dependence (SCD) value.
+    - torch.Tensor: THE SUM OF THE CORRELATIONS OF DIFFERENCES (SCD) value.
 
     This function computes the SCD between variables A, B, and F. SCD is calculated as the sum of two correlation coefficients:
     1. The correlation between (F - B) and A.

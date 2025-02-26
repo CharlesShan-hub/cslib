@@ -20,7 +20,7 @@ def n_abf(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
            Nra: float = 0.9995, ka: int = 22, sigmaa: float = 0.5,
            eps: float = 1e-10) -> torch.Tensor:
     """
-    Calculate the NABF (Normalized Absolute Brightness Fusion) metric between images A, B, and F.
+    Calculate the NABF (No-reference assessment based on blur and noise factors) metric between images A, B, and F.
 
     Args:
         A (torch.Tensor): Input image A.
@@ -87,8 +87,6 @@ def n_abf(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
     # Fusion Artifacts (NABF) changed by B. K. Shreyamsha Kumar
     na = torch.where((gF > gA) & (gF > gB), torch.ones_like(gF), torch.zeros_like(gF))
     NABF = torch.sum(na * ((1 - QAF) * wtA + (1 - QBF) * wtB)) / wt_sum
-
-    breakpoint()
 
     return NABF
 

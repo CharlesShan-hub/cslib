@@ -24,7 +24,8 @@ def q_c(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
         torch.Tensor: The Q_C quality index between the two input images and their fusion.
 
     Reference:
-        N. Cvejic, A. Loza, D. Bull, N. Canagarajah, A similarity metric for assessment of image fusion 
+        [1] Metric for multimodal image sensor fusion, Electronics Letters, 43 (2) 2007 
+        [2] N. Cvejic, A. Loza, D. Bull, N. Canagarajah, A similarity metric for assessment of image fusion 
         algorithms, Int. J. Signal Process. 2 (3) (2005) 178-182.
     """
     def ssim_yang(A,B): # SSIM_Yang

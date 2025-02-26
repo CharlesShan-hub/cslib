@@ -1,7 +1,5 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
-import kornia
-
-###########################################################################################
 
 __all__ = [
     'sam',
@@ -35,28 +33,14 @@ def sam(src: torch.Tensor, dst: torch.Tensor) -> torch.Tensor:
 def sam_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return torch.abs(sam(A,A)-sam(A,F))
 
+@fusion_preprocessing
 def sam_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return sam(A,F)+sam(B,F)
 
-###########################################################################################
-
-def main():
-    from torchvision import transforms
-    from torchvision.transforms.functional import to_tensor
-    from PIL import Image
-
-    torch.manual_seed(42)
-
-    transform = transforms.Compose([transforms.ToTensor()])
-
-    vis = to_tensor(Image.open('../imgs/TNO/vis/9.bmp')).unsqueeze(0)
-    ir = to_tensor(Image.open('../imgs/TNO/ir/9.bmp')).unsqueeze(0)
-    fused = to_tensor(Image.open('../imgs/TNO/fuse/U2Fusion/9.bmp')).unsqueeze(0)
+if __name__ == '__main__':
+    from clib.metrics.fusion import ir,vis,fused
 
     print(f'SAM:{sam_metric(vis, ir, fused)}')
     print(f'SAM:{sam_metric(vis, vis, vis)}')
     print(f'SAM:{sam_metric(vis, vis, fused)}')
     print(f'SAM:{sam_metric(vis, vis, ir)}')
-
-if __name__ == '__main__':
-    main()

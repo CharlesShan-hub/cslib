@@ -155,7 +155,7 @@ def pww_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
 def pww_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return pww(A*255.0,B*255.0,F*255.0)
 
-def main():
+if __name__ == '__main__':
     from clib.metrics.fusion import ir,vis,fused
 
     # toy = torch.tensor([[[[1,2],[3,4],[5,6]]]])
@@ -168,6 +168,3 @@ def main():
     print(f'PWW:{pww_metric(vis, vis, fused)}')
     print(f'PWW:{pww_metric(vis, vis, ir)}')
     print(f'PWW:{pww(toy,toy,toy)}')
-
-if __name__ == '__main__':
-    main()

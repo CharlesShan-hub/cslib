@@ -1,4 +1,4 @@
-from typing import List, Optional, Tuple, Union, Callable
+from typing import List, Optional, Union, Callable
 import torch
 from torch.utils.data import Dataset
 from torchvision import transforms
