@@ -5,7 +5,6 @@ import click
 
 import clib.metrics.fusion as metrics
 from clib.dataset import fusion as fusion_data
-from config import opts
 
 '''
 测试融合算法的指标
@@ -126,7 +125,7 @@ def main(dataset, root_dir, db_name, metric_group, algorithm, img_id, device, ju
             VALUES (?, ?, ?, ?);
             ''', (batch['method'][0], batch['id'][0], k, value.item()))
 
-    conn.commit()
+        conn.commit()
     conn.close()
 
 if __name__ == '__main__':

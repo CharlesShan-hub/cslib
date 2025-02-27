@@ -61,8 +61,8 @@ def n_abf(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor,
     aA = torch.atan(gvA/(ghA+eps)) # 不能用 tan2，因为 matlab 里边的 atan 值域在-2/pi 到 2/pi。。
     aB = torch.atan(gvB/(ghB+eps))
     aF = torch.atan(gvF/(ghF+eps))
-    aAF = torch.abs(torch.abs(aA - aF) - torch.tensor([0.5 * torch.pi])).mul(2.0 / torch.pi)
-    aBF = torch.abs(torch.abs(aB - aF) - torch.tensor([0.5 * torch.pi])).mul(2.0 / torch.pi)
+    aAF = torch.abs(torch.abs(aA - aF) - torch.tensor([0.5 * torch.pi],device=aA.device)).mul(2.0 / torch.pi)
+    aBF = torch.abs(torch.abs(aB - aF) - torch.tensor([0.5 * torch.pi],device=aA.device)).mul(2.0 / torch.pi)
 
     # Edge Preservation Coefficient
     QgAF = Nrg / (1 + torch.exp(-kg * (gAF - sigmag)))

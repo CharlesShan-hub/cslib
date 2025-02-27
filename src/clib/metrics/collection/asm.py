@@ -35,7 +35,7 @@ def asm(tensor: torch.Tensor, distances: List[int] = [1, 2], angles: List[int] =
     # 计算每个角度和距离的 ASM，并将其加总
     for d in distances:
         for a in angles:
-            m = graycomatrix(tensor.numpy().squeeze(), distances=distances, angles=angles, symmetric=True, normed=True)
+            m = graycomatrix(tensor.cpu().numpy().squeeze(), distances=distances, angles=angles, symmetric=True, normed=True)
             m = torch.tensor(m)
             asm_sum += torch.sum(m**2)
 

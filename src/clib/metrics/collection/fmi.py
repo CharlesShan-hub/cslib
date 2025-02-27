@@ -195,7 +195,7 @@ def fmi(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, feature: str = 'pixel
         # 调整分子
         classify = denominator.clone()
         classify[max_uI != min_uI] = 0
-        classify = torch.matmul(classify,torch.ones(1,uI.shape[-1]))
+        classify = torch.matmul(classify,torch.ones(1,uI.shape[-1],device=classify.device))
         numerator = uI - min_uI
         numerator = (1-classify) * numerator + classify
         # 规范化
@@ -230,7 +230,7 @@ def fmi(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, feature: str = 'pixel
 
     # 标准差
     def cal_sd(pdfI):
-        weight = torch.arange(1,window_size**2+1,1)
+        weight = torch.arange(1,window_size**2+1,1,device=pdfI.device)
         pdfEI = torch.sum(weight * pdfI,dim=1).unsqueeze(-1)
         pdfE2I = torch.sum(weight**2 * pdfI,dim=1).unsqueeze(-1)
         return torch.sqrt(pdfE2I - pdfEI**2)

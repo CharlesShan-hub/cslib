@@ -65,9 +65,9 @@ class FusionToy(Dataset):
         # Get Ir and Vis Path
         self.ir_paths = sorted([Path(self.ir_dir, img) for img in \
                              os.listdir(self.ir_dir) if img.endswith(f'.{suffix}')])
-        self.vis_paths = sorted([Path(self.vis_dir, img) for img in \
-                             os.listdir(self.vis_dir) if img.endswith(f'.{suffix}')])
-        assert len(self.ir_paths) == len(self.vis_paths)
+        self.vis_paths = [Path(self.vis_dir)/i.name for i in self.ir_paths]
+        
+        # assert len(self.ir_paths) == len(self.vis_paths)
 
         # Load part of Images
         if img_id is not None:

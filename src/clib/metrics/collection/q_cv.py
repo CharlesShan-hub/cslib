@@ -108,7 +108,7 @@ def q_cv(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, window_size: int = 1
     def _filter(D):
         FD = torch.fft.fft2(D)
         FDS = torch.roll(FD, shifts=(FD.shape[2]//2, FD.shape[3]//2), dims=(2, 3))
-        FDS = FDS * theta
+        FDS = FDS * theta.to(FDS.device)
         FD = torch.roll(FDS, shifts=(-FDS.shape[2]//2, -FDS.shape[3]//2), dims=(2, 3))
         return torch.fft.ifft2(FD)
     DFA = torch.nn.functional.pad(_filter(DA).real, (0, pad_H, 0, pad_L), mode='constant', value=0)

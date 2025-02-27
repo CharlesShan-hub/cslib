@@ -83,6 +83,7 @@ def contrast_sensitivity_filtering_freq(im, mode='frequency',filter='DoG'):
     # 计算 Sd 用于滤波
     Sd = contrast_sensitivity_filtering_Sd(im.size(),mode,filter)
     assert Sd is not None
+    Sd=Sd.to(im.device)
     #print(Sd.shape)
     if mode == 'frequency': # VIFB 的方法, 但是会导致梯度消失
         # 进行二维傅里叶变换

@@ -30,7 +30,7 @@ def convert_images_to_png(folder_path):
 # 示例用法
 if __name__ == "__main__":
     # 指定文件夹路径
-    folder_path = "/Volumes/Charles/data/vision/torchvision/tno/tno/vis"  # 替换为你的文件夹路径
+    folder_path = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused/ifevip"  # 替换为你的文件夹路径
     
     # 转换文件
     convert_images_to_png(folder_path)
