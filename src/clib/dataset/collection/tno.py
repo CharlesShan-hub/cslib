@@ -532,6 +532,12 @@ class TNO(VisionDataset):
         download: bool = True,
         mode: Optional[str] = 'both',
         img_type: Optional[str] = 'lwir',
+        fusion: bool = False, 
+        export_root: Optional[str] = None,
+        exported: bool = False,
+        export_lwir_dir: str = 'lwir',
+        export_nir_dir: str = 'nir',
+        export_vis_dir: str = 'vis',
     ) -> None:
         super().__init__(root, transform=transform)
         self.folder = 'TNO_Image_Fusion_Dataset'
@@ -540,7 +546,19 @@ class TNO(VisionDataset):
         self.mode = mode
         assert img_type in ['both', 'lwir', 'nir']
         self.img_type = img_type
-        self.build()
+        self.fusion = fusion
+        if export_root is None:
+            self.export_root = Path(self.root) / 'tno' / 'tno'
+        else:
+            self.export_root = Path(export_root)
+        self.export_lwir_dir = export_lwir_dir
+        self.export_nir_dir = export_nir_dir
+        self.export_vis_dir = export_vis_dir
+        self.exported = exported
+        if self.exported:
+            self.build_exported()
+        else:
+            self.build_origin()
 
         if download:
             self.download()
@@ -555,7 +573,37 @@ class TNO(VisionDataset):
     def __len__(self):
         return len(self.data)
     
-    def build(self):
+    def build_exported(self):
+        self.data = []
+        vis_list = [i.name for i in (self.export_root / self.export_vis_dir).iterdir()]
+        lwir_list = [i.name for i in (self.export_root / self.export_lwir_dir).iterdir()]
+        nir_list = [i.name for i in (self.export_root / self.export_nir_dir).iterdir()]
+        if self.img_type == 'lwir':
+            for i in lwir_list:
+                assert i in vis_list
+                self.data.append({
+                    'lwir': self.export_root / self.export_lwir_dir / i,
+                    'vis': self.export_root / self.export_vis_dir / i,
+                })
+        if self.img_type == 'nir':
+            for i in nir_list:
+                assert i in vis_list
+                self.data.append({
+                    'nir': self.export_root / self.export_nir_dir / i,
+                    'vis': self.export_root / self.export_vis_dir / i,
+                })
+        if self.img_type == 'both':
+            for i in nir_list:
+                if i not in lwir_list:
+                    continue
+                assert i in vis_list
+                self.data.append({
+                    'lwir': self.export_root / self.export_lwir_dir / i,
+                    'nir': self.export_root / self.export_nir_dir / i,
+                    'vis': self.export_root / self.export_vis_dir / i,
+                })
+        
+    def build_origin(self):
         self.data = []
         if self.mode in ['both', 'pairs']:
             for _,v in self.file['pairs'].items():
@@ -657,14 +705,15 @@ class TNO(VisionDataset):
         '''
         Export TNO dataset to a folder for operation with matlab.
         '''
+        assert self.exported == False
         # make dir
         if dest_dir is None:
             dest_dir = Path(self.root) / 'tno' / 'tno'
         dest_dir = Path(dest_dir)
         assert dest_dir.exists()
-        dest_vis_dir = dest_dir / 'vis'
-        dest_lwir_dir = dest_dir / 'lwir'
-        dest_nir_dir = dest_dir / 'nir'
+        dest_vis_dir = dest_dir / self.export_vis_dir
+        dest_lwir_dir = dest_dir / self.export_lwir_dir
+        dest_nir_dir = dest_dir / self.export_nir_dir
         if dest_vis_dir.exists() == False:
             dest_vis_dir.mkdir()
         if dest_lwir_dir.exists() == False:

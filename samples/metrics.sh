@@ -6,7 +6,7 @@ python $PYTHON_SCRIPT \
     --dataset "MetricsToy" \
     --root_dir "/Volumes/Charles/data/vision/torchvision/tno/tno" \
     --db_name "metrics.db" \
-    --algorithm "fpde" \
+    --algorithm "cpfusion" \
     --metric_group "ALL" \
     --device "cpu" \
     --jump True
