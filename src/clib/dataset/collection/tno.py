@@ -533,11 +533,14 @@ class TNO(VisionDataset):
         mode: Optional[str] = 'both',
         img_type: Optional[str] = 'lwir',
         fusion: bool = False, 
+        fusion_path: str = '',
+        fused_extension: Optional[str] = 'png',
         export_root: Optional[str] = None,
         exported: bool = False,
         export_lwir_dir: str = 'lwir',
         export_nir_dir: str = 'nir',
         export_vis_dir: str = 'vis',
+        dataloader: bool = True,
     ) -> None:
         super().__init__(root, transform=transform)
         self.folder = 'TNO_Image_Fusion_Dataset'
@@ -547,6 +550,12 @@ class TNO(VisionDataset):
         assert img_type in ['both', 'lwir', 'nir']
         self.img_type = img_type
         self.fusion = fusion
+        self.fusion_path = fusion_path
+        self.fused_extension = fused_extension
+        if self.fusion:
+            assert self.fusion_path != ''
+            self.fusion_path = Path(self.fusion_path)
+        self.dataloader = dataloader
         if export_root is None:
             self.export_root = Path(self.root) / 'tno' / 'tno'
         else:
@@ -562,13 +571,28 @@ class TNO(VisionDataset):
 
         if download:
             self.download()
+    
+    def _load_image(self, path):
+        img = Image.open(path).convert("L")
+        return self.transform(img) if self.transform else img
 
     def __getitem__(self, idx: int):
-        path_list = self.data[idx]
-        image_list = [Image.open(i).convert("L") for _,i in path_list.items()]
-        if self.transform:
-            image_list = [self.transform(i) for i in image_list]
-        return image_list
+        res = {'vis': self._load_image(self.data[idx]['vis'])}
+        if not self.dataloader:
+            res.update({'vis_path': self.data[idx]['vis']})
+        if 'lwir' in self.data[idx]:
+            if not self.dataloader:
+                res.update({'lwir_path': self.data[idx]['lwir']})
+            res.update({'lwir': self._load_image(self.data[idx]['lwir'])})
+        if 'nir' in self.data[idx]:
+            if not self.dataloader:
+                res.update({'nir_path': self.data[idx]['nir']})
+            res.update({'nir': self._load_image(self.data[idx]['nir'])})
+        if self.fusion:
+            if not self.dataloader:
+                res.update({'fused_path': Path(self.fusion_path) / f"{self.data[idx]['vis'].stem}.{self.fused_extension}"})
+            res.update({'fused': self._load_image(Path(self.fusion_path) / f"{self.data[idx]['vis'].stem}.{self.fused_extension}")})
+        return res
     
     def __len__(self):
         return len(self.data)
@@ -816,5 +840,32 @@ disp(visJson);
 '''
 
 if __name__ == '__main__':
+    from torchvision.transforms import ToTensor
+    from torch.utils.data import DataLoader
     dataset_path = '/Volumes/Charles/data/vision/torchvision'
-    TNO(root=dataset_path).export()
+
+    # Test Export
+    # TNO(root=dataset_path).export()
+
+    # Test Load Dict - Train and Inference
+    # tno = TNO(root=dataset_path, img_type='lwir', transform=ToTensor())
+    # dataset = DataLoader(tno, batch_size=1)
+    # for i in dataset:
+    #     print(i)
+    #     break
+
+    # Test Load Fused - Metric Calculate
+    # export_root = '/Volumes/Charles/data/vision/torchvision/tno/tno'
+    # fusion_path='/Volumes/Charles/data/vision/torchvision/tno/tno/fused/fpde'
+    # tno = TNO(
+    #     root=dataset_path,
+    #     img_type='lwir', 
+    #     fusion=True, 
+    #     fusion_path=fusion_path,
+    #     export_lwir_dir='ir',
+    #     export_root=export_root,
+    #     exported=True,
+    # )
+    # for i in tno:
+    #     print(i)
+    #     breakpoint()
