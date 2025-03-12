@@ -1,5 +1,5 @@
 from clib.metrics.utils import fusion_preprocessing
-import pytorch_msssim
+from clib.algorithms.pytorch_msssim import ms_ssim
 import torch
 
 __all__ = [
@@ -28,7 +28,7 @@ def ms_ssim(X: torch.Tensor, Y: torch.Tensor,
         The Thrity-Seventh Asilomar Conference on Signals, Systems & Computers, 2003, Pacific Grove, CA, USA, 2003, 
         pp. 1398-1402 Vol.2, doi: 10.1109/ACSSC.2003.1292216.
     """
-    return pytorch_msssim.ms_ssim(X, Y, data_range, size_average)
+    return ms_ssim(X, Y, data_range, size_average)
 
 # https://github.com/VainF/pytorch-msssim
 def ms_ssim_approach_loss(X: torch.Tensor, Y: torch.Tensor,
