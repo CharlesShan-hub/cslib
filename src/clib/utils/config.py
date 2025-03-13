@@ -115,4 +115,3 @@ class Options(Namespace):
         return json.dumps({
             key: getattr(self, key).__str__() for key in vars(self).keys()
         },indent=4)
-        

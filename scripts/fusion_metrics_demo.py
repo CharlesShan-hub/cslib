@@ -5,6 +5,7 @@ import click
 
 import clib.metrics.fusion as metrics
 from clib.dataset import fusion as fusion_data
+from clib.utils import get_device
 
 '''
 测试融合算法的指标
@@ -22,12 +23,13 @@ from clib.dataset import fusion as fusion_data
 @click.option('--algorithm','-a',default=(),multiple=True, help='Fusion algorithm.')
 @click.option('--img_id','-i',default=(),multiple=True, help='Image IDs to compute metrics for.')
 @click.option('--metric_group','-m',default='VIFB', help='Methods Group to compute metrics for.')
-@click.option('--device','-d',default='cpu', help='Device to compute metrics on.')
+@click.option('--device','-d',default='auto', help='Device to compute metrics on.')
 @click.option('--jump','-u',default=False, help='Jump Metrics that calculated before.')
 def main(dataset, root_dir, db_name, metric_group, algorithm, img_id, device, jump):
     # Modify Params
     assert hasattr(fusion_data, dataset)
     [img_id, algorithm] = [None if len(item)==0 else item for item in [img_id, algorithm]]
+    device = get_device(device)
     
     # Connect to Database
     conn = sqlite3.connect(Path(root_dir,'fused',db_name))
