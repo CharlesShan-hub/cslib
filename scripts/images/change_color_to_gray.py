@@ -1,6 +1,7 @@
 import os
 from PIL import Image
 import click
+
 @click.command()
 @click.option("--src", default="/Volumes/Charles/data/vision/torchvision/tno/tno/fused/piafusion_origin", type=click.Path(exists=True, file_okay=False, resolve_path=True), help="源图片文件夹路径，默认为当前目录下的 'src' 文件夹")
 @click.option("--dst", default="/Volumes/Charles/data/vision/torchvision/tno/tno/fused/piafusion", type=click.Path(file_okay=False, resolve_path=True), help="目标文件夹路径，默认为当前目录下的 'dst' 文件夹")
