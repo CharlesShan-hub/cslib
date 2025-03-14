@@ -125,8 +125,8 @@ class LLVIP(VisionDataset):
         else:
             ir_folder = self._src_folder / 'infrared' / 'test'
             vis_folder = self._src_folder / 'visible' / 'test'
-        self.ir_path = sorted(list(ir_folder.iterdir()))
-        self.vis_path = sorted(list(vis_folder.iterdir()))
+        self.ir_path = sorted([f for f in ir_folder.iterdir() if f.suffix == '.jpg'], key=lambda x: int(x.stem))
+        self.vis_path = sorted([f for f in vis_folder.iterdir() if f.suffix == '.jpg'], key=lambda x: int(x.stem))
         assert len(self.ir_path) == len(self.vis_path)
 
     def __getitem__(self, idx: int):

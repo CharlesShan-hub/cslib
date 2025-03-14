@@ -8,6 +8,7 @@ src/clib.egg-info/dependency_links.txt
 src/clib.egg-info/top_level.txt
 src/clib/algorithms/__init__.py
 src/clib/algorithms/object_proposals.py
+src/clib/algorithms/pytorch_msssim.py
 src/clib/algorithms/msd/__init__.py
 src/clib/algorithms/msd/base.py
 src/clib/algorithms/msd/contrust.py
