@@ -187,10 +187,10 @@ def q_cb(imgA: torch.Tensor, imgB: torch.Tensor, imgF: torch.Tensor,
     #print(torch.mean(CfP))
 
     # contrast preservation calculation
-    mask = (C1P < CfP).double()
+    mask = (C1P < CfP).float()
     Q1F = (C1P / CfP) * mask + (CfP / C1P) * (1 - mask)
 
-    mask = (C2P < CfP).double()
+    mask = (C2P < CfP).float()
     Q2F = (C2P / CfP) * mask + (CfP / C2P) * (1 - mask)
 
     # Saliency map generation

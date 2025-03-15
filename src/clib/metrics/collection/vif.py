@@ -126,9 +126,9 @@ def vif(Im1, Im2, ImF):
     Ix2 = Im2[0,0,:,:]
     IxF = ImF[0,0,:,:]
 
-    T1p = Ix1.double()
-    T2p = Ix2.double()
-    Trp = IxF.double()
+    T1p = Ix1.float()
+    T2p = Ix2.float()
+    Trp = IxF.float()
 
     p = torch.tensor([1, 0, 0.15, 1]) / 2.15
     T1N, T1D, T1G = ComVidVindG(T1p, Trp, sq)

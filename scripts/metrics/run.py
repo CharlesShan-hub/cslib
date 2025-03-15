@@ -2,7 +2,9 @@ import click
 from tqdm import tqdm
 
 from clib.utils import get_device
-from clib.dataset.fusion import GeneralFusion
+from clib.utils.config import Options
+from clib.datasets.fusion import GeneralFusion
+from clib.metrics.fusion.utils import Database
 
 # Paths - llvip
 # default_ir_dir = "/Volumes/Charles/data/vision/torchvision/llvip/infrared/test"
@@ -23,20 +25,22 @@ default_db_name = "metrics.db"
 defaulf_img_id = ()
 # 2. Calculare for specified images
 # defaulf_img_id = ('190001','190002','190003')
+# defaulf_img_id = ('39',)
 
 # Fusion Algorithms
 # 1. `fused_dir` is into one algorithm
 # default_algorithms = () 
 # 2. `fused_dir` is the parent dir of all algorithms
-# default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
-default_algorithms = ('cpfusion',)
+default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
+# default_algorithms = ('cpfusion',)
 
 # Metrics
+# default_metrics = ('fmi',)
 # 1. All Metrics
 default_metrics = [
     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
     'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
-    'mse','rmse','nmse','ergas','d','ag','mg','ei','pfe','sd','sf',
+    'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
     'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
     'q_cv','q_cb','vif'
 ]
@@ -58,28 +62,39 @@ default_metrics = [
 @click.option('--algorithms', default=default_algorithms, multiple=True, help='compute metrics for multiple fusion algorithms')
 @click.option('--img_id', default=defaulf_img_id, multiple=True, help='compute metrics for specified images')
 @click.option('--metrcis', default=default_metrics, multiple=True)
-@click.option('--db_dir','-n',default=default_db_dir, help='Path to save database file.')
-@click.option('--db_name','-n',default=default_db_name, help='Name of database file.')
 @click.option('--suffix', default="png")
+@click.option('--db_dir', default=default_db_dir, help='Path to save database file.')
+@click.option('--db_name', default=default_db_name, help='Name of database file.')
 @click.option('--device', default='auto', help='auto | cuda | mps | cpu')
 @click.option('--jump', default=False, help='Jump Metrics that calculated before.')
 def main(**kwargs):
-    device = get_device(kwargs['device'])
+    kwargs['device'] = get_device(kwargs['device'])
+    opts = Options('Compute Metrics',kwargs)
+    opts.presentParameters()
     dataset = GeneralFusion(
-        ir_dir = kwargs['ir_dir'],
-        vis_dir = kwargs['vis_dir'],
-        fused_dir = kwargs['fused_dir'],
-        suffix = kwargs['suffix'],
-        algorithms = kwargs['algorithms'],
-        img_id = kwargs['img_id'],
+        ir_dir = opts.ir_dir,
+        vis_dir = opts.vis_dir,
+        fused_dir = opts.fused_dir,
+        suffix = opts.suffix,
+        algorithms = opts.algorithms,
+        img_id = opts.img_id,
     )
-    for idx in tqdm(range(len(dataset)), desc="Processing batches", unit="image"):
+    database = Database(
+        db_dir = opts.db_dir, 
+        db_name = opts.db_name,
+        metrcis = opts.metrcis,
+        jump = opts.jump
+    )
+    for idx in tqdm(range(len(dataset)), desc="Computing Metrics", unit="image"):
         item: dict = dataset[idx]
-        ir = item["ir"].to(device)
-        vis = item["vis"].to(device)
-        fused = item["fused"].to(device)
-        print(item['id'])
-
-
+        database.compute(
+            ir = item["ir"].to(opts.device),
+            vis = item["vis"].to(opts.device),
+            fused = item["fused"].to(opts.device),
+            algorithm = item["algorithm"],
+            img_id = item["id"],
+            logging = False,
+        )
+    
 if __name__ == '__main__':
     main()

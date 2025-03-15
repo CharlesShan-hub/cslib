@@ -17,7 +17,7 @@ def _wavelet(I, dwtEXTM='sym'):
     # M. Misiti, Y. Misiti, G. Oppenheim, J.M. Poggi 12-Mar-96.
     #
     # dwtEXTM: 'sym', 'per'(per是周期延拓的意思) 目前只写了sym方式
-    path = Path(__file__).resolve().parent.parent / 'resources' / 'dmey.mat'
+    path = Path(__file__).resolve().parent.parent / 'fusion' / 'resources' / 'dmey.mat'
     try:
         W = torch.tensor(scipy.io.loadmat(path)['dmey'])
     except:
@@ -164,7 +164,7 @@ def fmi(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, feature: str = 'pixel
         [A,B,F] = [_gradient(I.float()*255) for I in [A, B, F]]
     else:
         raise ValueError("feature should be: 'gradient', 'edge', 'dct', 'wavelet', 'pixel'")
-
+    
     _, _, m, n = A.shape
     w = int((window_size+1)/2-1)
     fmi_map = torch.ones((m - 2 * w, n - 2 * w))
@@ -233,7 +233,7 @@ def fmi(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, feature: str = 'pixel
         weight = torch.arange(1,window_size**2+1,1,device=pdfI.device)
         pdfEI = torch.sum(weight * pdfI,dim=1).unsqueeze(-1)
         pdfE2I = torch.sum(weight**2 * pdfI,dim=1).unsqueeze(-1)
-        return torch.sqrt(pdfE2I - pdfEI**2)
+        return torch.sqrt(torch.abs(pdfE2I - pdfEI**2))
     [sdA, sdB, sdF] = [cal_sd(pdfI) for pdfI in [pdfA, pdfB, pdfF]]
 
     # 计算熵
@@ -331,7 +331,7 @@ def fmi(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, feature: str = 'pixel
         # print('4',(joint_entropy1+joint_entropy2+joint_entropy3+joint_entropy4)[20:21,:])
         # print('je',joint_entropy[20:21,:])
         return joint_entropy
-
+    
     jeAF = cal_jpdf(cAF,cdfA,cdfF,pdfA,pdfF,sdA,sdF)
     jeBF = cal_jpdf(cBF,cdfB,cdfF,pdfB,pdfF,sdB,sdF)
 
@@ -345,7 +345,6 @@ def fmi(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor, feature: str = 'pixel
 
     #print(torch.cat((cal_mi(eA,eF,jeAF,sameAF),cal_mi(eB,eF,jeBF,sameBF),eA,eB,eF,jeAF,jeBF,eA+eF-jeAF,eB+eF-jeBF),dim=1)[:20,:])
     # print(torch.cat((cal_mi(eA,eF,jeAF,sameAF),cal_mi(eB,eF,jeBF,sameBF)),dim=1)[20:40,:])
-
     return torch.mean((cal_mi(eA,eF,jeAF,sameAF)+cal_mi(eB,eF,jeBF,sameBF))/2)
 
 def fmi_approach_loss(A: torch.Tensor, F: torch.Tensor,
@@ -398,15 +397,15 @@ if __name__ == '__main__':
                            [2,2,0,1],
                            [2,0,1,1],
                            [1,1,2,2]]]])*0.5
-    print(f'FMI(pixel):{fmi(vis,vis,vis,feature="pixel")}')
-    print(f'FMI(pixel):{fmi(vis,vis,fused,feature="pixel")}')
-    print(f'FMI(pixel):{fmi(vis,vis,ir,feature="pixel")}')
-    print(f'FMI(wavelet):{fmi(vis,vis,vis,feature="wavelet")}')
-    print(f'FMI(wavelet):{fmi(vis,vis,fused,feature="wavelet")}')
-    print(f'FMI(wavelet):{fmi(vis,vis,ir,feature="wavelet")}')
-    print(f'FMI(gradient):{fmi(vis,vis,vis,feature="gradient")}')
-    print(f'FMI(gradient):{fmi(vis,vis,fused,feature="gradient")}')
-    print(f'FMI(gradient):{fmi(vis,vis,ir,feature="gradient")}')
+    # print(f'FMI(pixel):{fmi(vis,vis,vis,feature="pixel")}')
+    # print(f'FMI(pixel):{fmi(vis,vis,fused,feature="pixel")}')
+    # print(f'FMI(pixel):{fmi(vis,vis,ir,feature="pixel")}')
+    # print(f'FMI(wavelet):{fmi(vis,vis,vis,feature="wavelet")}')
+    # print(f'FMI(wavelet):{fmi(vis,vis,fused,feature="wavelet")}')
+    # print(f'FMI(wavelet):{fmi(vis,vis,ir,feature="wavelet")}')
+    # print(f'FMI(gradient):{fmi(vis,vis,vis,feature="gradient")}')
+    # print(f'FMI(gradient):{fmi(vis,vis,fused,feature="gradient")}')
+    # print(f'FMI(gradient):{fmi(vis,vis,ir,feature="gradient")}')
     # print(f'FMI(pixel):{fmi(ir,vis,fused,feature="pixel")}')
     # print(f'FMI(wavelet):{fmi(vis,ir,fused,feature="wavelet")}')
     # print(f'FMI(dct):{fmi(vis,ir,fused,feature="dct")}')
@@ -417,4 +416,6 @@ if __name__ == '__main__':
     # print(toy4)
     # # fmi(toy3,toy3,toy4,feature="pixel")
     # # fmi(toy1,toy1,toy2)
-    # fmi(vis,ir,fused,feature="pixel")
+    # print(fmi(vis,ir,fused,feature="pixel"))
+    print(fmi_metric(vis,ir,fused))
+    # print(fmi_metric(ir,vis,fused))

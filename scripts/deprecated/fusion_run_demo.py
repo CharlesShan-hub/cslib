@@ -5,7 +5,7 @@ from tqdm import tqdm
 import click
 
 import clib.projects.fusion as fusion
-import clib.dataset.fusion as fusion_data
+import clib.datasets.fusion as fusion_data
 from clib.utils import save_array_to_img
 import config
 

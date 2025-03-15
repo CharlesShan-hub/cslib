@@ -7,12 +7,12 @@ from torch.utils.data import DataLoader
 from pathlib import Path
 
 from clib.projects.fusion import DeepFuse as Method
-from clib.dataset.fusion import FusionToy
+from clib.datasets.fusion import GeneralFusion
 import config
 
 opts = Method.TrainOptions().parse(config.opts['DeepFuse'])
 
-dataset = FusionToy(
+dataset = GeneralFusion(
         root_dir=Path(config.opts['DeepFuse'].FusionPath,'Toy'),
         transform=Method.train_trans(opts),
         only_path=False

@@ -1,3 +1,4 @@
+from clib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
 
@@ -39,5 +40,11 @@ def ei_approach_loss(A: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return torch.abs(ei(A) - ei(F))
 
 # 与 VIFB 统一
+@fusion_preprocessing
 def ei_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return ei(F) * 255  # 与 VIFB 统一，需要乘 255
+
+if __name__ == '__main__':
+    from clib.metrics.fusion import ir,vis,fused
+
+    print(ei_metric(ir,vis,fused).item()) 

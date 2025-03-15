@@ -9,3 +9,6 @@ from .linear import *
 
 # 图片相关
 from .image import *
+
+# 图像融合
+from .fusion import *

@@ -5,9 +5,42 @@ from pathlib import Path
 from PIL import Image
 
 class GeneralFusion(Dataset):
-    '''
-    Used for Test Fusion or Calculate Metrics
-    '''
+    """
+    A dataset class for loading and processing infrared (IR), visible (VIS), and fused images.
+
+    This class supports three main use cases:
+    1. Basic usage: Load all images from IR and VIS directories, optionally with fused images.
+    2. Specify fusion algorithms: Load images for specific fusion algorithms from a parent directory.
+    3. Specify image IDs: Load only the images specified by img_id.
+
+    Attributes:
+        ir_dir (Path): Directory containing infrared images.
+        vis_dir (Path): Directory containing visible images.
+        fused_dir (Optional[Path]): Directory containing fused images (or parent directory of fused images).
+        transform (Optional[Callable]): Transformation to apply to the images.
+        suffix (str): File suffix for images (e.g., 'png', 'jpg').
+        algorithms (Optional[Union[str, List[str]]]): Fusion algorithm(s) to use.
+        img_id (Optional[Union[str, List[str]]]): Specific image IDs to load.
+        all_img_id (Union[List[str], Dict[str, List[str]]]): List or dictionary of image IDs.
+        fused_dirs (Optional[Dict[str, Path]]): Dictionary of fusion algorithm directories.
+        bias_helper_dict (Dict[int, List]): Helper dictionary for mapping indices to algorithms.
+
+    Methods:
+        __len__(): Returns the total number of images in the dataset.
+        __getitem__(idx): Returns a dictionary containing the IR, VIS, and fused images for the given index.
+        _recover_from_idx(idx): Helper method to recover the algorithm and index from a global index.
+
+    Example:
+        >>> dataset = GeneralFusion(ir_dir='/path/to/ir', vis_dir='/path/to/vis', fused_dir='/path/to/fused', algorithms=['cpfusion', 'datfuse'])
+        >>> dataloader = DataLoader(dataset, batch_size=1, shuffle=False)
+        >>> for batch in dataloader:
+        >>>     print(batch['ir'], batch['vis'], batch['fused'], batch['algorithm'])
+
+    Note:
+        - If fused_dir is provided, it must contain subdirectories named after the fusion algorithms.
+        - If img_id is provided, it must be a list of image IDs (without file suffix).
+        - The dataset assumes that all images have the same suffix.
+    """
     def __init__(
             self, 
             ir_dir: Union[str, Path], 
@@ -19,20 +52,24 @@ class GeneralFusion(Dataset):
             img_id: Optional[Union[str, List[str]]] = None, 
         ):
         """
+        Initialize the GeneralFusion dataset.
+
         Args:
-            root_dir (Path): Directory with all the images.
-            transform (transforms.Compose, optional): Optional transform to be applied on a sample.
-            suffix (str): Suffix of the images.
-            algorithms (Union[str, List[str]], optional): Fused algorithms. Defaults to None.
-            img_id (Union[str, List[str]], optional): Image IDs. Defaults to None.
+            ir_dir (Union[str, Path]): Directory containing infrared images.
+            vis_dir (Union[str, Path]): Directory containing visible images.
+            fused_dir (Optional[Union[str, Path]]): Directory containing fused images (or parent directory of fused images).
+            transform (Optional[Callable]): Transformation to apply to the images.
+            suffix (str): File suffix for images (e.g., 'png', 'jpg').
+            algorithms (Optional[Union[str, List[str]]]): Fusion algorithm(s) to use.
+            img_id (Optional[Union[str, List[str]]]): Specific image IDs to load.
         """
         # Base Paths
-        self.ir_dir = Path(ir_dir)
-        self.vis_dir = Path(vis_dir)
-        self.fused_dir = Path(fused_dir) if fused_dir != None else None
+        self.ir_dir: Path = Path(ir_dir)
+        self.vis_dir: Path = Path(vis_dir)
+        self.fused_dir: Optional[Path] = Path(fused_dir) if fused_dir != None else None
         
         # Enable Multiple Fused Algorithms
-        if self.fused_dir is not None:
+        if isinstance(self.fused_dir, Path):
             if algorithms is None:
                 self.fused_dirs = {
                     self.fused_dir.name: self.fused_dir
@@ -47,7 +84,7 @@ class GeneralFusion(Dataset):
         # Check Path
         assert self.ir_dir.exists()
         assert self.vis_dir.exists()
-        if self.fused_dir is not None:
+        if isinstance(self.fused_dir, Path):
             for _,p in self.fused_dirs.items():
                 assert p.exists()
 
@@ -113,14 +150,23 @@ class GeneralFusion(Dataset):
                 self.bias_helper_dict[bias] = [algorithms,len(ids)]
                 bias = bias + len(ids)
         
-    def _recover_from_idx(self, idx):
+    def _recover_from_idx(self, idx: int) -> tuple:
+        """
+        Recover the algorithm and index from a global index.
+
+        Args:
+            idx (int): Global index.
+
+        Returns:
+            tuple: (local_index, algorithm)
+        """
         assert isinstance(self.all_img_id, dict)
-        for bias,(algorithms,length) in self.bias_helper_dict.items():
-            if bias <= idx+1 and bias+length >= idx+1:
-                return idx-bias, algorithms
-        raise ValueError("idx is not of range")
-        
-    def __len__(self):
+        for bias, (algorithms, length) in self.bias_helper_dict.items():
+            if bias <= idx < bias + length:
+                return idx - bias, algorithms
+        raise ValueError("idx is out of range")
+    
+    def __len__(self) -> int:
         if isinstance(self.all_img_id, dict):
             count = 0
             for _, value in self.all_img_id.items():
@@ -129,7 +175,7 @@ class GeneralFusion(Dataset):
         else:
             return len(self.all_img_id)
 
-    def __getitem__(self, idx):
+    def __getitem__(self, idx) -> dict:
         if isinstance(self.all_img_id, dict):
             idx, algorithms = self._recover_from_idx(idx)
             ir_image = Image.open(((self.ir_dir / self.all_img_id[algorithms][idx])).__str__())
@@ -141,11 +187,11 @@ class GeneralFusion(Dataset):
             fused_image = self.transform(fused_image)
 
             return {
+                'id': self.all_img_id[algorithms][idx].split('.')[0],
                 'ir': ir_image,
                 'vis': vis_image,
                 'fused': fused_image,
                 'algorithm': algorithms,
-                'id': self.all_img_id[algorithms][idx].split('.')[0]
             }
 
         if isinstance(self.all_img_id, list):
@@ -156,9 +202,9 @@ class GeneralFusion(Dataset):
             vis_image = self.transform(vis_image)
 
             return {
+                'id': self.all_img_id[idx].split('.')[0],
                 'ir': ir_image,
                 'vis': vis_image,
-                'id': self.all_img_id[idx].split('.')[0]
             }
         
         raise ValueError("all_img_id should be list or dict")
