@@ -35,7 +35,7 @@ default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','pi
 # default_algorithms = ('cpfusion',)
 
 # Metrics
-default_metrics = ['scd','vif']
+default_metrics = ['psnr']
 # default_metrics = ['en','te',] # 太慢了,晚上再跑
 # 1. All Metrics
 # default_metrics = [
