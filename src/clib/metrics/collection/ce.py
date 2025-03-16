@@ -56,3 +56,4 @@ def ce_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor
 if __name__ == '__main__':
     from clib.metrics.fusion import vis,ir,fused
     print(ce_metric(ir,vis,fused).item())
+    print(ce_metric(vis,vis,vis).item())

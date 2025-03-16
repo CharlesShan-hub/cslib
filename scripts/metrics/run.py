@@ -35,9 +35,8 @@ default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','pi
 # default_algorithms = ('cpfusion',)
 
 # Metrics
-default_metrics = [
-    'en','te',
-]
+default_metrics = ['scd','vif']
+# default_metrics = ['en','te',] # 太慢了,晚上再跑
 # 1. All Metrics
 # default_metrics = [
 #     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
@@ -68,7 +67,7 @@ default_metrics = [
 @click.option('--db_dir', default=default_db_dir, help='Path to save database file.')
 @click.option('--db_name', default=default_db_name, help='Name of database file.')
 @click.option('--device', default='auto', help='auto | cuda | mps | cpu')
-@click.option('--jump', default=True, help='Jump Metrics that calculated before.')
+@click.option('--jump', default=False, help='Jump Metrics that calculated before.')
 def main(**kwargs):
     kwargs['device'] = get_device(kwargs['device'])
     opts = Options('Compute Metrics',kwargs)
@@ -96,7 +95,10 @@ def main(**kwargs):
             algorithm = item["algorithm"],
             img_id = item["id"],
             logging = False,
+            commit = False,
         )
+        if (idx % 50 == 0) or (idx == len(dataset)-1):
+            database.commit()
     
 if __name__ == '__main__':
     main()
