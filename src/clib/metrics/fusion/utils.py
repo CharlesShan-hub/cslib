@@ -7,19 +7,28 @@ __all__ = [
 ]
 
 class Database:
-    def __init__(self, db_dir, db_name, metrcis=[], jump=True):
+    def __init__(self, db_dir, db_name, metrcis=[], algorithms=[], jump=True):
         self.load_database(db_dir, db_name)
         self.load_metrics(metrcis)
+        self.load_algorithms(algorithms)
         self.jump = jump
     
     def __del__(self):
         self.conn.close()
+    
+    def load_algorithms(self, algorithms):
+        self.cursor.execute("SELECT DISTINCT algorithm FROM fusion_metrics")
+        all_algorithms = [row[0] for row in self.cursor.fetchall()]
+        for a in algorithms:
+            if a not in all_algorithms:
+                raise ValueError(f'{a} not find')
+        self.algorithms = algorithms
         
-    def load_metrics(self, metrcis):
-        for m in metrcis:
+    def load_metrics(self, metrics):
+        for m in metrics:
             if not hasattr(fusion, m):
                 raise ValueError(f'{m} not find')
-        self.metrcis = metrcis
+        self.metrics = metrics
 
     def load_database(self, db_dir, db_name):
         assert Path(db_dir).exists()
@@ -37,18 +46,32 @@ class Database:
         );
         ''')
     
-    def compute(self, ir, vis, fused, algorithm, img_id, logging=True):
-        for m in self.metrcis:
-            # Check if the metric has already been calculated
-            self.cursor.execute('''
-            SELECT value FROM fusion_metrics WHERE algorithm=? AND id=? AND metric=?;
-            ''', (algorithm, img_id, m))
-            result = self.cursor.fetchone()
+    def analyze_average(self):
+        result = {metric: {} for metric in self.metrics}
+        for metric in self.metrics:
+            for alg in self.algorithms:
+                self.cursor.execute(
+                    "SELECT AVG(value) FROM fusion_metrics WHERE algorithm=? AND metric=?",
+                    (alg, metric)
+                )
+                avg_value = self.cursor.fetchone()[0]
+                result[metric][alg] = avg_value
 
-            if result and self.jump:
-                if logging:
-                    print(f"{m} \t {algorithm} \t {img_id}: {result[0]} (skipped)")
-                continue  # Skip calculation if the metric already exists and jump is True
+        return result
+    
+    def compute(self, ir, vis, fused, algorithm, img_id, logging=True, commit=True):
+        for m in self.metrics:
+            # Check if the metric has already been calculated
+            if self.jump:
+                self.cursor.execute('''
+                SELECT value FROM fusion_metrics WHERE algorithm=? AND id=? AND metric=?;
+                ''', (algorithm, img_id, m))
+                result = self.cursor.fetchone()
+
+                if result:
+                    if logging:
+                        print(f"{m} \t {algorithm} \t {img_id}: {result[0]} (skipped)")
+                    continue  # Skip calculation if the metric already exists and jump is True
 
             # Calculate
             value = getattr(fusion,f'{m}_metric')(ir,vis,fused)
@@ -60,4 +83,8 @@ class Database:
             INSERT OR REPLACE INTO fusion_metrics (algorithm, id, metric, value)
             VALUES (?, ?, ?, ?);
             ''', (algorithm, img_id, m, value.item()))
+        if commit:
+            self.conn.commit()
+    
+    def commit(self):
         self.conn.commit()

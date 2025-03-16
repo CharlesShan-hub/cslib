@@ -93,4 +93,5 @@ def q_ncie_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Te
 if __name__ == '__main__':
     from clib.metrics.fusion import vis,ir,fused
     print(q_ncie_metric(ir,vis,fused).item()) # should be 0.8077
+    print(q_ncie_metric(vis,vis,vis).item())
 

@@ -7,18 +7,18 @@ from clib.datasets.fusion import GeneralFusion
 from clib.metrics.fusion.utils import Database
 
 # Paths - llvip
-# default_ir_dir = "/Volumes/Charles/data/vision/torchvision/llvip/infrared/test"
-# default_vis_dir = "/Volumes/Charles/data/vision/torchvision/llvip/visible/test"
-# default_fused_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
-# default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
-# default_db_name = "metrics.db"
+default_ir_dir = "/Volumes/Charles/data/vision/torchvision/llvip/infrared/test"
+default_vis_dir = "/Volumes/Charles/data/vision/torchvision/llvip/visible/test"
+default_fused_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+default_db_name = "metrics.db"
 
 # Paths - tno
-default_ir_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/ir"
-default_vis_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/vis"
-default_fused_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
-default_db_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
-default_db_name = "metrics.db"
+# default_ir_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/ir"
+# default_vis_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/vis"
+# default_fused_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
+# default_db_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
+# default_db_name = "metrics.db"
 
 # Fusion Images
 # 1. Calculare all images in each fused_dir
@@ -35,15 +35,17 @@ default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','pi
 # default_algorithms = ('cpfusion',)
 
 # Metrics
-# default_metrics = ('fmi',)
-# 1. All Metrics
 default_metrics = [
-    'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
-    'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
-    'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
-    'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
-    'q_cv','q_cb','vif'
+    'en','te',
 ]
+# 1. All Metrics
+# default_metrics = [
+#     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
+#     'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
+#     'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
+#     'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
+#     'q_cv','q_cb','vif'
+# ]
 # 2. VIFB
 # default_metrics = [
 #     'ce','en','mi','psnr','ssim','rmse','ag','ei','sf',
@@ -62,11 +64,11 @@ default_metrics = [
 @click.option('--algorithms', default=default_algorithms, multiple=True, help='compute metrics for multiple fusion algorithms')
 @click.option('--img_id', default=defaulf_img_id, multiple=True, help='compute metrics for specified images')
 @click.option('--metrcis', default=default_metrics, multiple=True)
-@click.option('--suffix', default="png")
+@click.option('--suffix', default="jpg")
 @click.option('--db_dir', default=default_db_dir, help='Path to save database file.')
 @click.option('--db_name', default=default_db_name, help='Name of database file.')
 @click.option('--device', default='auto', help='auto | cuda | mps | cpu')
-@click.option('--jump', default=False, help='Jump Metrics that calculated before.')
+@click.option('--jump', default=True, help='Jump Metrics that calculated before.')
 def main(**kwargs):
     kwargs['device'] = get_device(kwargs['device'])
     opts = Options('Compute Metrics',kwargs)
