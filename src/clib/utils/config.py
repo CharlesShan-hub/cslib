@@ -72,7 +72,7 @@ class Options(Namespace):
         self.info("========== Parameters ==========")
         for key in vars(self).keys():
             self.info("{:>15} : {}".format(key, getattr(self, key)))
-        self.info("===============================")
+        self.info("================================")
 
     def update(self, parmas: Dict[str, Any] = {}):
         """

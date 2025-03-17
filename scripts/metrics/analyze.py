@@ -9,7 +9,7 @@ from clib.metrics.fusion.utils import Database
 
 # Paths - tno
 default_db_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
-default_db_name = "metrics.db"
+default_db_name = "metrics2.db"
 
 # Fusion Images
 # 1. Calculare all images in each fused_dir
@@ -26,18 +26,21 @@ default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','pi
 # default_algorithms = ('cpfusion',)
 
 # Metrics
-# default_metrics = ['ce', 'sf', 'ag', 'sd', 'scd', 'vif', 'psnr']
 # default_metrics = [
-#     'en','te',
+#     'ce', 'sf', 'ag', 'sd', 'scd', 'vif', 'psnr', 'mb', 
+#     'mae', 'mse', 'rmse', 'nrmse', 'mg', 'ei', 'mi'
 # ]
-# 1. All Metrics
 default_metrics = [
-    'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
-    'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
-    'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
-    'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
-    'q_cv','q_cb','vif'
+    'ag',
 ]
+# 1. All Metrics
+# default_metrics = [
+#     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
+#     'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
+#     'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
+#     'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
+#     'q_cv','q_cb','vif'
+# ]
 # 2. VIFB
 # default_metrics = [
 #     'ce','en','mi','psnr','ssim','rmse','ag','ei','sf',
@@ -50,8 +53,8 @@ default_metrics = [
 # ]
 
 @click.command()
-@click.option('--metrcis', default=default_metrics, multiple=True)
-@click.option('--algorithms', default=default_algorithms, multiple=True, help='compute metrics for multiple fusion algorithms')
+@click.option('--metrics', default=default_metrics, multiple=True)
+@click.option('--algorithms', default=default_algorithms, multiple=True, help='analyze metrics for multiple fusion algorithms')
 @click.option('--db_dir', default=default_db_dir, help='Path to save database file.')
 @click.option('--db_name', default=default_db_name, help='Name of database file.')
 def main(**kwargs):
@@ -59,12 +62,12 @@ def main(**kwargs):
     database = Database(
         db_dir = opts.db_dir, 
         db_name = opts.db_name,
-        metrcis = opts.metrcis,
+        metrics = opts.metrics,
         algorithms = opts.algorithms,
+        mode = 'analyze'
     )
-    print(json.dumps(database.analyze_average(), indent=4, sort_keys=True))
-    # print(json.dumps(database.analyze_general(), indent=4, sort_keys=True))
-
+    # print(json.dumps(database.analyze_average(), indent=4, sort_keys=True))
+    print(json.dumps(database.analyze_general(), indent=4, sort_keys=False))
 
 if __name__ == '__main__':
     main()
