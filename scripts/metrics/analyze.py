@@ -4,12 +4,12 @@ from clib.utils.config import Options
 from clib.metrics.fusion.utils import Database
 
 # Paths - llvip
-# default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
-# default_db_name = "metrics.db"
+default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+default_db_name = "metrics.db"
 
 # Paths - tno
-default_db_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
-default_db_name = "metrics2.db"
+# default_db_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
+# default_db_name = "metrics.db"
 
 # Fusion Images
 # 1. Calculare all images in each fused_dir
@@ -26,13 +26,13 @@ default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','pi
 # default_algorithms = ('cpfusion',)
 
 # Metrics
-# default_metrics = [
-#     'ce', 'sf', 'ag', 'sd', 'scd', 'vif', 'psnr', 'mb', 
-#     'mae', 'mse', 'rmse', 'nrmse', 'mg', 'ei', 'mi'
-# ]
 default_metrics = [
-    'ag',
+    'ce', 'sf', 'ag', 'sd', 'scd', 'vif', 'psnr', 'mb', 
+    'mae', 'mse', 'rmse', 'nrmse', 'mg', 'ei', 'mi'
 ]
+# default_metrics = [
+#     'ag',
+# ]
 # 1. All Metrics
 # default_metrics = [
 #     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
@@ -64,7 +64,7 @@ def main(**kwargs):
         db_name = opts.db_name,
         metrics = opts.metrics,
         algorithms = opts.algorithms,
-        mode = 'analyze'
+        mode = 'analyze' # analyze 就是检查 metrics 和 algorithms 已经存在
     )
     # print(json.dumps(database.analyze_average(), indent=4, sort_keys=True))
     print(json.dumps(database.analyze_general(), indent=4, sort_keys=False))

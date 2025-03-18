@@ -179,14 +179,3 @@ class Database:
                 # info["statistics"][metric][alg]['min'] = min(values) if values else None
                 # info["statistics"][metric][alg]['max'] = max(values) if values else None
         return info
-
-
-if __name__ == '__main__':
-    database = Database(
-        db_dir='/Users/kimshan/temp',
-        db_name='test.db',
-        algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal'),
-        metrics = ['mi','ag','mae'],
-        mode='compute'
-    )
-    print(database.all_algorithms)

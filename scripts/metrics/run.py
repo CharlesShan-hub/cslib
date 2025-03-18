@@ -7,18 +7,18 @@ from clib.datasets.fusion import GeneralFusion
 from clib.metrics.fusion.utils import Database
 
 # Paths - llvip
-# default_ir_dir = "/Volumes/Charles/data/vision/torchvision/llvip/infrared/test"
-# default_vis_dir = "/Volumes/Charles/data/vision/torchvision/llvip/visible/test"
-# default_fused_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
-# default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
-# default_db_name = "metrics.db"
+default_ir_dir = "/Volumes/Charles/data/vision/torchvision/llvip/infrared/test"
+default_vis_dir = "/Volumes/Charles/data/vision/torchvision/llvip/visible/test"
+default_fused_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+default_db_name = "metrics.db"
 
 # Paths - tno
-default_ir_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/ir"
-default_vis_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/vis"
-default_fused_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
-default_db_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
-default_db_name = "metrics2.db"
+# default_ir_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/ir"
+# default_vis_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/vis"
+# default_fused_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
+# default_db_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
+# default_db_name = "metrics.db"
 
 # Fusion Images
 # 1. Calculare all images in each fused_dir
@@ -31,19 +31,19 @@ defaulf_img_id = ()
 # 1. `fused_dir` is into one algorithm
 # default_algorithms = () 
 # 2. `fused_dir` is the parent dir of all algorithms
-default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
+default_algorithms = ('tardal',) # ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion',
 # default_algorithms = ('cpfusion',)
 
 # Metrics
-default_metrics = ['ag','mse']
+# default_metrics = ['nmi']
 # 1. All Metrics
-# default_metrics = [
-#     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
-#     'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
-#     'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
-#     'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
-#     'q_cv','q_cb','vif'
-# ]
+default_metrics = [
+    'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
+    'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
+    'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
+    'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
+    'q_cv','q_cb','vif'
+]
 # 2. VIFB
 # default_metrics = [
 #     'ce','en','mi','psnr','ssim','rmse','ag','ei','sf',
@@ -62,7 +62,7 @@ default_metrics = ['ag','mse']
 @click.option('--algorithms', default=default_algorithms, multiple=True, help='compute metrics for multiple fusion algorithms')
 @click.option('--img_id', default=defaulf_img_id, multiple=True, help='compute metrics for specified images')
 @click.option('--metrics', default=default_metrics, multiple=True)
-@click.option('--suffix', default="png")
+@click.option('--suffix', default="jpg")
 @click.option('--db_dir', default=default_db_dir, help='Path to save database file.')
 @click.option('--db_name', default=default_db_name, help='Name of database file.')
 @click.option('--device', default='auto', help='auto | cuda | mps | cpu')
@@ -85,7 +85,7 @@ def main(**kwargs):
         metrics = opts.metrics,
         algorithms = opts.algorithms,
         jump = opts.jump,
-        mode = 'compute'
+        mode = 'compute' # compute就是把 metrics 和 algroithms 构建好 index
     )
     for idx in tqdm(range(len(dataset)), desc="Computing Metrics", unit="image"):
         item: dict = dataset[idx]
@@ -98,7 +98,7 @@ def main(**kwargs):
             logging = False,
             commit = False,
         )
-        if (idx % 50 == 0) or (idx == len(dataset)-1):
+        if (idx % 10 == 0) or (idx == len(dataset)-1):
             database.commit()
     
 if __name__ == '__main__':
