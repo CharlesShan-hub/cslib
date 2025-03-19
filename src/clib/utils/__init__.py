@@ -7,9 +7,9 @@ import torch
 def get_device(device: str = 'auto') -> torch.device:
     if device != 'auto':
         return torch.device(device)
-    if torch.backends.mps.is_available():
-        return torch.device('mps')
-    elif torch.cuda.is_available():
+    if torch.cuda.is_available():
         return torch.device('cuda')
+    elif torch.backends.mps.is_available():
+        return torch.device('mps')
     else:
         return torch.device('cpu')

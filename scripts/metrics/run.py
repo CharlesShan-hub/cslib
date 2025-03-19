@@ -11,7 +11,7 @@ default_ir_dir = "/Volumes/Charles/data/vision/torchvision/llvip/infrared/test"
 default_vis_dir = "/Volumes/Charles/data/vision/torchvision/llvip/visible/test"
 default_fused_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
 default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
-default_db_name = "metrics.db"
+default_db_name = "metrics2.db"
 
 # Paths - tno
 # default_ir_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/ir"
@@ -24,26 +24,26 @@ default_db_name = "metrics.db"
 # 1. Calculare all images in each fused_dir
 defaulf_img_id = ()
 # 2. Calculare for specified images
-# defaulf_img_id = ('190001','190002','190003')
+defaulf_img_id = ('190001','190003')
 # defaulf_img_id = ('39',)
 
 # Fusion Algorithms
 # 1. `fused_dir` is into one algorithm
 # default_algorithms = () 
 # 2. `fused_dir` is the parent dir of all algorithms
-default_algorithms = ('tardal',) # ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion',
+default_algorithms = ('fpde','cpfusion','datfuse')#,'fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
 # default_algorithms = ('cpfusion',)
 
 # Metrics
-# default_metrics = ['nmi']
+default_metrics = ['nrmse','ag']
 # 1. All Metrics
-default_metrics = [
-    'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
-    'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
-    'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
-    'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
-    'q_cv','q_cb','vif'
-]
+# default_metrics = [
+#     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
+#     'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
+#     'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
+#     'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
+#     'q_cv','q_cb','vif'
+# ]
 # 2. VIFB
 # default_metrics = [
 #     'ce','en','mi','psnr','ssim','rmse','ag','ei','sf',
