@@ -4,11 +4,11 @@ from clib.utils.config import Options
 from clib.metrics.fusion.utils import Database
 
 # Paths - llvip
-# default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
-# default_db_name = "metrics.db"
+default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+default_db_name = "metrics.db"
 
-default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused/by_metrics"
-default_db_name = "ce.db"
+# default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused/by_metrics"
+# default_db_name = "ce.db"
 
 # Paths - tno
 # default_db_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
@@ -29,24 +29,24 @@ default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','pi
 # default_algorithms = ('cpfusion',)
 
 # Metrics
-# default_metrics = [
-#     'ce', 'en','te', 'mi', 'psnr', 'q_ncie', 'cc', 'scc', 'scd',
-#     'ssim', 'ms_ssim', 'q_s', 'q', 'q_w', 'q_e', 'q_c', 'q_y', 'mb', 'mae',
-#     'mse', 'rmse', 'nrmse', 'ergas', 'd', 'ag', 'mg', 'ei', 'sd', 'sf', 
-#     'q_abf', 'q_sf', 'eva', 'con', 'sam', 'fmi', 'n_abf', 'pww',
-#     'q_cv', 'vif'
-# ]
+default_metrics = [
+    'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
+    'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
+    'mse','rmse','nrmse','ergas','d','ag','mg','ei','sd','sf', # 'pfe'
+    'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
+    'q_cv','vif' # q_cb
+]
 # default_metrics = [
 #     'ce',
 # ]
 # 1. All Metrics
-default_metrics = [
-    'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
-    'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
-    'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
-    'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
-    'q_cv','q_cb','vif'
-]
+# default_metrics = [
+#     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
+#     'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
+#     'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
+#     'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
+#     'q_cv','q_cb','vif'
+# ]
 # 2. VIFB
 # default_metrics = [
 #     'ce','en','mi','psnr','ssim','rmse','ag','ei','sf',
@@ -72,8 +72,8 @@ def main(**kwargs):
         algorithms = opts.algorithms,
         mode = 'analyze' # analyze 就是检查 metrics 和 algorithms 已经存在
     )
-    # print(json.dumps(database.analyze_average(), indent=4, sort_keys=True))
-    print(json.dumps(database.analyze_general(), indent=4, sort_keys=False))
+    print(json.dumps(database.analyze_average(), indent=4, sort_keys=True))
+    # print(json.dumps(database.analyze_general(), indent=4, sort_keys=False))
 
 if __name__ == '__main__':
     main()

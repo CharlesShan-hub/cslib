@@ -1,13 +1,17 @@
+from typing import List, Dict, Optional, Union
 import sqlite3
 from pathlib import Path
+from tqdm import tqdm
 import clib.metrics.fusion as fusion
 
-__all__ = [
-    'Database'
-]
+__all__ = ['Database']
 
 class Database:
-    def __init__(self, db_dir, db_name, metrics=[], algorithms=[], jump=True, mode='compute'): # 'compute', 'analyze'
+    def __init__(
+            self, db_dir: str, db_name: str, 
+            metrics: List[str] = [], algorithms: List[str] = [], 
+            jump: bool = True, mode: str = 'compute'
+        ) -> None:
         self.load_database(db_dir, db_name)
         if mode == 'compute':
             self.update_metrics(metrics)
@@ -17,7 +21,7 @@ class Database:
             self.valid_algorithms(algorithms)
         self.jump = jump
 
-    def load_all_algorithms(self):
+    def load_all_algorithms(self) -> None:
         ''' Load All Existing Algorithms From The Algorithms Table.
         '''
         self.cursor.execute("SELECT id, name FROM algorithms")
@@ -25,14 +29,14 @@ class Database:
         self.all_algorithms_names = {row[1]:row[0] for row in rows}
         self.all_algorithms_ids = {row[0]:row[1] for row in rows}
     
-    def load_all_metrics(self):
+    def load_all_metrics(self) -> None:
         ''' Load All Existing Metrics From The Metrics Table.'''
         self.cursor.execute("SELECT id, name FROM metrics")
         rows = self.cursor.fetchall()
         self.all_metrics_names = {row[1]:row[0] for row in rows}
         self.all_metrics_ids = {row[0]:row[1] for row in rows}
 
-    def valid_algorithms(self, algorithms):
+    def valid_algorithms(self, algorithms: List[str]) -> None:
         ''' Assert All Algorithms Existing In The Algorithms Table.
         '''
         self.load_all_algorithms()
@@ -42,7 +46,7 @@ class Database:
         self.algorithms_names = {a:self.all_algorithms_names[a] for a in algorithms}
         self.algorithms_ids = {self.all_algorithms_names[a]:a for a in algorithms}
     
-    def valid_metrics(self, metrics):
+    def valid_metrics(self, metrics: List[str]) -> None:
         ''' Assert All Metrics Existing In The Metrics Table.
         '''
         self.load_all_metrics()
@@ -52,7 +56,7 @@ class Database:
         self.metrics_names = {m:self.all_metrics_names[m] for m in metrics}
         self.metrics_ids = {self.all_metrics_names[m]:m for m in metrics}
     
-    def update_algorithms(self, algorithms):
+    def update_algorithms(self, algorithms: List[str]) -> None:
         ''' Update Algorithms To Algorithms Table
         '''
         self.load_all_algorithms()
@@ -64,7 +68,7 @@ class Database:
         self.algorithms_names = {a:self.all_algorithms_names[a] for a in algorithms}
         self.algorithms_ids = {self.all_algorithms_names[a]:a for a in algorithms}
     
-    def update_metrics(self, metrics):
+    def update_metrics(self, metrics: List[str]) -> None:
         ''' Update Metrics To Metrics Table
         '''
         self.load_all_metrics()
@@ -76,8 +80,8 @@ class Database:
         self.metrics_names = {m:self.all_metrics_names[m] for m in metrics}
         self.metrics_ids = {self.all_metrics_names[m]:m for m in metrics}
 
-    def load_database(self, db_dir, db_name):
-        assert Path(db_dir).exists()
+    def load_database(self, db_dir: str, db_name: str) -> None:
+        assert Path(db_dir).exists(), f"Directory {db_dir} does not exist."
         self.db_dir = db_dir
         self.db_name = db_name
         self.conn = sqlite3.connect(Path(db_dir) / db_name)
@@ -110,9 +114,15 @@ class Database:
         if hasattr(self, 'conn'):
             self.conn.close()
 
-    def select_values(self, algorithm=None, metrics=None, img_id=None,
-                      return_value=True, return_algorithm_id=False, 
-                      return_metric_id=False, return_img_id=False):
+    def select_values(self, 
+                      algorithm: Optional[str] = None, 
+                      metrics: Optional[str] = None, 
+                      img_id: Optional[str] = None,
+                      return_value: bool = True, 
+                      return_algorithm_id: bool = False, 
+                      return_metric_id: bool = False, 
+                      return_img_id: bool = False
+        ) -> List[tuple]:
         if not (return_value or return_algorithm_id or return_metric_id):
             raise ValueError("At least one of return_value, return_algorithm_id, or return_metric_id must be True")
         
@@ -128,7 +138,7 @@ class Database:
             select_clause.append("image_id")
         if return_value:
             select_clause.append("value")
-        # alg_id, metric_id, image_id, value
+        # alg_id, metric_id, image_id, value <- watch out the sequence!
 
         if algorithm is not None:
             conditions.append("algorithm_id = ?")
@@ -149,7 +159,7 @@ class Database:
         self.cursor.execute(query, params)
         return self.cursor.fetchall()
     
-    def update_values(self, algorithm, metrics, img_id, value, commit=True):
+    def update_values(self, algorithm: str, metrics: str, img_id: str, value: float, commit: bool = True) -> None:
         self.cursor.execute('''
         INSERT OR REPLACE INTO fusion_metrics (algorithm_id, image_id, metric_id, value)
         VALUES (?, ?, ?, ?);
@@ -157,7 +167,7 @@ class Database:
         if commit:
             self.conn.commit()
         
-    def compute(self, ir, vis, fused, algorithm, img_id, logging=True, commit=True):
+    def compute(self, ir, vis, fused, algorithm: str, img_id: str, logging: bool = True, commit: bool = True) -> None:
         for m_name,m_id in self.metrics_names.items():
             # Check if the metric has already been calculated
             if self.jump:
@@ -175,11 +185,11 @@ class Database:
             # Insert or Update the database
             self.update_values(algorithm, m_name, img_id, value.item(), commit)
     
-    def commit(self):
+    def commit(self) -> None:
         if self.conn is not None:
             self.conn.commit()
     
-    def analyze_average(self):
+    def analyze_average(self) -> Dict[str, Dict[str, float]]:
         result = {metric: {} for metric in self.metrics_names}
         for metric,m_id in self.metrics_names.items():
             for alg,a_id in self.algorithms_names.items():
@@ -192,7 +202,7 @@ class Database:
 
         return result
     
-    def analyze_general(self):
+    def analyze_general(self) -> Dict[str, Dict[str, Dict[str, Union[int, float]]]]:
         self.load_all_algorithms()
         self.load_all_metrics()
         info = {
@@ -224,7 +234,7 @@ class Database:
                 # info["statistics"][metric][alg]['max'] = max(values) if values else None
         return info
     
-    def merge(self, other):
+    def merge(self, other: 'Database') -> None:
         # Step 1: Load all fusion metrics from the other database
         other_fusion_metrics = other.select_values(
             return_value=True,
@@ -234,18 +244,18 @@ class Database:
         )
 
         # Step 2: Update algorithms and metrics in the current database
-        self.update_algorithms(other.all_algorithms_names.keys())
-        self.update_metrics(other.all_metrics_names.keys())
+        self.update_algorithms(list(other.all_algorithms_names.keys()))
+        self.update_metrics(list(other.all_metrics_names.keys()))
         
         # Step 3: Insert or update fusion metrics in the current database
-        for row in other_fusion_metrics:
+        for row in tqdm(other_fusion_metrics, desc="Merging", unit="row"):
             other_alg_id, other_metric_id, image_id, value = row
             self.update_values(
-                algorithm = other.all_algorithms_ids[other_alg_id],
-                metrics = other.all_metrics_ids[other_metric_id],
-                img_id = image_id,
-                value = value,
-                commit = False,
+                algorithm=other.all_algorithms_ids[other_alg_id],
+                metrics=other.all_metrics_ids[other_metric_id],
+                img_id=image_id,
+                value=value,
+                commit=False,
             )
 
         # Step 4: Commit changes
@@ -263,7 +273,7 @@ class Database:
             new_db = Database(
                 output_dir, output_db_path.name, 
                 metrics=[metric_name],
-                algorithms=self.all_algorithms_names.keys(),
+                algorithms=list(self.all_algorithms_names.keys()),
                 mode='compute'
             )
 
@@ -297,6 +307,7 @@ class Database:
 
             # 4. Commit changes to the new database
             new_db.commit()
+            print(f"Split {metric_name} completed")
 
         print("splited by metrics completed")
 
@@ -314,7 +325,7 @@ class Database:
             output_db_path = Path(output_dir) / f"{algorithm_name}.db"
             new_db = Database(
                 output_dir, output_db_path.name, 
-                metrics=self.all_metrics_names.keys(),
+                metrics=list(self.all_metrics_names.keys()),
                 algorithms=[algorithm_name,],
                 mode='compute'
             )
@@ -341,5 +352,6 @@ class Database:
 
             # 5. Commit changes to the new database
             new_db.commit()
+            print(f"Split {algorithm_name} completed")
 
         print("Split by algorithms completed")
