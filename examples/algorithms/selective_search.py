@@ -1,11 +1,10 @@
 from clib.algorithms.object_proposals import selective_search
-from clib.dataset.image import astronaut
+from skimage.data import astronaut
 # from clib.utils import glance
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
-
-image = astronaut()/255.0
+image = astronaut()
 _, regions = selective_search(image)
 
 

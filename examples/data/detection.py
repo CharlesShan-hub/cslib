@@ -5,8 +5,7 @@ from torchvision.datasets import CocoDetection
 from tqdm import tqdm
 from pathlib import Path
 from clib.utils import glance
-from clib.dataset.detection import DetectionToy
-
+from clib.datasets.detection import GeneralDetection
 
 def collate_fn(batch):
     '''
@@ -17,7 +16,7 @@ def collate_fn(batch):
 
 def coco_example_glance():
     root_dir_50 = Path('/Volumes/Charles/DateSets/Detection/coco2017_50')
-    dataset = DetectionToy(root_dir_50)
+    dataset = GeneralDetection(root_dir_50)
     dataloader = DataLoader(dataset, batch_size=1, shuffle=False, num_workers=1, collate_fn=collate_fn)
     for imgs, annotations in dataloader:
         # print(annotations)
@@ -42,7 +41,7 @@ def coco_example_diy():
         v2.ToImage(), 
         v2.ToDtype(torch.float32, scale=True)
     ])
-    dataset = DetectionToy(root_dir_50, transform=transform)
+    dataset = GeneralDetection(root_dir_50, transform=transform)
     dataloader = DataLoader(dataset, batch_size=8, shuffle=True, num_workers=4,collate_fn=collate_fn)
     pbar = tqdm(dataloader, total=len(dataloader))
     for count, (images, labels) in enumerate(pbar):

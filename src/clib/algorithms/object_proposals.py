@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
-import skimage.io
 import skimage.feature
 import skimage.color
-import skimage.transform
 import skimage.util
 import skimage.segmentation
 import numpy
@@ -175,7 +173,7 @@ def _extract_regions(img):
                 R[l]["max_y"] = y
 
     # pass 2: calculate texture gradient
-    tex_grad = _calc_texture_gradient(img)
+    tex_grad = _calc_texture_gradient((img*255).astype(numpy.uint8))
 
     # pass 3: calculate colour histogram of each region
     for k, v in R.items():
