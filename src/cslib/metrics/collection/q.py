@@ -1,4 +1,4 @@
-from clib.metrics.utils import fusion_preprocessing
+from cslib.metrics.utils import fusion_preprocessing
 import torch
 import kornia
 
@@ -71,7 +71,7 @@ def q_metric(A: torch.Tensor, B: torch.Tensor, F: torch.Tensor) -> torch.Tensor:
     return w0 * q(A, F) + w1 * q(B, F)
 
 if __name__ == '__main__':
-    from clib.metrics.fusion import ir,vis,fused
+    from cslib.metrics.fusion import ir,vis,fused
 
     print(f'Q(vis,vis):{q(vis,vis)}')
     print(f'Q(vis,fused):{q(vis,fused)}')  # should be 0.4102
