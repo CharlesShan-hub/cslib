@@ -1,5 +1,5 @@
 import pytest
-from clib.metrics.fusion import sd, sd_metric, ir, vis, fused
+from cslib.metrics.fusion import sd, sd_metric, ir, vis, fused
 
 
 def test_sd_basic():

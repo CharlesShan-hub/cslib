@@ -1,5 +1,5 @@
 import pytest
-from clib.metrics.fusion import ag, ag_metric, ir, vis, fused
+from cslib.metrics.fusion import ag, ag_metric, ir, vis, fused
 
 def test_ag_basic():
     metric_value = ag_metric(ir, vis, fused)

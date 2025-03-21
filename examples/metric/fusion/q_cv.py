@@ -1,5 +1,5 @@
-from clib.metrics.fusion import q_cv,q_cv_metric,ir,vis,fused
-from clib.metrics.fusion import q_cvm_metric,q_cvd_metric,q_cva_metric
+from cslib.metrics.fusion import q_cv,q_cv_metric,ir,vis,fused
+from cslib.metrics.fusion import q_cvm_metric,q_cvd_metric,q_cva_metric
 
 print(f'QCV(ir,vis,fused):{q_cv(vis,ir,fused)}')
 print(f'QCV(vis,vis,vis):{q_cv(vis,vis,vis)}')

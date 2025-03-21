@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import binom,norm,gaussian_kde,entropy
-from clib.metrics.fusion import mi,mi_metric,ir,vis,fused
+from cslib.metrics.fusion import mi,mi_metric,ir,vis,fused, mi_sklearn
 
 def kl_divergence(p, q):
     """

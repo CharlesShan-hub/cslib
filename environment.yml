@@ -1,4 +1,4 @@
-name: clib
+name: cslib
 channels:
   - pytorch
   - nvidia

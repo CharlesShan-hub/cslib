@@ -1,4 +1,4 @@
-from clib.metrics.fusion import ssim,ssim_metric,ir,vis,fused
+from cslib.metrics.fusion import ssim,ssim_metric,ir,vis,fused
 
 print(f'SSIM(ir,ir):{(ssim(ir,ir,window_size=11)).mean()}')
 print(f'SSIM(ir,fused):{ssim(ir,fused,window_size=11).mean()}')

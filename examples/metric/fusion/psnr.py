@@ -1,4 +1,4 @@
-from clib.metrics.fusion import psnr,psnr_metric,ir,vis,fused
+from cslib.metrics.fusion import psnr,psnr_metric,ir,vis,fused
 
 print(f'PSNR(ir,ir,ir):{psnr(ir,ir,ir)}')
 print(f'PSNR(vis,vis,vis):{psnr(vis,vis,vis)}')

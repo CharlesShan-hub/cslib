@@ -1,4 +1,4 @@
-from clib.metrics.fusion import ag,ag_metric,ir,vis,fused
+from cslib.metrics.fusion import ag,ag_metric,ir,vis,fused
 
 print(f'AG(ir):{ag(ir)}')
 print(f'AG(vis):{ag(vis)}')

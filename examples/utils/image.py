@@ -1,5 +1,5 @@
 from pathlib import Path
-from clib.utils.image import *
+from cslib.utils.image import *
 
 ''' Load Image
 

@@ -4,9 +4,9 @@ from pathlib import Path
 from tqdm import tqdm
 import click
 
-import clib.projects.sr as sr
-import clib.datasets.sr as sr_data
-from clib.utils import save_array_to_img
+import cslib.projects.sr as sr
+import cslib.datasets.sr as sr_data
+from cslib.utils import save_array_to_img
 import config
 
 '''

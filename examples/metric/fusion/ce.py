@@ -1,4 +1,4 @@
-from clib.metrics.fusion import ce,ce_metric,ir,vis,fused
+from cslib.metrics.fusion import ce,ce_metric,ir,vis,fused
 import matplotlib.pyplot as plt
 import torch
 

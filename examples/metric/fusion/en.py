@@ -1,4 +1,4 @@
-from clib.metrics.fusion import en,en_metric,ir,vis,fused
+from cslib.metrics.fusion import en,en_metric,ir,vis,fused
 
 import numpy as np
 import matplotlib.pyplot as plt

@@ -1,4 +1,4 @@
-from clib.utils import Options
+from cslib.utils import Options
 from pathlib import Path
 
 ''' Config

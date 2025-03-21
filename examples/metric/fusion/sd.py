@@ -1,4 +1,4 @@
-from clib.metrics.fusion import sd,sd_metric,ir,vis,fused
+from cslib.metrics.fusion import sd,sd_metric,ir,vis,fused
 
 print(f'SD(ir):{sd(ir)}')
 print(f'SD(vis):{sd(vis)}')

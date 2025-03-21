@@ -4,9 +4,9 @@ from pathlib import Path
 from tqdm import tqdm
 import click
 
-import clib.projects.fusion as fusion
-import clib.datasets.fusion as fusion_data
-from clib.utils import save_array_to_img
+import cslib.projects.fusion as fusion
+import cslib.datasets.fusion as fusion_data
+from cslib.utils import save_array_to_img
 import config
 
 '''

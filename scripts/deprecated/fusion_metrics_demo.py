@@ -3,9 +3,9 @@ from pathlib import Path
 import sqlite3
 import click
 
-import clib.metrics.fusion as metrics
-from clib.datasets import fusion as fusion_data
-from clib.utils import get_device
+import cslib.metrics.fusion as metrics
+from cslib.datasets import fusion as fusion_data
+from cslib.utils import get_device
 
 '''
 测试融合算法的指标

@@ -1,12 +1,10 @@
-from clib.algorithms.object_proposals import selective_search
+from cslib.algorithms.object_proposals import selective_search
 from skimage.data import astronaut
-# from clib.utils import glance
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 
 image = astronaut()
 _, regions = selective_search(image)
-
 
 # 1. Use Matplotlib - from scratch
 
@@ -29,5 +27,6 @@ plt.show()
 
 
 # 2. Use glance
+# from cslib.utils import glance
 # glance is (x_min, y_min, x_max, y_max), coco format
 # selective_search returns (x,y,w,h) format

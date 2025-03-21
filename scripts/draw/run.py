@@ -3,7 +3,7 @@ from pathlib import Path
 from PIL import Image, ImageDraw
 import matplotlib.pyplot as plt
 
-from clib.utils.config import Options
+from cslib.utils.config import Options
 
 # Paths - llvip
 default_ir_dir = "/Volumes/Charles/data/vision/torchvision/llvip/infrared/test"

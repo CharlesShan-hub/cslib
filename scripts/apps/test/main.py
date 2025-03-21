@@ -1,12 +1,12 @@
 from ui import UI
 
-from clib.utils import to_image
-from clib.projects import classify 
+from cslib.utils import to_image
+from cslib.projects import classify 
 
 import sys
 from pathlib import Path
 sys.path.append(Path(__file__,'../../../scripts').resolve().__str__())
-import config
+import config # 这里用不了了
 
 import torch
 from torchvision import datasets, transforms

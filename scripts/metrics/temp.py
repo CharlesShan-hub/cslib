@@ -1,6 +1,6 @@
 import sqlite3
 from pathlib import Path
-from clib.metrics.fusion.utils import Database
+from cslib.metrics.fusion.utils import Database
 
 default_metrics = [
     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
@@ -9,7 +9,7 @@ default_metrics = [
     'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
     'q_cv','q_cb','vif'
 ]
-default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
+default_algorithms = ['cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal']
 
 class OldDatabase():
     def __init__(self, path):

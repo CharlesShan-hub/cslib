@@ -1,7 +1,7 @@
 import click
 import json
-from clib.utils.config import Options
-from clib.metrics.fusion.utils import Database
+from cslib.utils.config import Options
+from cslib.metrics.fusion.utils import Database
 
 # Paths - llvip
 default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"

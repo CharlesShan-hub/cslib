@@ -1,10 +1,10 @@
 import click
 from tqdm import tqdm
 
-from clib.utils import get_device
-from clib.utils.config import Options
-from clib.datasets.fusion import GeneralFusion
-from clib.metrics.fusion.utils import Database
+from cslib.utils import get_device
+from cslib.utils.config import Options
+from cslib.datasets.fusion import GeneralFusion
+from cslib.metrics.fusion.utils import Database
 
 # Paths - llvip
 default_ir_dir = "/Volumes/Charles/data/vision/torchvision/llvip/infrared/test"

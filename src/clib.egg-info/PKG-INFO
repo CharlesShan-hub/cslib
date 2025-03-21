@@ -1,7 +1,0 @@
-Metadata-Version: 2.2
-Name: clib
-Version: 0.0.1
-Summary: Charles' AI Lab -- A Notebook for AI Learning
-Author-email: Charles <charles.shht@gmail.com>
-Requires-Python: >=3.7
-License-File: LICENSE

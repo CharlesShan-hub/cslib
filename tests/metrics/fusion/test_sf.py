@@ -1,5 +1,5 @@
 import pytest
-from clib.metrics.fusion import sf, sf_metric, ir, vis, fused
+from cslib.metrics.fusion import sf, sf_metric, ir, vis, fused
 
 def test_sf_basic():
     metric_value = sf_metric(ir, vis, fused)

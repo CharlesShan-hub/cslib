@@ -1,4 +1,4 @@
-from clib.utils.gui import *
+from cslib.utils.gui import *
 
 class UI(BasicUI):
     def __init__(self):

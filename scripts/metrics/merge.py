@@ -1,8 +1,8 @@
 import click
 
-from clib.utils import get_device
-from clib.utils.config import Options
-from clib.metrics.fusion.utils import Database
+from cslib.utils import get_device
+from cslib.utils.config import Options
+from cslib.metrics.fusion.utils import Database
 
 '''
 update content in database2 to database1

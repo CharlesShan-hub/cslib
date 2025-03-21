@@ -1,0 +1,49 @@
+package:
+  name: cslib
+  version: 0.1.0
+
+source:
+  path: .dist
+  files:
+    - cslib-0.1.0-py3-none-any.whl
+    - cslib-0.1.0.tar.gz
+
+build:
+  number: 0
+  script: python -m pip install --no-deps --ignore-installed .
+
+requirements:
+  host:
+    - python >=3.7
+    - pip
+    - setuptools >=42
+    - wheel
+  run:
+    - python >=3.7
+    - torch >=2.0.0
+    - torchvision
+    - torchmetrics
+    - tensorboard
+    - kornia
+    - seaborn
+    - albumentations
+    - click
+    - einops
+    - pycocotools
+    - scikit-image
+    - scikit-learn
+    - tqdm
+    - timm
+    - wandb
+    - visdom
+
+test:
+  requires:
+    - pytest
+  imports:
+    - cslib
+
+about:
+  home:  https://github.com/CharlesShan-hub/cslib
+  license:  MIT
+  summary: "AI Lab of Charles Shan -- A Notebook for AI Learning"

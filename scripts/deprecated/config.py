@@ -1,6 +1,5 @@
 from pathlib import Path
-from clib.deprecated import ConfigDict
-from torch.cuda import is_available
+from cslib.deprecated import ConfigDict
         
 opts = ConfigDict(data_root_path_list=[
             '/root/autodl-tmp',

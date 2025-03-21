@@ -1,5 +1,5 @@
 import pytest
-from clib.metrics.fusion import q_abf, q_abf_metric, ir, vis, fused
+from cslib.metrics.fusion import q_abf, q_abf_metric, ir, vis, fused
 
 def test_q_abf_basic():
     metric_value = q_abf_metric(ir, vis, fused)

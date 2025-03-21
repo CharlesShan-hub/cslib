@@ -1,5 +1,5 @@
-from clib.metrics.fusion import q_cb,q_cb_metric,ir,vis,fused
-from clib.metrics.fusion import q_cbm_metric,q_cbb_metric,q_cbd_metric
+from cslib.metrics.fusion import q_cb,q_cb_metric,ir,vis,fused
+from cslib.metrics.fusion import q_cbm_metric,q_cbb_metric,q_cbd_metric
 
 # Default: With normalize, Frequency(not spatial)
 print(f"With normalize, Different Images: {q_cb(vis,ir,fused,mode='frequency',normalize=True)}")
