@@ -1,5 +1,5 @@
 import click
-from cslib.algorithms.msd import Contrust
+from cslib.algorithms.msd import FSD
 from cslib.utils import glance, Options
 from cslib.metrics.fusion import vis
 
@@ -21,17 +21,17 @@ def main(**kwargs):
         layer (int, optional): Layer number. Defaults to 5.
         kernel (int, optional): Kernel size. Defaults to 5.
     """
-    opts = Options('Contrust Pyramid', kwargs)
+    opts = Options('FSD Pyramid', kwargs)
     opts.present()
-    pyramid = Contrust(
+    pyramid = FSD(
         image=vis,
         gau_blur_way=opts.gau_blur_way,
         recon_way=opts.recon_way,
         layer=opts.layer,
         kernel=opts.kernel,
     )
-    glance(pyramid.pyramid,suptitle='Contrust Pyramid')
-    glance([vis,pyramid.recon],title=['Original','Reconstructed'],suptitle='Contrust Pyramid')
+    glance(pyramid.pyramid,suptitle='FSD Pyramid',shape=(4, opts.layer))
+    glance([vis,pyramid.recon],title=['Original','Reconstructed'],suptitle='FSD Pyramid')
 
 if __name__ == '__main__':
     main()

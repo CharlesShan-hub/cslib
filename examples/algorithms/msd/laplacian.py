@@ -8,7 +8,6 @@ from cslib.metrics.fusion import vis
 @click.option('--recon_way',type=click.Choice(['ordinary','orthogonal']),default='ordinary',help='Reconstruction way')
 @click.option('--layer',type=int,default=5,help='Layer number')
 @click.option('--kernel',type=int,default=5,help='Kernel size')
-@click.option('--sigma',type=float,default=1.0,help='Sigma')
 def main(**kwargs):
     """_summary_
     Args:
@@ -21,7 +20,6 @@ def main(**kwargs):
             'orthogonal': Orthogonal reconstruction, Especially for Blured Images.
         layer (int, optional): Layer number. Defaults to 5.
         kernel (int, optional): Kernel size. Defaults to 5.
-        sigma (float, optional): Sigma. Defaults to 1.0.
     """
     opts = Options('Laplacian Pyramid', kwargs)
     opts.present()
@@ -31,7 +29,6 @@ def main(**kwargs):
         recon_way=opts.recon_way,
         layer=opts.layer,
         kernel=opts.kernel,
-        sigma=opts.sigma
     )
     glance(pyramid.pyramid,suptitle='Laplacian Pyramid')
     glance([vis,pyramid.recon],title=['Original','Reconstructed'],suptitle='Laplacian Pyramid')

@@ -71,15 +71,3 @@ class Graident(Base):
             lp.append(pyramid)
         lp.reconstruction()
         self.recon = lp.recon
-
-
-def main():
-    pyramid = Graident(image=ir)
-    # glance(pyramid.pyramid)
-    glance([ir,pyramid.recon])
-    # Comment: bad
-
-if __name__ == '__main__':
-    from cslib.metrics.fusion import ir,vis
-    from cslib.utils import glance
-    main()

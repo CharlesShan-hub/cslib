@@ -367,28 +367,3 @@ class Steerable(object):
         resdft[:,lostart[0]:loend[0], lostart[1]:loend[1],:] = nresdft * lomask
 
         return resdft + orientdft
-
-@click.command()
-@click.option("--pyr_nlevels", type=int, default=5)
-@click.option("--pyr_nbands", type=int, default=4)
-@click.option("--pyr_scale_factor", type=int, default=2)
-@click.option("--image_size", type=int, default=450)
-def main(**kwargs):
-    from cslib.metrics.fusion import ir,vis
-    from cslib.utils import glance
-    import torch.nn.functional as F
-
-    pyr = Steerable(
-        height=kwargs['pyr_nlevels'], 
-        nbands=kwargs['pyr_nbands'],
-        scale_factor=kwargs['pyr_scale_factor'],
-    )
-
-    resized_img = F.interpolate(ir, size=(kwargs['image_size'],kwargs['image_size']), 
-                                mode='bilinear', align_corners=False).float()
-    coe = pyr.build(resized_img)
-    recon_img = pyr.reconstruct(coe)
-    glance([resized_img,recon_img])
-
-if __name__ == '__main__':
-    main()
