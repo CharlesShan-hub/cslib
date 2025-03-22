@@ -46,6 +46,8 @@ def _clip(
         return image.clip(min=CLIP_MIN, max=CLIP_MAX)
     elif isinstance(image, torch.Tensor):
         return image.clamp(min=CLIP_MIN, max=CLIP_MAX)
+    else:
+        raise ValueError("Image should be an image.")
 
 
 def _tensor_to_numpy(image: torch.Tensor) -> np.ndarray:
@@ -71,8 +73,8 @@ def _image_to_numpy(image: Image.Image) -> np.ndarray:
     return np.array(image)/255.0
 
 
-def _image_to_tensor(image: Image.Image) -> torch.Tensor:
-    return ToTensor()(image)/255.0
+def _image_to_tensor(image: Image.Image, dtype: torch.dtype) -> torch.Tensor:
+    return (ToTensor()(image).to(dtype))/255.0
 
 
 def _numpy_to_image(image: np.ndarray) -> Image.Image:
@@ -83,19 +85,20 @@ def _numpy_to_image(image: np.ndarray) -> Image.Image:
         return Image.fromarray(image.astype(np.uint8), mode="RGB") 
 
 
-def _numpy_to_tensor(image: np.ndarray) -> torch.Tensor:
-    return ToTensor()(image)
+def _numpy_to_tensor(image: np.ndarray, dtype: torch.dtype) -> torch.Tensor:
+    return (ToTensor()(image)).to(dtype)
 
 
 def to_tensor(
         image: Union[np.ndarray, torch.Tensor, Image.Image], 
-        clip: bool = False
+        clip: bool = False,
+        dtype: Optional[torch.dtype] = torch.float32
     ) -> torch.Tensor:
     if isinstance(image, np.ndarray):
-        image = _numpy_to_tensor(image)
+        image = _numpy_to_tensor(image, dtype)
     elif isinstance(image, Image.Image):
-        image = _image_to_tensor(image)
-    return _clip(image) if clip else image # type: ignore
+        image = _image_to_tensor(image, dtype)
+    return _clip(image) if clip else image
 
 
 def to_numpy(
@@ -106,7 +109,7 @@ def to_numpy(
         image = _tensor_to_numpy(image)
     elif isinstance(image, Image.Image):
         image = _image_to_numpy(image)
-    return _clip(image) if clip else image # type: ignore
+    return _clip(image) if clip else image
 
 
 def to_image(
@@ -347,17 +350,3 @@ def save_array_to_mat(
             print(f"RGB image have saved as {base_filename}_red.mat, {base_filename}_green.mat and {base_filename}_blue.mat")
     else:
         raise ValueError("Image array should be 2D(Gray) or 3D (RGB).")
-
-if __name__ == "__main__":
-    # 创建一个随机的 RGB 图像张量
-    image = torch.randn(2, 3, 256, 256)  # 示例：批量大小为 2 的 RGB 图像
-    print("输入张量形状:", image.shape)
-
-    # 转换为 YCbCr
-    ycbcr_image = rgb_to_ycbcr(image)
-    print("转换后的 YCbCr 张量形状:", ycbcr_image.shape)
-
-    # 检查通道范围
-    print("Y 通道的最小值和最大值:", ycbcr_image[:, 0, :, :].min(), ycbcr_image[:, 0, :, :].max())
-    print("Cb 通道的最小值和最大值:", ycbcr_image[:, 1, :, :].min(), ycbcr_image[:, 1, :, :].max())
-    print("Cr 通道的最小值和最大值:", ycbcr_image[:, 2, :, :].min(), ycbcr_image[:, 2, :, :].max())

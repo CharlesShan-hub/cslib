@@ -77,22 +77,3 @@ class Laplacian(Base):
 
         self.recon = image_reconstructed
         return self.recon
-
-
-def main():
-    # Gray & ordinary construction
-    pyramid = Laplacian(image=ir)
-    glance(pyramid.pyramid)
-    glance([ir,pyramid.recon])
-    # Comment: Good
-
-    # Gray & orthogonal construction
-    pyramid = Laplacian(image=vis,recon_way='orthogonal')
-    glance(pyramid.pyramid)
-    glance([vis,pyramid.recon])
-    # Comment: Especially for blued images
-
-if __name__ == '__main__':
-    from cslib.metrics.fusion import ir,vis
-    from cslib.utils import glance
-    main()

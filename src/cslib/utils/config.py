@@ -73,6 +73,7 @@ class Options(Namespace):
         for key in vars(self).keys():
             self.info("{:>15} : {}".format(key, getattr(self, key)))
         self.info("================================")
+    present = presentParameters
 
     def update(self, parmas: Dict[str, Any] = {}):
         """

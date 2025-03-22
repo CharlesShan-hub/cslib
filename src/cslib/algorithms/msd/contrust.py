@@ -55,14 +55,3 @@ class Contrust(Base):
 
         self.recon = image_reconstructed
         return self.recon
-
-def main():
-    pyramid = Contrust(image=ir)
-    glance(pyramid.pyramid)
-    glance([ir,pyramid.recon])
-    # Comment: better than laplacian for fusion
-
-if __name__ == '__main__':
-    from cslib.metrics.fusion import ir,vis
-    from cslib.utils import glance
-    main()
