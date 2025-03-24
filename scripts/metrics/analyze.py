@@ -72,8 +72,8 @@ def main(**kwargs):
         algorithms = opts.algorithms,
         mode = 'analyze' # analyze 就是检查 metrics 和 algorithms 已经存在
     )
-    # print(json.dumps(database.analyze_average(), indent=4, sort_keys=True))
-    print(json.dumps(database.analyze_general(), indent=4, sort_keys=False))
+    print(json.dumps(database.analyze_average(), indent=4, sort_keys=True))
+    # print(json.dumps(database.analyze_general(), indent=4, sort_keys=False))
 
 if __name__ == '__main__':
     main()

@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 from torchvision.datasets.vision import VisionDataset
 from torchvision.datasets.utils import download_and_extract_archive
 from pathlib import Path
@@ -527,15 +527,15 @@ class TNO(VisionDataset):
 
     def __init__(
         self,
-        root: str,
+        root: Union[str, Path],
         transform: Optional[Callable] = None,
         download: bool = True,
-        mode: Optional[str] = 'both',
-        img_type: Optional[str] = 'lwir',
+        mode: Optional[str] = ['both', 'pairs', 'sequence'][0],
+        img_type: Optional[str] = ['both', 'lwir', 'nir'][1],
         fusion: bool = False, 
-        fusion_path: str = '',
+        fusion_path: Union[Path, str] = '',
         fused_extension: Optional[str] = 'png',
-        export_root: Optional[str] = None,
+        export_root: Optional[Union[str,Path]] = None,
         exported: bool = False,
         export_lwir_dir: str = 'lwir',
         export_nir_dir: str = 'nir',
@@ -728,6 +728,30 @@ class TNO(VisionDataset):
     def export(self, dest_dir = None):
         '''
         Export TNO dataset to a folder for operation with matlab.
+        
+        MATLAB Usage Example:
+        
+        # %% Read JSON config file
+        # filename = 'config.json';
+        # fileID = fopen(filename, 'r', 'n', 'utf8');
+        # jsonData = fread(fileID, inf, 'uint8');
+        # jsonData = char(jsonData');
+        # fclose(fileID);
+        # 
+        # %% Parse JSON data
+        # config = jsondecode(jsonData);
+        # disp(config);
+        # 
+        # %% Access specific fields
+        # visJson = config.vis_json;
+        # nirJson = config.nir_json;
+        # lwirJson = config.lwir_json;
+        # visNirPairs = config.vis_nir_pairs;
+        # visLwirPairs = config.vis_lwir_pairs;
+        # visNirLwirPairs = config.vis_nir_lwir_pairs;
+        # 
+        # %% Example: Access vis_json content
+        # disp(visJson);
         '''
         assert self.exported == False
         # make dir
@@ -773,11 +797,11 @@ class TNO(VisionDataset):
         # copy images
         import shutil
         for d in export_list:
-            shutil.copy(d['vis'],dest_vis_dir / f'{d['id']}.{d['vis'].name.split(".")[-1]}')
+            shutil.copy(d['vis'],dest_vis_dir / f'{d['id']}.{d['vis'].name.split(".")[-1].lower()}')
             if 'nir' in d:
-                shutil.copy(d['nir'],dest_nir_dir / f'{d['id']}.{d['nir'].name.split(".")[-1]}')
+                shutil.copy(d['nir'],dest_nir_dir / f'{d['id']}.{d['nir'].name.split(".")[-1].lower()}')
             if 'lwir' in d:
-                shutil.copy(d['lwir'],dest_lwir_dir / f'{d['id']}.{d['lwir'].name.split(".")[-1]}')
+                shutil.copy(d['lwir'],dest_lwir_dir / f'{d['id']}.{d['lwir'].name.split(".")[-1].lower()}')
 
         # save config file
         import json
@@ -810,62 +834,3 @@ class TNO(VisionDataset):
         dest_config_dir = dest_dir / "config.json"
         with open(dest_config_dir, 'w') as json_file:
             json.dump(config_data, json_file, indent=4)
-
-''' matlab demo
-
-% 读取 JSON 文件
-filename = 'config.json';
-fileID = fopen(filename, 'r', 'n', 'utf8');
-jsonData = fread(fileID, inf, 'uint8');
-jsonData = char(jsonData');
-fclose(fileID);
-
-% 解析 JSON 数据
-config = jsondecode(jsonData);
-
-% 显示解析后的数据
-disp(config);
-
-% 访问特定字段
-visJson = config.vis_json;
-nirJson = config.nir_json;
-lwirJson = config.lwir_json;
-visNirPairs = config.vis_nir_pairs;
-visLwirPairs = config.vis_lwir_pairs;
-visNirLwirPairs = config.vis_nir_lwir_pairs;
-
-% 示例：访问 vis_json 中的内容
-disp(visJson);
-
-'''
-
-if __name__ == '__main__':
-    from torchvision.transforms import ToTensor
-    from torch.utils.data import DataLoader
-    dataset_path = '/Volumes/Charles/data/vision/torchvision'
-
-    # Test Export
-    # TNO(root=dataset_path).export()
-
-    # Test Load Dict - Train and Inference
-    # tno = TNO(root=dataset_path, img_type='lwir', transform=ToTensor())
-    # dataset = DataLoader(tno, batch_size=1)
-    # for i in dataset:
-    #     print(i)
-    #     break
-
-    # Test Load Fused - Metric Calculate
-    # export_root = '/Volumes/Charles/data/vision/torchvision/tno/tno'
-    # fusion_path='/Volumes/Charles/data/vision/torchvision/tno/tno/fused/fpde'
-    # tno = TNO(
-    #     root=dataset_path,
-    #     img_type='lwir', 
-    #     fusion=True, 
-    #     fusion_path=fusion_path,
-    #     export_lwir_dir='ir',
-    #     export_root=export_root,
-    #     exported=True,
-    # )
-    # for i in tno:
-    #     print(i)
-    #     breakpoint()
