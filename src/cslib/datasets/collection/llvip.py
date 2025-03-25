@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 from torchvision.datasets.vision import VisionDataset
 from torchvision.datasets.utils import download_and_extract_archive, extract_archive
 from pathlib import Path
@@ -109,7 +109,7 @@ class LLVIP(VisionDataset):
 
     def __init__(
             self, 
-            root: str, 
+            root: Union[str, Path], 
             transform: Optional[Callable] = None, 
             download: bool = True,
             train: bool = False,

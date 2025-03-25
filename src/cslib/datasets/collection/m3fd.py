@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 from pathlib import Path
 from torchvision.datasets.vision import VisionDataset
 from torchvision.datasets.utils import download_and_extract_archive
@@ -73,11 +73,11 @@ class M3FD(VisionDataset):
 
     def __init__(
         self,
-        root: str,
+        root: Union[str, Path],
         transform: Optional[Callable] = None,
         download: bool = True
     ) -> None:
-        super().__init__(root, transform=transform)
+        super().__init__(str(root), transform=transform)
         self._base_folder = Path(self.root) / "m3fd"
 
         if download:

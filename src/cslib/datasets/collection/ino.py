@@ -1,4 +1,4 @@
-from typing import Callable, Optional
+from typing import Callable, Optional, Union
 from pathlib import Path
 from torchvision.datasets.vision import VisionDataset
 from torchvision.datasets.utils import check_integrity, download_and_extract_archive
@@ -193,9 +193,9 @@ class INO(VisionDataset):
 
     def __init__(
         self,
-        root: str,
+        root: Union[str, Path],
         transform: Optional[Callable] = None,
-        download: bool = False,
+        download: bool = True,
         mode: str = 'image',
     ) -> None:
         super().__init__(root, transform=transform)
@@ -227,11 +227,13 @@ class INO(VisionDataset):
         else:
             ValueError("Not Realise yet!")
         
-    def __len__(self):
-        if self.mode == 'image':
-            return len(self.ir_image)
-        else:
-            ValueError("Not Realise yet!")
+    def __len__(self) -> int:
+        assert self.mode == 'image'
+        return len(self.ir_image)
+        # if self.mode == 'image':
+        #     return len(self.ir_image)
+        # else:
+        #     ValueError("Not Realise yet!")
 
     def _check_integrity(self,info):
         if not check_integrity(self._base_folder / f"{info['addition'].lower()}.zip", info["md5"]):
