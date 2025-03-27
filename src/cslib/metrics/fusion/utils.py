@@ -115,16 +115,52 @@ class Database:
             self.conn.close()
 
     def select_values(self, 
-                      algorithm: Optional[str] = None, 
-                      metrics: Optional[str] = None, 
-                      img_id: Optional[str] = None,
+                      algorithm: Union[str, List[str], None] = None,
+                      metrics: Union[str, List[str], None] = None,
+                      img_id: Union[str, List[str], None] = None,
                       return_value: bool = True, 
                       return_algorithm_id: bool = False, 
                       return_metric_id: bool = False, 
-                      return_img_id: bool = False
+                      return_img_id: bool = False,
+                      mode: str = ["id","name"][0]
         ) -> List[tuple]:
-        if not (return_value or return_algorithm_id or return_metric_id):
-            raise ValueError("At least one of return_value, return_algorithm_id, or return_metric_id must be True")
+        '''
+        Query fusion metrics from database with flexible filtering
+        
+        Usage Examples:
+        >>> # Query all PSNR values for GAN algorithm
+        >>> db.select_values(algorithm="GAN", metrics="PSNR")
+        
+        >>> # Query SSIM for multiple algorithms
+        >>> db.select_values(algorithm=["GAN", "DWT"], metrics="SSIM")
+        
+        >>> # Get algorithm IDs and metric IDs without values
+        >>> db.select_values(metrics=["PSNR", "SSIM"], 
+        ...                 return_value=False,
+        ...                 return_algorithm_id=True,
+        ...                 return_metric_id=True)
+        
+        >>> # Query specific image IDs
+        >>> db.select_values(img_id=["001", "002"], 
+        ...                 return_img_id=True)
+        
+        >>> # Complex combination query
+        >>> db.select_values(algorithm="CNN",
+        ...                 metrics=["MI","QABF"],
+        ...                 img_id="015",
+        ...                 return_algorithm_id=True,
+        ...                 return_metric_id=True)
+        
+        >>> # Query with return names
+        >>> db.select_values(algorithm="CNN",
+        ...                 metrics=["MI","QABF"],
+        ...                 img_id="015",
+        ...                 return_algorithm_id=True,
+        ...                 return_metric_id=True,
+        ...                 return_names=True)
+        '''
+        if not (return_value or return_algorithm_id or return_metric_id or return_img_id):
+            raise ValueError("At least one of return_value, return_algorithm_id, return_metric_id, or return_img_id must be True")
         
         select_clause = []
         conditions = []
@@ -138,26 +174,51 @@ class Database:
             select_clause.append("image_id")
         if return_value:
             select_clause.append("value")
-        # alg_id, metric_id, image_id, value <- watch out the sequence!
 
         if algorithm is not None:
-            conditions.append("algorithm_id = ?")
-            params.append(self.all_algorithms_names[algorithm])
+            algorithms = [algorithm] if isinstance(algorithm, str) else algorithm
+            alg_ids = [self.all_algorithms_names[alg] for alg in algorithms]
+            conditions.append(f"algorithm_id IN ({','.join(['?']*len(alg_ids))})")
+            params.extend(alg_ids)
 
         if metrics is not None:
-            conditions.append("metric_id = ?")
-            params.append(self.all_metrics_names[metrics])
+            metrics_list = [metrics] if isinstance(metrics, str) else metrics
+            metric_ids = [self.all_metrics_names[metric] for metric in metrics_list]
+            conditions.append(f"metric_id IN ({','.join(['?']*len(metric_ids))})")
+            params.extend(metric_ids)
 
         if img_id is not None:
-            conditions.append("image_id = ?")
-            params.append(img_id)
+            img_ids = [img_id] if isinstance(img_id, str) else img_id
+            conditions.append(f"image_id IN ({','.join(['?']*len(img_ids))})")
+            params.extend(img_ids)
 
         query = f"SELECT {', '.join(select_clause)} FROM fusion_metrics"
         if conditions:
             query += " WHERE " + " AND ".join(conditions)
 
         self.cursor.execute(query, params)
-        return self.cursor.fetchall()
+        results = self.cursor.fetchall()
+
+        if mode=='name':
+            new_results = []
+            for row in results:
+                new_row = []
+                index = 0
+                if return_algorithm_id:
+                    new_row.append(self.all_algorithms_ids[row[index]])
+                    index += 1
+                if return_metric_id:
+                    new_row.append(self.all_metrics_ids[row[index]])
+                    index += 1
+                if return_img_id:
+                    new_row.append(row[index])
+                    index += 1
+                if return_value:
+                    new_row.append(row[index])
+                new_results.append(tuple(new_row))
+            return new_results
+
+        return results
     
     def update_values(self, algorithm: str, metrics: str, img_id: str, value: float, commit: bool = True) -> None:
         self.cursor.execute('''
@@ -189,14 +250,21 @@ class Database:
         if self.conn is not None:
             self.conn.commit()
     
-    def analyze_average(self) -> Dict[str, Dict[str, float]]:
+    def analyze_average(self, img_id: Union[tuple, str] = ()) -> Dict[str, Dict[str, float]]:
         result = {metric: {} for metric in self.metrics_names}
-        for metric,m_id in self.metrics_names.items():
-            for alg,a_id in self.algorithms_names.items():
-                self.cursor.execute(
-                    "SELECT AVG(value) FROM fusion_metrics WHERE algorithm_id=? AND metric_id=?",
-                    (a_id, m_id)
-                )
+        for metric, m_id in self.metrics_names.items():
+            for alg, a_id in self.algorithms_names.items():
+                conditions = []
+                params = [a_id, m_id]
+                if img_id:
+                    if isinstance(img_id, str):
+                        img_id = (img_id,)
+                    conditions.append(f"image_id IN ({','.join(['?'] * len(img_id))})")
+                    params.extend(img_id)
+                query = "SELECT AVG(value) FROM fusion_metrics WHERE algorithm_id=? AND metric_id=?"
+                if conditions:
+                    query += " AND " + " AND ".join(conditions)
+                self.cursor.execute(query, params)
                 avg_value = self.cursor.fetchone()[0]
                 result[metric][alg] = avg_value
 
