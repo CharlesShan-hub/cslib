@@ -6,7 +6,7 @@ converting between PyTorch tensors and NumPy arrays,
 and saving arrays as MATLAB .mat files.
 """
 
-from typing import Union, Optional
+from typing import Union, Optional, TypeVar
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
 import numpy as np
@@ -39,15 +39,16 @@ CLIP_MIN = 0.0
 CLIP_MAX = 1.0
 
 
-def _clip(
-        image: Union[np.ndarray, torch.Tensor]
-    ) -> Union[np.ndarray, torch.Tensor]:
+ImageType = TypeVar('ImageType', np.ndarray, torch.Tensor, Image.Image)
+
+
+def _clip(image: ImageType) -> ImageType:
     if isinstance(image, np.ndarray):
         return image.clip(min=CLIP_MIN, max=CLIP_MAX)
-    elif isinstance(image, torch.Tensor):
+    if isinstance(image, torch.Tensor):
         return image.clamp(min=CLIP_MIN, max=CLIP_MAX)
-    else:
-        raise ValueError("Image should be an image.")
+    if isinstance(image, Image.Image):
+        return image
 
 
 def _tensor_to_numpy(image: torch.Tensor) -> np.ndarray:
@@ -90,44 +91,46 @@ def _numpy_to_tensor(image: np.ndarray, dtype: torch.dtype) -> torch.Tensor:
 
 
 def to_tensor(
-        image: Union[np.ndarray, torch.Tensor, Image.Image], 
+        image: ImageType, 
         clip: bool = False,
-        dtype: Optional[torch.dtype] = torch.float32
+        dtype: torch.dtype = torch.float32
     ) -> torch.Tensor:
     if isinstance(image, np.ndarray):
-        image = _numpy_to_tensor(image, dtype)
+        tensor = _numpy_to_tensor(image, dtype)
     elif isinstance(image, Image.Image):
-        image = _image_to_tensor(image, dtype)
-    return _clip(image) if clip else image
+        tensor = _image_to_tensor(image, dtype)
+    elif isinstance(image, torch.Tensor):
+        tensor = image
+    return _clip(tensor) if clip else tensor
 
 
 def to_numpy(
-        image: Union[np.ndarray, torch.Tensor, Image.Image], 
+        image: ImageType,
         clip: bool = False
     ) -> np.ndarray:
     if isinstance(image, torch.Tensor):
-        image = _tensor_to_numpy(image)
+        array = _tensor_to_numpy(image)
     elif isinstance(image, Image.Image):
-        image = _image_to_numpy(image)
-    return _clip(image) if clip else image
+        array = _image_to_numpy(image)
+    elif isinstance(image, np.ndarray):
+        array = image
+    return _clip(array) if clip else array
 
 
 def to_image(
-        image: Union[np.ndarray, torch.Tensor, Image.Image],
+        image: ImageType,
         clip: bool = False
     ) -> Image.Image:
     if isinstance(image, np.ndarray):
-        image = _clip(image) if clip else image
-        image = _numpy_to_image(image) # type: ignore
+        array = _clip(image) if clip else image
+        return _numpy_to_image(array)
     elif isinstance(image, torch.Tensor):
-        image = _clip(image) if clip else image
-        image = _tensor_to_image(image) # type: ignore
+        tensor = _clip(image) if clip else image
+        return _tensor_to_image(tensor)
     return image
 
 
-def gray_to_rgb(
-        image: Union[np.ndarray, torch.Tensor, Image.Image]
-    ) -> Union[np.ndarray, torch.Tensor, Image.Image]:
+def gray_to_rgb(image: ImageType) -> ImageType:
     if isinstance(image, np.ndarray):
         return color.gray2rgb(image)
     elif isinstance(image, Image.Image):
@@ -141,9 +144,7 @@ def gray_to_rgb(
             return image.repeat(1, 3, 1, 1) if image.ndim == 4 else image.repeat(3, 1, 1)
 
 
-def rgb_to_gray(
-        image: Union[np.ndarray, torch.Tensor, Image.Image]
-    ) -> Union[np.ndarray, torch.Tensor, Image.Image]:
+def rgb_to_gray(image: ImageType) -> ImageType:
     if isinstance(image, np.ndarray):
         return color.rgb2gray(image)
     elif isinstance(image, Image.Image):
@@ -158,9 +159,7 @@ def rgb_to_gray(
             return (image * coeffs.view(3, 1, 1)).sum(dim=0, keepdim=True)
 
 
-def rgb_to_ycbcr(
-        image: Union[np.ndarray, torch.Tensor, Image.Image]
-    ) -> Union[np.ndarray, torch.Tensor, Image.Image]:
+def rgb_to_ycbcr(image: ImageType) -> ImageType:
     if isinstance(image, np.ndarray):
         return color.rgb2ycbcr(image)
     elif isinstance(image, Image.Image):
@@ -178,9 +177,7 @@ def rgb_to_ycbcr(
             return torch.einsum('chw,cd->dhw', image, rgb_to_ycbcr_matrix.T) + offset.view(3, 1, 1)
 
 
-def ycbcr_to_rgb(
-        image: Union[np.ndarray, torch.Tensor, Image.Image]
-    ) -> Union[np.ndarray, torch.Tensor, Image.Image]:
+def ycbcr_to_rgb(image: ImageType) -> ImageType:
     if isinstance(image, np.ndarray):
         return color.ycbcr2rgb(image)
     elif isinstance(image, Image.Image):
@@ -239,7 +236,7 @@ def path_to_ycbcr(path: Union[str, Path]) -> np.ndarray:
 
 
 def glance(
-        image: Union[np.ndarray, torch.Tensor, Image.Image, list, tuple], 
+        img: Union[ImageType, list, tuple], 
         annotations: Union[list, tuple] = (),
         clip: bool = False,
         title: Union[str, list] = "",
@@ -248,10 +245,10 @@ def glance(
         shape: tuple = (1,1), 
         suptitle: str = "",
         figsize: Optional[tuple] = None,
-        auto_contrast: Optional[bool] = True,
-        plot_3d: Optional[bool] = False,
-        save: Optional[bool] = False,
-        save_path: Optional[str] = "./glance.png"):
+        auto_contrast: Union[bool, list] = True,
+        plot_3d: Union[bool, list] = False,
+        save: bool = False,
+        save_path: str = "./glance.png"):
     """
     Display a PyTorch tensor or NumPy array as an image.
 
@@ -263,43 +260,50 @@ def glance(
     * ndarray: 2 dims.
     * Image: auto convert to numpy.
     """
-    # transfrom batch tensor to list
-    if isinstance(image, torch.Tensor):
-        if len(image.shape) == 4 and image.shape[0] > 1:
-            image = [i.unsqueeze(0) for i in image]
-    # transform torch.tensor to np.array
-    if isinstance(image,list) or isinstance(image, tuple):
-        if shape[0]*shape[1] != len(image):
-            shape = (1,len(image)) 
-        image = [(None if i is None else to_numpy(i,clip)) for i in image]
-    else:
-        image = [to_numpy(image,clip)]
+    # convert images to numpy arrays
+    if isinstance(img, torch.Tensor):
+        if len(img.shape) == 4 and img.shape[0] > 1:
+            imgs = [i.unsqueeze(0) for i in img]
+            images:list[Optional[np.ndarray]] = [to_numpy(i, clip) for i in imgs]
+        else:
+            images:list[Optional[np.ndarray]] = [to_numpy(img, clip)]
+    if isinstance(img, list) or isinstance(img, tuple):
+        if shape[0]*shape[1] != len(img):
+            shape = (1,len(img)) 
+        images:list[Optional[np.ndarray]] = [(None if i is None else to_numpy(i,clip)) for i in img]
+    
+    # convert configs to list
     if isinstance(auto_contrast,bool):
-        auto_contrast = [auto_contrast] * (shape[0] * shape[1])
+        auto_contrast_list: list = [auto_contrast] * (shape[0] * shape[1])
+    else:
+        auto_contrast_list: list = auto_contrast
     if isinstance(plot_3d,bool):
-        plot_3d = [plot_3d] * (shape[0] * shape[1])
+        plot_3d_list: list = [plot_3d] * (shape[0] * shape[1])
+    else:
+        plot_3d_list: list = plot_3d
 
-    # show image with PIL.Image
+    # plot images
     plt.figure(figsize=figsize)
     (H,W) = shape
     for k in range(H*W):
-        if image[k] is None:
+        image = images[k]
+        if image is None:
             continue
-        ax = plt.subplot(H,W,k+1,projection='3d' if plot_3d[k] else None)
-        if image[k].ndim == 2:
-            if plot_3d[k]: # 3d
-                x = np.arange(image[k].shape[1])
-                y = np.flip(np.arange(image[k].shape[0]))
+        if image.ndim == 2:
+            if plot_3d_list[k]:# 3d
+                ax = plt.subplot(H,W,k+1,projection='3d')
+                x = np.arange(image.shape[1])
+                y = np.flip(np.arange(image.shape[0]))
                 x, y = np.meshgrid(x, y)
-                surf = ax.plot_surface(x, y, image[k], cmap='viridis')
+                surf = ax.plot_surface(x, y, image, cmap='viridis') # type: ignore
                 plt.colorbar(surf, shrink=0.5, aspect=5)
             else: # 2d
-                if auto_contrast[k] == False:
-                    plt.imshow((image[k]*255).astype(np.uint8), cmap='gray', vmax=255, vmin=0)
+                if auto_contrast_list[k] == False:
+                    plt.imshow((image*255).astype(np.uint8), cmap='gray', vmax=255, vmin=0)
                 else:
-                    plt.imshow((image[k]*255).astype(np.uint8), cmap='gray')
+                    plt.imshow((image*255).astype(np.uint8), cmap='gray')
         else:
-            plt.imshow((image[k]*255).astype(np.uint8), cmap='viridis')
+            plt.imshow((image*255).astype(np.uint8), cmap='viridis')
         if len(annotations)>0:
             if hasattr(annotations[k-1],'boxes'):
                 for anno in annotations[k-1]['boxes']:
@@ -318,7 +322,7 @@ def glance(
 
 
 def save_array_to_img(
-        image: Union[np.ndarray, torch.Tensor, Image.Image], 
+        image: ImageType, 
         filename: Union[str, Path], 
         clip: bool = False
     ) -> None:
@@ -326,7 +330,7 @@ def save_array_to_img(
 
 
 def save_array_to_mat(
-        image: Union[np.ndarray, torch.Tensor, Image.Image], 
+        image: ImageType, 
         base_filename: str = 'glance', 
         clip: bool = False,
         log: bool = False

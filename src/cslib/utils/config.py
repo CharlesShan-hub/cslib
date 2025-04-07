@@ -11,7 +11,7 @@ from os import makedirs
 import json
 
 __all__ = [
-    'Options',
+    'Options', 'get_device'
 ]
 
 class Options(Namespace):
@@ -116,3 +116,16 @@ class Options(Namespace):
         return json.dumps({
             key: getattr(self, key).__str__() for key in vars(self).keys()
         },indent=4)
+
+
+import torch
+
+def get_device(device: str = 'auto') -> torch.device:
+    if device != 'auto':
+        return torch.device(device)
+    if torch.cuda.is_available():
+        return torch.device('cuda')
+    elif torch.backends.mps.is_available():
+        return torch.device('mps')
+    else:
+        return torch.device('cpu')
