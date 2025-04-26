@@ -2,10 +2,10 @@ import os
 from PIL import Image
 
 # 指定包含.jpg文件的文件夹路径
-input_folder = '/Users/kimshan/Downloads/RoadScene-master/RoadScene/ir1'
+input_folder = '/Users/kimshan/Public/data/vision/torchvision/tno/tno/lwir'
 
 # 指定转换后的文件夹路径
-output_folder = '/Users/kimshan/Downloads/RoadScene-master/RoadScene/ir'
+output_folder = '/Users/kimshan/Public/data/vision/torchvision/tno/tno/ir'
 
 # 创建输出文件夹（如果它不存在）
 if not os.path.exists(output_folder):

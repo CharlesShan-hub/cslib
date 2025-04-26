@@ -286,6 +286,7 @@ def glance(
     plt.figure(figsize=figsize)
     (H,W) = shape
     for k in range(H*W):
+        plt.subplot(H, W, k+1)
         image = images[k]
         if image is None:
             continue
