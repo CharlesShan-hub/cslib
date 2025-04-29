@@ -5,9 +5,9 @@ import imageio
 import click
 
 @click.command()
-@click.option("--src_color", default="/Volumes/Charles/data/vision/torchvision/llvip/visible/test", type=click.Path(exists=True, file_okay=False, resolve_path=True), help="彩色图片文件夹路径，默认为 './color_images'")
-@click.option("--src_gray", default="/Volumes/Charles/data/vision/torchvision/llvip/fused/stdfusion_origin", type=click.Path(exists=True, file_okay=False, resolve_path=True), help="灰度图片文件夹路径，默认为 './gray_images'")
-@click.option("--dst", default="/Volumes/Charles/data/vision/torchvision/llvip/fused/stdfusion", type=click.Path(file_okay=False, resolve_path=True), help="目标文件夹路径，默认为 './output_images'")
+@click.option("--src_color", default="/Users/kimshan/Public/public/SDCFusion-main/datasets/m3fd/test/vi", type=click.Path(exists=True, file_okay=False, resolve_path=True), help="彩色图片文件夹路径，默认为 './color_images'")
+@click.option("--src_gray", default="/Users/kimshan/Public/public/SDCFusion-main/Fused_image_MSRS", type=click.Path(exists=True, file_okay=False, resolve_path=True), help="灰度图片文件夹路径，默认为 './gray_images'")
+@click.option("--dst", default="/Users/kimshan/Public/public/SDCFusion-main/Fused_image_MSRS2", type=click.Path(file_okay=False, resolve_path=True), help="目标文件夹路径，默认为 './output_images'")
 def replace_y_channel(src_color, src_gray, dst):
     """
     批量处理图片：将彩色图片的 Y 通道替换为灰度图片的 Y 通道，并保存为新的 RGB 图片。

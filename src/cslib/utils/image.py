@@ -248,7 +248,9 @@ def glance(
         auto_contrast: Union[bool, list] = True,
         plot_3d: Union[bool, list] = False,
         save: bool = False,
-        save_path: str = "./glance.png"):
+        save_path: str = "./glance.png",
+        each_save: bool = True,
+        each_save_dir: str = "./glance_outputs"):
     """
     Display a PyTorch tensor or NumPy array as an image.
 
@@ -290,6 +292,8 @@ def glance(
         image = images[k]
         if image is None:
             continue
+        if each_save:
+            save_array_to_img(image, f"{each_save_dir}/{k}.png")
         if image.ndim == 2:
             if plot_3d_list[k]:# 3d
                 ax = plt.subplot(H,W,k+1,projection='3d')

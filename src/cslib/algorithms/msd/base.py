@@ -69,8 +69,8 @@ class Base(object):
             if self.auto:
                 self.reconstruction()
 
-    @staticmethod
     def gaussian_blur(
+        self,
         image: torch.Tensor, 
         kernel_size: int = 5,
         gau_blur_way: str = 'Pytorch', 
@@ -127,8 +127,7 @@ class Base(object):
         else:
             raise ValueError(f"`gau_blur_way` should only be 'Pytorch', 'Adaptive' or 'Paper', not {gau_blur_way}.")
 
-    @staticmethod
-    def down_sample(image: torch.Tensor, dawn_sample_way: str = "Zero") -> torch.Tensor:
+    def down_sample(self, image: torch.Tensor, dawn_sample_way: str = "Zero") -> torch.Tensor:
         """
         Downsamples the input image using specified method.
 
@@ -152,8 +151,7 @@ class Base(object):
         else:
             raise ValueError("`dawn_sample_way` should be 'Max' or 'Zero'")
 
-    @staticmethod
-    def up_sample(image: torch.Tensor) -> torch.Tensor:
+    def up_sample(self, image: torch.Tensor) -> torch.Tensor:
         """
         Upsamples the input image using zero-padding.
 
@@ -163,14 +161,15 @@ class Base(object):
         Returns:
             torch.Tensor: Upsampled image tensor.
         """
-        # Perform zero-padding
-        batch_size, channels, height, width = image.size()
-        padded_img = torch.zeros(batch_size, channels, 2 * height, 2 * width, device=image.device)
-        padded_img[:, :, ::2, ::2] = image
+        if self.up_way == "zero":
+            batch_size, channels, height, width = image.size()
+            padded_img = torch.zeros(batch_size, channels, 2 * height, 2 * width, device=image.device)
+            padded_img[:, :, ::2, ::2] = image
+        elif self.up_way == "bilinear":
+            padded_img = F.interpolate(image, scale_factor=2, mode='bilinear', align_corners=False)
         return padded_img
 
-    @staticmethod
-    def pyr_down(image: torch.Tensor, **kwargs) -> torch.Tensor:
+    def pyr_down(self, image: torch.Tensor, **kwargs) -> torch.Tensor:
         """
         Downsamples the input image using Gaussian blur and max pooling.
 
@@ -180,12 +179,11 @@ class Base(object):
         Returns:
             torch.Tensor: Downsampled image tensor.
         """
-        blurred = Base.gaussian_blur(image, **kwargs)
-        downsampled = Base.down_sample(blurred)
+        blurred = self.gaussian_blur(image, **kwargs)
+        downsampled = self.down_sample(blurred)
         return downsampled
 
-    @staticmethod
-    def pyr_up(image: torch.Tensor) -> torch.Tensor:
+    def pyr_up(self, image: torch.Tensor) -> torch.Tensor:
         """
         Upsamples the input image using zero-padding and Gaussian blur.
 
@@ -195,9 +193,13 @@ class Base(object):
         Returns:
             torch.Tensor: Upsampled image tensor.
         """
-        padded_img = Base.up_sample(image)
-        blurred_img = Base.gaussian_blur(padded_img)
-        return blurred_img * 4
+        if self.up_way == "zero":
+            padded_img = self.up_sample(image)
+            blurred_img = self.gaussian_blur(padded_img)
+            return blurred_img * 4
+        elif self.up_way == "bilinear":
+            return self.gaussian_blur(self.up_sample(image))
+            return self.up_sample(image)
 
     def _build_gaussian_pyramid(self) -> None:
         """
