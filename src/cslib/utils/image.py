@@ -285,7 +285,17 @@ def glance(
         plot_3d_list: list = plot_3d
 
     # plot images
-    plt.figure(figsize=figsize)
+    try:
+        plt.figure(figsize=figsize)
+        print("uv cannot use `TkAgg` backends! ")
+        # https://github.com/astral-sh/uv/issues/6893
+    except:
+        import matplotlib
+        # other backends:
+        # https://matplotlib.org/stable/users/explain/figure/backends.html
+        matplotlib.use('macosx')
+        plt.figure(figsize=figsize)
+    
     (H,W) = shape
     for k in range(H*W):
         plt.subplot(H, W, k+1)

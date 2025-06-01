@@ -1,6 +1,6 @@
 [project]
 name = "cslib"
-version = "0.1.0"
+version = "0.2.1"
 description = "AI Lab of Charles Shan -- A Notebook for AI Learning"
 readme = "README.md"
 authors = [
@@ -8,6 +8,7 @@ authors = [
 ]
 requires-python = ">=3.12"
 dependencies = [
+    "torch>=2.0.0",
     "torchvision",
     "torchmetrics",
     "tensorboard",
@@ -23,6 +24,7 @@ dependencies = [
     "timm",
     "wandb",
     "visdom",
+    "matplotlib",
 ]
 
 [project.scripts]
