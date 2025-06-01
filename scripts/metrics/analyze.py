@@ -3,9 +3,13 @@ import json
 from cslib.utils.config import Options
 from cslib.metrics.fusion.utils import Database
 
-# Paths - llvip
-default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+# Paths - m3fd
+default_db_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fused"
 default_db_name = "metrics.db"
+
+# Paths - llvip
+# default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+# default_db_name = "metrics.db"
 
 # default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused/by_metrics"
 # default_db_name = "ce.db"
@@ -30,24 +34,31 @@ default_img_id = ()
 # 1. `fused_dir` is into one algorithm
 # default_algorithms = () 
 # 2. `fused_dir` is the parent dir of all algorithms
-default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
+default_algorithms = ('SceneFuse','GTF','SDCFusion','DATFuse','VSMWLS','HMSD')
+# default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
 # default_algorithms = ('cpfusion',)
 
 # Metrics
-# default_metrics = [
-#     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
-#     'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
-#     'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
-#     'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
-#     'q_cv','vif' # q_cb
+default_metrics = [
+    'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
+    'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
+    'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
+    'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
+    'q_cv','vif' # q_cb
+]
+# big_metrics = [
+#     'ag','ei','en','q_abf','q_cb','sf','vif'
 # ]
-big_metrics = [
-    'ag','ei','en','q_abf','q_cb','sf','vif'
-]
-small_metrics = [
-    'q_cv',
-]
-default_metrics = big_metrics + small_metrics
+# big_metrics = [
+#     'ag','ei','en','q_abf','q_cb','sf','vif'
+# ]
+# small_metrics = [
+#     'q_cv',
+# ]
+# small_metrics = [
+#     'q_cv',
+# ]
+# default_metrics = big_metrics + small_metrics
 # 1. All Metrics
 # default_metrics = [
 #     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',

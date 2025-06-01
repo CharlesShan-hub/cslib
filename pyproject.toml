@@ -1,11 +1,13 @@
 [project]
 name = "cslib"
-version = "0.2.0"
+version = "0.1.0"
 description = "AI Lab of Charles Shan -- A Notebook for AI Learning"
-authors = [{name = "Charles Shan", email = "charles.shht@gmail.com"}]
-requires-python = ">=3.7"
+readme = "README.md"
+authors = [
+    { name = "Charles Shan", email = "charles.shht@gmail.com" }
+]
+requires-python = ">=3.12"
 dependencies = [
-    "torch>=2.0.0",
     "torchvision",
     "torchmetrics",
     "tensorboard",
@@ -23,19 +25,9 @@ dependencies = [
     "visdom",
 ]
 
+[project.scripts]
+cslib = "cslib:main"
+
 [build-system]
-requires = ["setuptools>=42", "wheel"]
-build-backend = "setuptools.build_meta"
-
-[tool.setuptools.package-data]
-"cslib.metrics.fusion" = [
-    "resources/ADF.png",
-    "resources/CDDFuse.png",
-    "resources/DenseFuse.png",
-    "resources/ir.png",
-    "resources/vis.png",
-    "resources/dmey.mat",
-]
-
-[project.optional-dependencies]
-test = ["pytest"]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

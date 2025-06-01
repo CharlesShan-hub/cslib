@@ -16,3 +16,4 @@ dist/
 
 # Jupyter Notebook 相关
 .ipynb_checkpoints/
+uv.lock

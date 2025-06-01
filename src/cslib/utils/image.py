@@ -249,7 +249,7 @@ def glance(
         plot_3d: Union[bool, list] = False,
         save: bool = False,
         save_path: str = "./glance.png",
-        each_save: bool = True,
+        each_save: bool = False,
         each_save_dir: str = "./glance_outputs"):
     """
     Display a PyTorch tensor or NumPy array as an image.

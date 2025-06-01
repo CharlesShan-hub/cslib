@@ -4,7 +4,7 @@ import click
 from pathlib import Path
 
 @click.command()
-@click.argument('directory', default="/Users/kimshan/Library/Mobile Documents/iCloud~md~obsidian/Documents/PKM",type=click.Path(exists=True))
+@click.argument('directory', default="/Users/kimshan/Public/library/cslib",type=click.Path(exists=True))
 @click.option('--dry-run', is_flag=False, help='模拟运行，不实际删除文件')
 @click.option('-v', '--verbose', is_flag=True, help='显示详细操作信息')
 @click.option('--exclude', multiple=True, help='要排除的目录（可多次使用）')

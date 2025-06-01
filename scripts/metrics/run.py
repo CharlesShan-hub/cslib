@@ -6,12 +6,20 @@ from cslib.utils.config import Options
 from cslib.datasets.fusion import GeneralFusion
 from cslib.metrics.fusion.utils import Database
 
-# Paths - llvip
-default_ir_dir = "/Volumes/Charles/data/vision/torchvision/llvip/infrared/test"
-default_vis_dir = "/Volumes/Charles/data/vision/torchvision/llvip/visible/test"
-default_fused_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
-default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+# Paths - m3fd - meeting
+
+default_ir_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fusion/ir"
+default_vis_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fusion/vis"
+default_fused_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fused"
+default_db_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fused"
 default_db_name = "metrics.db"
+
+# Paths - llvip
+# default_ir_dir = "/Volumes/Charles/data/vision/torchvision/llvip/infrared/test"
+# default_vis_dir = "/Volumes/Charles/data/vision/torchvision/llvip/visible/test"
+# default_fused_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+# default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+# default_db_name = "metrics.db"
 
 # Paths - tno
 # default_ir_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/ir"
@@ -31,19 +39,20 @@ defaulf_img_id = ()
 # 1. `fused_dir` is into one algorithm
 # default_algorithms = () 
 # 2. `fused_dir` is the parent dir of all algorithms
-default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
+default_algorithms = ('GTF','VSMWLS','HMSD','SDCFusion','DATFuse','SceneFuse')
+# default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
 # default_algorithms = ('cpfusion',)
 
 # Metrics
-default_metrics = ['pfe']
+# default_metrics = ['pfe']
 # 1. All Metrics
-# default_metrics = [
-#     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
-#     'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
-#     'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
-#     'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
-#     'q_cv','q_cb','vif'
-# ]
+default_metrics = [
+    'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
+    'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
+    'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
+    'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
+    'q_cv','q_cb','vif'
+]
 # 2. VIFB
 # default_metrics = [
 #     'ce','en','mi','psnr','ssim','rmse','ag','ei','sf',
@@ -62,7 +71,7 @@ default_metrics = ['pfe']
 @click.option('--algorithms', default=default_algorithms, multiple=True, help='compute metrics for multiple fusion algorithms')
 @click.option('--img_id', default=defaulf_img_id, multiple=True, help='compute metrics for specified images')
 @click.option('--metrics', default=default_metrics, multiple=True)
-@click.option('--suffix', default="jpg")
+@click.option('--suffix', default="png")
 @click.option('--db_dir', default=default_db_dir, help='Path to save database file.')
 @click.option('--db_name', default=default_db_name, help='Name of database file.')
 @click.option('--device', default='auto', help='auto | cuda | mps | cpu')
