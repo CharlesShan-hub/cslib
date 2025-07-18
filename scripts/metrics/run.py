@@ -8,11 +8,11 @@ from cslib.metrics.fusion.utils import Database
 
 # Paths - m3fd - meeting
 
-default_ir_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fusion/ir"
-default_vis_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fusion/vis"
-default_fused_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fused"
-default_db_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fused"
-default_db_name = "metrics.db"
+# default_ir_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fusion/ir"
+# default_vis_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fusion/vis"
+# default_fused_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fused"
+# default_db_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fused"
+# default_db_name = "metrics.db"
 
 # Paths - llvip
 # default_ir_dir = "/Volumes/Charles/data/vision/torchvision/llvip/infrared/test"
@@ -22,11 +22,11 @@ default_db_name = "metrics.db"
 # default_db_name = "metrics.db"
 
 # Paths - tno
-# default_ir_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/ir"
-# default_vis_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/vis"
-# default_fused_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
-# default_db_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
-# default_db_name = "metrics.db"
+default_ir_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/ir"
+default_vis_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/vis"
+default_fused_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
+default_db_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
+default_db_name = "metrics.db"
 
 # Fusion Images
 # 1. Calculare all images in each fused_dir
@@ -39,20 +39,24 @@ defaulf_img_id = ()
 # 1. `fused_dir` is into one algorithm
 # default_algorithms = () 
 # 2. `fused_dir` is the parent dir of all algorithms
-default_algorithms = ('GTF','VSMWLS','HMSD','SDCFusion','DATFuse','SceneFuse')
+# default_algorithms = ('GTF','VSMWLS','HMSD','SDCFusion','DATFuse','SceneFuse')
 # default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
-# default_algorithms = ('cpfusion',)
+default_algorithms = ('cpfusion_wp',)
 
 # Metrics
 # default_metrics = ['pfe']
 # 1. All Metrics
+# default_metrics = [
+#     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
+#     'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
+#     'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
+#     'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
+#     'q_cv','q_cb','vif'
+# ]
 default_metrics = [
-    'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
-    'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
-    'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
-    'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
-    'q_cv','q_cb','vif'
+    'ag','ei','en','scd','sf','vif','q_cv'
 ]
+
 # 2. VIFB
 # default_metrics = [
 #     'ce','en','mi','psnr','ssim','rmse','ag','ei','sf',

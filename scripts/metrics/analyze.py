@@ -4,8 +4,8 @@ from cslib.utils.config import Options
 from cslib.metrics.fusion.utils import Database
 
 # Paths - m3fd
-default_db_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fused"
-default_db_name = "metrics.db"
+# default_db_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fused"
+# default_db_name = "metrics.db"
 
 # Paths - llvip
 # default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"

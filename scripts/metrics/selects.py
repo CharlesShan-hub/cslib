@@ -6,12 +6,12 @@ import pandas as pd
 import numpy as np
 
 # Paths - llvip
-default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
-default_db_name = "metrics.db"
+# default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+# default_db_name = "metrics.db"
 
 # Paths - tno
-# default_db_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
-# default_db_name = "metrics.db"
+default_db_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
+default_db_name = "metrics.db"
 
 # Fusion Images
 # 1. Calculare all images in each fused_dir
@@ -24,7 +24,7 @@ defaulf_img_id = ()
 # 1. `fused_dir` is into one algorithm
 # default_algorithms = () 
 # 2. `fused_dir` is the parent dir of all algorithms
-default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
+default_algorithms = ('cpfusion','cpfusion_wp','cpfusion_max','cpfusion_cc','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
 # default_algorithms = ('cpfusion',)
 
 # Metrics
@@ -36,7 +36,7 @@ default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','pi
 #     'q_cv','vif' # q_cb
 # ]
 big_metrics = [
-    'ag','ei','en','q_abf','q_cb','sf','vif'
+    'ag','ei','en','scd','sf','vif'
 ]
 small_metrics = [
     'q_cv',
@@ -120,7 +120,7 @@ def select_subgraphs(df, name, n):
     return image_scores.head(n)['img_id'].tolist()
 
 @click.command()
-@click.option('--n', default=200, help='Select specific images by metrics.')
+@click.option('--n', default=100, help='Select specific images by metrics.')
 @click.option('--optimize_alg', default='cpfusion')
 @click.option('--metrics', default=default_metrics, multiple=True)
 @click.option('--algorithms', default=default_algorithms, multiple=True, help='analyze metrics for multiple fusion algorithms')

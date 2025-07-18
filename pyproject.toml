@@ -25,6 +25,7 @@ dependencies = [
     "wandb",
     "visdom",
     "matplotlib",
+    "twine>=6.1.0",
 ]
 
 [project.scripts]
