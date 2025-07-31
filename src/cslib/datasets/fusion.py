@@ -4,6 +4,7 @@ from .collection.tno import TNO
 from .collection.llvip import LLVIP
 from .collection.msrs import MSRS
 from .collection.roadscene import RoadScene
+from .collection.fmb import FMB
 from .collection.general_fusion import GeneralFusion
 
 __all__ = [
@@ -13,5 +14,6 @@ __all__ = [
     'LLVIP',
     'MSRS',
     'RoadScene',
+    'FMB',
     'GeneralFusion',
 ]

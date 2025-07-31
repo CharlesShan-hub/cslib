@@ -19,6 +19,17 @@ class RoadScene(VisionDataset):
     image pairs, and cut out the exact registration regions to form this dataset.
 
     https://github.com/hanna-xu/RoadScene
+
+    Args:
+        root (str): Root directory of dataset.
+        transform (callable, optional): A function/transform that takes in a PIL image
+            and returns a transformed version. E.g, ``transforms.RandomCrop``.
+        target_transform (callable, optional): A function/transform that takes in the
+            target and transforms it.
+        download (bool, optional): If true, downloads the dataset from the internet and
+            puts it in root directory. If dataset is already downloaded, it is not
+            downloaded again.
+        proxy (str, optional): Proxy server address.
     """
     url = 'https://github.com/CharlesShan-hub/RoadScene-Backup/releases/download/v1.0.0/RoadScene-master.zip'
     md5 = '02cd268c3b26d68b308e06df09251df5'
