@@ -1,5 +1,5 @@
 # 一些常用的算法（传统算法），比如多尺度分解
-# from . import algorithms 
+from . import algorithms 
 # 一些常用的数据集，添加了融合领域等自定义数据集
 from. import datasets
 # 一些常用的深度学习模块

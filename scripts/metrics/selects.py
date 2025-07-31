@@ -24,7 +24,8 @@ defaulf_img_id = ()
 # 1. `fused_dir` is into one algorithm
 # default_algorithms = () 
 # 2. `fused_dir` is the parent dir of all algorithms
-default_algorithms = ('cpfusion','cpfusion_wp','cpfusion_max','cpfusion_cc','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
+# default_algorithms = ('cpfusion','cpfusion_wp','cpfusion_max','cpfusion_cc','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
+default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
 # default_algorithms = ('cpfusion',)
 
 # Metrics
@@ -120,7 +121,7 @@ def select_subgraphs(df, name, n):
     return image_scores.head(n)['img_id'].tolist()
 
 @click.command()
-@click.option('--n', default=100, help='Select specific images by metrics.')
+@click.option('--n', default=20, help='Select specific images by metrics.')
 @click.option('--optimize_alg', default='cpfusion')
 @click.option('--metrics', default=default_metrics, multiple=True)
 @click.option('--algorithms', default=default_algorithms, multiple=True, help='analyze metrics for multiple fusion algorithms')

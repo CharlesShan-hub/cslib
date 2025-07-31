@@ -287,10 +287,10 @@ def glance(
     # plot images
     try:
         plt.figure(figsize=figsize)
-        print("uv cannot use `TkAgg` backends! ")
         # https://github.com/astral-sh/uv/issues/6893
     except:
         import matplotlib
+        print("uv cannot use `TkAgg` backends! ")
         # other backends:
         # https://matplotlib.org/stable/users/explain/figure/backends.html
         matplotlib.use('macosx')
