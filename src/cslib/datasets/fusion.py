@@ -3,6 +3,7 @@ from .collection.m3fd import M3FD
 from .collection.tno import TNO
 from .collection.llvip import LLVIP
 from .collection.msrs import MSRS
+from .collection.roadscene import RoadScene
 from .collection.general_fusion import GeneralFusion
 
 __all__ = [
@@ -11,5 +12,6 @@ __all__ = [
     'TNO',
     'LLVIP',
     'MSRS',
+    'RoadScene',
     'GeneralFusion',
 ]
