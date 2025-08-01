@@ -1,6 +1,6 @@
 [project]
 name = "cslib"
-version = "0.2.1"
+version = "0.2.2"
 description = "AI Lab of Charles Shan -- A Notebook for AI Learning"
 readme = "README.md"
 authors = [

@@ -1,6 +1,7 @@
 import click
 from pathlib import Path
 from cslib.datasets.fusion import MSRS
+from cslib.utils import glance, path_to_gray, path_to_rgb
 
 default_dataset_root_path = "/Volumes/Charles/data/vision/torchvision"
 
@@ -33,6 +34,8 @@ def main(dataset_path: Path):
         time="Both", #(Default)
     )
     print(len(both_dataset)) # 361
+
+    glance([path_to_gray(both_dataset[0][0]), path_to_rgb(both_dataset[0][1])])
 
 if __name__ == '__main__':
     main()

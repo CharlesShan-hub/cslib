@@ -72,12 +72,12 @@ class MSRS(VisionDataset):
         return len(self.ir_path)
 
     def __getitem__(self, index: int):
-        ir_path = self.ir_path[index]
-        vis_path = self.vis_path[index]
+        ir = self.ir_path[index]
+        vis = self.vis_path[index]
         
         if self.transform:
-            ir = self.transform(Image.open(ir_path).convert('L'))
-            vis = self.transform(Image.open(vis_path).convert('RGB'))
+            ir = self.transform(Image.open(ir).convert('L'))
+            vis = self.transform(Image.open(vis).convert('RGB'))
         if self.segmentation:
             label_path = self.label_path[index]
             label = Image.open(label_path).convert('L')

@@ -1,6 +1,7 @@
 import click
 from pathlib import Path
 from cslib.datasets.fusion import FMB
+from cslib.utils import *
 
 default_dataset_root_path = "/Volumes/Charles/data/vision/torchvision"
 
@@ -14,6 +15,13 @@ def main(dataset_path: Path):
         proxy='http://127.0.0.1:7897',
     )
     print(len(train_dataset)) # 1220
+
+    ir, vis = train_dataset[0]
+    ir = path_to_gray(ir)
+    vis = path_to_rgb(vis)
+    print(ir.shape) # torch.Size([1, 256, 256])
+    print(vis.shape) # torch.Size([3, 256, 256])
+    glance([ir, vis])
 
     test_dataset = FMB(
         dataset_path, 

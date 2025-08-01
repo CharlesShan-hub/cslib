@@ -13,6 +13,18 @@ class FMB(VisionDataset):
     FMB Dataset
     https://github.com/JinyuanLiu-CV/SegMiF
 
+    Args:
+        root (str or Path): Root directory of dataset where directory
+            ``fmb`` exists or will be saved to if download is set to True.
+        train (bool, optional): If True, creates dataset from training set, otherwise
+            creates from test set.
+        transform (callable, optional): A function/transform that takes in a PIL image
+            and returns a transformed version. E.g, ``transforms.RandomCrop``
+        target_transform (callable, optional): A function/transform that takes in the
+            target and transforms it.
+        download (bool, optional): If true, downloads the dataset from the internet and
+            puts it in root directory. If dataset is already downloaded, it is not
+            downloaded again.
     """
     url_test = 'https://github.com/CharlesShan-hub/FMB_Backup/releases/download/V1.0.0/test.zip'
     md5_test = '916b3482f1d5988046ea74c287bbf518'
@@ -54,8 +66,9 @@ class FMB(VisionDataset):
         if self.transform:
             ir = self.transform(Image.open(ir_path).convert('L'))
             vis = self.transform(Image.open(vis_path).convert('RGB'))
-
-        return ir, vis
+            return ir, vis
+        
+        return ir_path, vis_path
 
     @staticmethod
     def move_folder_contents(src: Path, dst: Path):

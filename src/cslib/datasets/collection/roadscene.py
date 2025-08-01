@@ -79,14 +79,9 @@ class RoadScene(VisionDataset):
         if self.transform:
             ir = self.transform(Image.open(ir_path).convert('L'))
             vis = self.transform(Image.open(vis_path).convert('RGB'))
-        if self.segmentation:
-            label_path = self.label_path[index]
-            label = Image.open(label_path).convert('L')
-            if self.target_transform:
-                label = self.target_transform(label)
-            return ir, vis, label
-        else:
             return ir, vis
+        
+        return ir_path, vis_path
 
     def download(self, proxy):
         if proxy: # 'http://127.0.0.1:7897'
