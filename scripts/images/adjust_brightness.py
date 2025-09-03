@@ -3,6 +3,8 @@ from PIL import Image
 import click
 import numpy as np
 
+__all__ = ["adjust_brightness"]
+
 @click.command()
 @click.option("--src", default="/Users/kimshan/Public/project/cvplayground/scenefuse/samples/glance_outputs",required=True, type=click.Path(exists=True, file_okay=False),
               help="包含图片的源文件夹路径")
@@ -10,6 +12,9 @@ import numpy as np
               help="输出文件夹路径，默认为'./adjusted_images'")
 @click.option("--factor", default=2.2, type=float,
               help="亮度调整系数(0.0-2.0)，1.0表示不调整")
+def main(src, dst, factor):
+    adjust_brightness(src, dst, factor)
+
 def adjust_brightness(src, dst, factor):
     """
     调整文件夹中所有图片的亮度，并保存为brightness_{factor}_{原文件名}

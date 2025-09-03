@@ -83,45 +83,61 @@ class Dialogs(GUIBase):
                 )
                 dialog_vars[element.get('id', element_label)] = var
                 dialog_vars[element.get('id', element_label) + '_value'] = value_var
+            elif element_type == 'text':
+                initial = element.get('initial', '')
+                width = element.get('width', 40)
+                var = self.create_text_control(
+                    dialog, element_label, initial, width
+                )
+                dialog_vars[element.get('id', element_label)] = var
         
         # 创建操作按钮，提供通用的函数调用机制
-        def execute_action():
-            if config['action'] == None:
-                self.log(f"错误: 对话框 '{method_name}' 未配置操作函数")
+        if config['action'] == None:
+            # 如果action为None，创建一个禁用按钮的函数
+            def execute_action():
+                messagebox.showinfo("提示", "此功能未实现")
                 dialog.destroy()
-                return
-            
-            try:
-                # 获取所有对话框变量的当前值
-                kwargs = {}
-                for key, var in dialog_vars.items():
-                    # 跳过不需要传递的参数类型（如进度条、状态标签等）
-                    if key in ['progress', 'status']:
-                        continue
+        else:
+            # 正常情况的execute_action函数
+            def execute_action():
+                try:
+                    # 获取所有对话框变量的当前值
+                    kwargs = {}
+                    for key, var in dialog_vars.items():
+                        try:
+                            if hasattr(var, 'get'):
+                                value = var.get()
+                            else:
+                                value = var
+                            kwargs[key] = value
+                        except Exception:
+                            # 如果获取值失败，跳过这个参数
+                            continue
                     
-                    # 安全地获取变量值
-                    try:
-                        if hasattr(var, 'get'):
-                            value = var.get()
-                        else:
-                            value = var
-                        kwargs[key] = value
-                    except Exception:
-                        # 如果获取值失败，跳过这个参数
-                        continue
+                    # 调用action函数
+                    breakpoint()
+                    config['action'](**kwargs)
                 
-                # 调用action函数
-                config['action'](**kwargs)
-            
-            except Exception as e:
-                self.log(f"执行操作时出错: {str(e)}")
-                messagebox.showerror("错误", f"执行操作时出错: {str(e)}")
-            
-            finally:
-                # 确保对话框总是关闭
-                dialog.destroy()
+                except Exception as e:
+                    self.log(f"执行操作时出错: {str(e)}")
+                    messagebox.showerror("错误", f"执行操作时出错: {str(e)}")
+                
+                finally:
+                    # 确保对话框总是关闭
+                    dialog.destroy()
         
         self.create_action_buttons(dialog, execute_action)
+        
+        # 如果action为None，禁用运行按钮
+        if config['action'] == None:
+            # 获取按钮容器
+            for child in dialog.winfo_children():
+                if isinstance(child, ttk.Frame):
+                    # 遍历按钮容器中的按钮
+                    for button in child.winfo_children():
+                        if isinstance(button, ttk.Button) and button['text'] == '运行':
+                            # 禁用运行按钮
+                            button['state'] = 'disabled'
     
     def _default_action(self, dialog, dialog_vars, method_name):
         """默认的对话框操作"""

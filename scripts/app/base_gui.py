@@ -138,6 +138,24 @@ class GUIBase:
         
         self.current_row += 1
         return var, scale, value_var
+        
+    def create_text_control(self, parent, label_text, initial=None, width=40):
+        """创建文本输入控件"""
+        # 创建标签
+        label = ttk.Label(parent, text=label_text)
+        label.grid(row=self.current_row, column=0, padx=5, pady=5, sticky="w")
+        
+        # 创建文本变量
+        var = tk.StringVar()
+        if initial:
+            var.set(initial)
+        
+        # 创建输入框
+        entry = ttk.Entry(parent, textvariable=var, width=width)
+        entry.grid(row=self.current_row, column=1, columnspan=2, padx=5, pady=5, sticky="ew")
+        
+        self.current_row += 1
+        return var
     
     def show_feature_removed_message(self, dialog, feature_name):
         """显示功能已移除的消息"""

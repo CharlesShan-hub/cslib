@@ -2,9 +2,14 @@ import os
 from PIL import Image
 import click
 
+__all__ = ["reverse_images"]
+
 @click.command()
 @click.option("--src", default="/Users/kimshan/Public/project/cvplayground/scenefuse/samples/glance_outputs", type=click.Path(file_okay=False),
               help="输出文件夹路径，默认为'./reversed_images'")
+def run(src):
+    reverse_images(src)
+
 def reverse_images(src):
     """
     将指定文件夹中的所有图片反色处理，并保存为reverse_前缀的新文件

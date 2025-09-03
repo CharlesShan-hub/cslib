@@ -19,7 +19,7 @@ class CslibGUI(App):
     def regist_tools(self):
         # 注册面板
         self.register_panel("图像处理", "图像处理相关工具")
-        self.register_panel("指标分析", "指标分析相关工具")
+        # self.register_panel("指标分析", "指标分析相关工具")
         
         # 注册图像处理工具
         self.register_tool("图像处理", "灰度图片上色", "将灰度图片转换为彩色图片", "gray_to_color_dialog")
@@ -27,15 +27,15 @@ class CslibGUI(App):
         self.register_tool("图像处理", "调整图片亮度", "调整图片的亮度", "adjust_brightness_dialog")
         self.register_tool("图像处理", "图片反色", "将图片颜色反转", "reverse_image_dialog")
         self.register_tool("图像处理", "转换图片格式", "转换图片的文件格式", "convert_format_dialog")
-        self.register_tool("图像处理", "添加边框", "为图片添加边框", "add_border_dialog")
-        self.register_tool("图像处理", "归一化图片", "将图片尺寸归一化", "normalize_images_dialog")
+        # self.register_tool("图像处理", "添加边框", "为图片添加边框", "add_border_dialog")
+        # self.register_tool("图像处理", "归一化图片", "将图片尺寸归一化", "normalize_images_dialog")
         
         # 注册指标分析工具
-        self.register_tool("指标分析", "计算融合指标", "计算图像融合的各项指标", "compute_metrics_dialog")
-        self.register_tool("指标分析", "分析指标数据", "分析已计算的指标数据", "analyze_metrics_dialog")
-        self.register_tool("指标分析", "合并指标数据库", "合并多个指标数据库", "merge_metrics_dialog")
-        self.register_tool("指标分析", "按算法拆分数据库", "按算法将数据库拆分为多个文件", "split_by_alg_dialog")
-        self.register_tool("指标分析", "按指标拆分数据库", "按指标类型将数据库拆分为多个文件", "split_by_metric_dialog")
+        # self.register_tool("指标分析", "计算融合指标", "计算图像融合的各项指标", "compute_metrics_dialog")
+        # self.register_tool("指标分析", "分析指标数据", "分析已计算的指标数据", "analyze_metrics_dialog")
+        # self.register_tool("指标分析", "合并指标数据库", "合并多个指标数据库", "merge_metrics_dialog")
+        # self.register_tool("指标分析", "按算法拆分数据库", "按算法将数据库拆分为多个文件", "split_by_alg_dialog")
+        # self.register_tool("指标分析", "按指标拆分数据库", "按指标类型将数据库拆分为多个文件", "split_by_metric_dialog")
 
     def register_dialogs(self):
         """初始化对话框管理器"""
@@ -48,9 +48,7 @@ class CslibGUI(App):
             [
                 {'type': 'directory_selector', 'label': '彩色图片文件夹：', 'id': 'src_color'},
                 {'type': 'directory_selector', 'label': '灰度图片文件夹：', 'id': 'src_gray'},
-                {'type': 'directory_selector', 'label': '输出文件夹：', 'id': 'dst'},
-                {'type': 'progress_bar', 'label': '进度：', 'id': 'progress'},
-                {'type': 'status_label', 'label': '状态：', 'id': 'status'}
+                {'type': 'directory_selector', 'label': '输出文件夹：', 'id': 'dst'}
             ]
         )
         
@@ -58,10 +56,10 @@ class CslibGUI(App):
             "color_to_gray_dialog", 
             "彩色图片转灰度", 
             "500x250",
+            images.change_color_to_gray,
             [
                 {'type': 'directory_selector', 'label': '源图片文件夹：', 'id': 'src_folder'},
-                {'type': 'directory_selector', 'label': '输出文件夹：', 'id': 'output_folder'},
-                {'type': 'progress_bar', 'label': '进度：', 'id': 'progress'}
+                {'type': 'directory_selector', 'label': '输出文件夹：', 'id': 'output_folder'}
             ]
         )
         
@@ -69,6 +67,7 @@ class CslibGUI(App):
             "adjust_brightness_dialog", 
             "调整图片亮度", 
             "500x300",
+            images.adjust_brightness,
             [
                 {'type': 'directory_selector', 'label': '源图片文件夹：', 'id': 'src_folder'},
                 {'type': 'directory_selector', 'label': '输出文件夹：', 'id': 'output_folder'},
@@ -80,6 +79,7 @@ class CslibGUI(App):
             "reverse_image_dialog", 
             "图片反色", 
             "500x250",
+            images.reverse_images,
             [
                 {'type': 'directory_selector', 'label': '源图片文件夹：', 'id': 'src_folder'},
                 {'type': 'directory_selector', 'label': '输出文件夹：', 'id': 'output_folder'}
@@ -90,9 +90,11 @@ class CslibGUI(App):
             "convert_format_dialog", 
             "转换图片格式", 
             "500x250",
+            images.change_image_prefix,
             [
-                {'type': 'directory_selector', 'label': '源图片文件夹：', 'id': 'src_folder'},
-                {'type': 'directory_selector', 'label': '输出文件夹：', 'id': 'output_folder'}
+                {'type': 'directory_selector', 'label': '源图片文件夹：', 'id': 'src'},
+                {'type': 'directory_selector', 'label': '输出文件夹：', 'id': 'des'},
+                {'type': 'text', 'label': '输出格式：', 'id': 'format', 'initial': 'png'}
             ]
         )
         
@@ -100,6 +102,7 @@ class CslibGUI(App):
             "add_border_dialog", 
             "添加边框", 
             "500x250",
+            None,
             [
                 {'type': 'directory_selector', 'label': '源图片文件夹：', 'id': 'src_folder'},
                 {'type': 'directory_selector', 'label': '输出文件夹：', 'id': 'output_folder'}
@@ -110,6 +113,7 @@ class CslibGUI(App):
             "normalize_images_dialog", 
             "归一化图片", 
             "500x250",
+            None,
             [
                 {'type': 'directory_selector', 'label': '源图片文件夹：', 'id': 'src_folder'},
                 {'type': 'directory_selector', 'label': '输出文件夹：', 'id': 'output_folder'}
@@ -121,6 +125,7 @@ class CslibGUI(App):
             "compute_metrics_dialog", 
             "计算融合指标", 
             "500x300",
+            None,
             [
                 {'type': 'directory_selector', 'label': '融合结果文件夹：', 'id': 'fusion_folder'},
                 {'type': 'file_selector', 'label': '数据库文件：', 'id': 'db_path', 'filetypes': [('数据库文件', '*.db')]}
@@ -131,6 +136,7 @@ class CslibGUI(App):
             "analyze_metrics_dialog", 
             "分析指标数据", 
             "500x250",
+            None,
             [
                 {'type': 'file_selector', 'label': '数据库文件：', 'id': 'db_path', 'filetypes': [('数据库文件', '*.db')]}
             ]
@@ -140,6 +146,7 @@ class CslibGUI(App):
             "merge_metrics_dialog", 
             "合并指标数据库", 
             "500x300",
+            None,
             [
                 {'type': 'file_selector', 'label': '第一个数据库：', 'id': 'db1_path', 'filetypes': [('数据库文件', '*.db')]},
                 {'type': 'file_selector', 'label': '第二个数据库：', 'id': 'db2_path', 'filetypes': [('数据库文件', '*.db')]},
@@ -151,6 +158,7 @@ class CslibGUI(App):
             "split_by_alg_dialog", 
             "按算法拆分数据库", 
             "500x250",
+            None,
             [
                 {'type': 'file_selector', 'label': '数据库文件：', 'id': 'db_path', 'filetypes': [('数据库文件', '*.db')]},
                 {'type': 'directory_selector', 'label': '输出目录：', 'id': 'output_dir'}
@@ -161,6 +169,7 @@ class CslibGUI(App):
             "split_by_metric_dialog", 
             "按指标拆分数据库", 
             "500x250",
+            None,
             [
                 {'type': 'file_selector', 'label': '数据库文件：', 'id': 'db_path', 'filetypes': [('数据库文件', '*.db')]},
                 {'type': 'directory_selector', 'label': '输出目录：', 'id': 'output_dir'}
