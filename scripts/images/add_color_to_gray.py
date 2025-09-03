@@ -5,10 +5,13 @@ import imageio
 import click
 
 @click.command()
-@click.option("--src_color", default="/Users/kimshan/Public/data/vision/torchvision/m3fd/fusion/vis", type=click.Path(exists=True, file_okay=False, resolve_path=True), help="彩色图片文件夹路径，默认为 './color_images'")
-@click.option("--src_gray", default="/Users/kimshan/Public/data/vision/torchvision/m3fd/lunwen/DATFuse1", type=click.Path(exists=True, file_okay=False, resolve_path=True), help="灰度图片文件夹路径，默认为 './gray_images'")
-@click.option("--dst", default="/Users/kimshan/Public/data/vision/torchvision/m3fd/lunwen/DATFuse", type=click.Path(file_okay=False, resolve_path=True), help="目标文件夹路径，默认为 './output_images'")
-def replace_y_channel(src_color, src_gray, dst):
+@click.option("--src_color", default="/Volumes/Charles/data/vision/torchvision/tno/tno/vis", type=click.Path(exists=True, file_okay=False, resolve_path=True), help="彩色图片文件夹路径，默认为 './color_images'")
+@click.option("--src_gray", default="/Volumes/Charles/data/vision/torchvision/tno/tno/fused/assets/comofusion_origin", type=click.Path(exists=True, file_okay=False, resolve_path=True), help="灰度图片文件夹路径，默认为 './gray_images'")
+@click.option("--dst", default="/Volumes/Charles/data/vision/torchvision/tno/tno/fused/comofusion", type=click.Path(file_okay=False, resolve_path=True), help="目标文件夹路径，默认为 './output_images'")
+def run(src_color, src_gray, dst):
+    add_color_to_gray(src_color, src_gray, dst)
+
+def add_color_to_gray(src_color, src_gray, dst):
     """
     批量处理图片：将彩色图片的 Y 通道替换为灰度图片的 Y 通道，并保存为新的 RGB 图片。
     """
@@ -63,4 +66,4 @@ def replace_y_channel(src_color, src_gray, dst):
             print(f"处理图片 {color_file} 和 {gray_file} 时出错：{e}")
 
 if __name__ == "__main__":
-    replace_y_channel()
+    run()
