@@ -11,9 +11,9 @@ split db into dbs by algrithms
 # default_db_src_name = "metrics.db"
 # default_db_res_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused/assets/by_alg"
 
-default_db_src_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
+default_db_src_dir = "/Volumes/Charles/data/vision/torchvision/msrs/test/fused"
 default_db_src_name = "metrics.db"
-default_db_res_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused/assets/by_alg"
+default_db_res_dir = "/Volumes/Charles/data/vision/torchvision/msrs/test/fused/assets/by_alg"
 
 
 @click.command()

@@ -13,6 +13,8 @@ def main(dataset_path: Path):
         train=False, # <- Test Set (default)
     )
     print(len(dataset)) # 3463
+    # for i in range(len(dataset)):
+    #     breakpoint()
 
 if __name__ == '__main__':
     main()

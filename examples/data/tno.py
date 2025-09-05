@@ -3,7 +3,9 @@ from pathlib import Path
 from cslib.datasets.fusion import TNO
 
 def demo_auto_download(root_dir):
-    TNO(root = root_dir,download = True)
+    dataset = TNO(root = root_dir,download = True)
+    # for i in range(len(dataset)):
+    #     breakpoint()
 
 def demo_wave_length(root_dir):
     dataset_nir_lwir = TNO(root_dir, img_type = 'both')

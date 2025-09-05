@@ -8,10 +8,10 @@ from cslib.metrics.fusion.utils import Database
 update content in database2 to database1
 '''
 
-default_db_dir1 = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
-default_db_name1 = "metrics_all.db"
-default_db_dir2 = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
-default_db_name2 = "metrics_asm.db"
+default_db_dir1 = "/Volumes/Charles/data/vision/torchvision/msrs/test/fused/"
+default_db_name1 = "metrics.db"
+default_db_dir2 = "/Volumes/Charles/data/vision/torchvision/msrs/test/fused/"
+default_db_name2 = "crossfuse.db"
 
 @click.command()
 @click.option('--suffix', default="jpg")

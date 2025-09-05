@@ -115,7 +115,7 @@ class Dialogs(GUIBase):
                             continue
                     
                     # 调用action函数
-                    breakpoint()
+                    # breakpoint()
                     config['action'](**kwargs)
                 
                 except Exception as e:

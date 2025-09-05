@@ -85,13 +85,14 @@ class M3FD(VisionDataset):
     
     def __getitem__(self, idx: int):
         ir_file = self._base_folder / 'fusion' / 'ir' / f'{self.file[idx]}.png'
-        ir = Image.open(ir_file).convert("L")
         vis_file = self._base_folder / 'fusion' / 'vis' / f'{self.file[idx]}.png'
-        vis = Image.open(vis_file).convert("RGB")
         if self.transform:
+            ir = Image.open(ir_file).convert("L")
+            vis = Image.open(vis_file).convert("RGB")
             ir = self.transform(ir)
             vis = self.transform(vis)
-        return ir,vis
+            return ir,vis
+        return ir_file,vis_file
         
     def __len__(self):
         return len(self.file)

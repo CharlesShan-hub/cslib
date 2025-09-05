@@ -16,6 +16,8 @@ def main(dataset_path: Path):
         time="Day",
     )
     print(len(day_dataset)) # 179
+    # for i in range(len(day_dataset)):
+    #     breakpoint()
 
     night_dataset = MSRS(
         dataset_path, 

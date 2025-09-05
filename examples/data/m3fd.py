@@ -12,6 +12,8 @@ def main(dataset_path: Path):
         download=True, # <- default
     )
     print(len(dataset)) # 300
+    # for i in range(len(dataset)):
+    #     breakpoint()
 
 if __name__ == '__main__':
     main()

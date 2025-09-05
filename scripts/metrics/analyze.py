@@ -1,5 +1,6 @@
 import click
 import json
+import click
 from cslib.utils.config import Options
 from cslib.metrics.fusion.utils import Database
 
@@ -7,12 +8,13 @@ from cslib.metrics.fusion.utils import Database
 # default_db_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fused"
 # default_db_name = "metrics.db"
 
-# Paths - llvip
-# default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+# Paths - msrs
+# default_db_dir = "/Volumes/Charles/data/vision/torchvision/msrs/test/fused"
 # default_db_name = "metrics.db"
 
-# default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused/by_metrics"
-# default_db_name = "ce.db"
+# Paths - llvip
+default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+default_db_name = "metrics.db"
 
 # Paths - tno
 # default_db_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
@@ -34,31 +36,28 @@ default_img_id = ()
 # 1. `fused_dir` is into one algorithm
 # default_algorithms = () 
 # 2. `fused_dir` is the parent dir of all algorithms
-default_algorithms = ('SceneFuse','GTF','SDCFusion','DATFuse','VSMWLS','HMSD')
-# default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal')
+# default_algorithms = ('SceneFuse','GTF','SDCFusion','DATFuse','VSMWLS','HMSD')
+default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal','crossfuse','comofusion')
 # default_algorithms = ('cpfusion',)
 
 # Metrics
-default_metrics = [
-    'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
-    'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
-    'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
-    'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
-    'q_cv','vif' # q_cb
+# default_metrics = [
+#     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
+#     'ssim','ms_ssim','q_s','q','q_w','q_e','q_c','q_y','mb','mae',
+#     'mse','rmse','nrmse','ergas','d','ag','mg','ei','pfe','sd','sf',
+#     'q_abf','q_sf','eva','sam','asm','con','fmi','n_abf','pww',
+#     'q_cv','vif' # q_cb
+# ]
+# big_metrics = [
+#     'ag','ei','en','q_abf','q_cb','sf','vif'
+# ]
+big_metrics = [
+    'ag', 'ei', 'en', 'scd', 'sf', 'vif'
 ]
-# big_metrics = [
-#     'ag','ei','en','q_abf','q_cb','sf','vif'
-# ]
-# big_metrics = [
-#     'ag','ei','en','q_abf','q_cb','sf','vif'
-# ]
-# small_metrics = [
-#     'q_cv',
-# ]
-# small_metrics = [
-#     'q_cv',
-# ]
-# default_metrics = big_metrics + small_metrics
+small_metrics = [
+    'q_cv',
+]
+default_metrics = big_metrics + small_metrics
 # 1. All Metrics
 # default_metrics = [
 #     'ce','en','te','mi','nmi','q_ncie','psnr','cc','scc','scd',
@@ -83,6 +82,8 @@ default_metrics = [
 @click.option('--algorithms', default=default_algorithms, multiple=True, help='analyze metrics for multiple fusion algorithms')
 @click.option('--db_dir', default=default_db_dir, help='Path to save database file.')
 @click.option('--db_name', default=default_db_name, help='Name of database file.')
+@click.option('--order', default=['asc', 'desc', None][1], help='Order of metrics: asc or desc')
+@click.option('--mark_algorithm', default=[None,'cpfusion'][1], help='Mark the algorithm to be analyzed')
 def main(**kwargs):
     opts = Options('Analyze Metrics',kwargs).parse({},present=True)
     database = Database(
@@ -92,8 +93,32 @@ def main(**kwargs):
         algorithms = opts.algorithms,
         mode = 'analyze' # analyze 就是检查 metrics 和 algorithms 已经存在
     )
-    # print(json.dumps(database.analyze_average(), indent=4, sort_keys=True))
-    print(json.dumps(database.analyze_average(img_id=default_img_id), indent=4, sort_keys=True))
-    # print(json.dumps(database.analyze_general(), indent=4, sort_keys=False))
+    # 获取分析结果
+    result = database.analyze_average(img_id=default_img_id)
+    
+    if opts.order:
+        if opts.order not in ["asc", "desc"]:
+            raise ValueError("order must be 'asc' or 'desc'")
+        
+        # 按照指定顺序对metrics结果进行排序
+        sorted_result = {}
+        for metric_name, metric_data in result.items():
+            # 对每个metric的算法得分进行排序
+            sorted_algorithms = sorted(metric_data.items(), key=lambda x: x[1], reverse=(opts.order == "desc"))
+            
+            # 构建排序后的结果，如果指定了mark_algorithm，则在对应算法前添加🌟
+            sorted_metric_data = {}
+            for alg_name, score in sorted_algorithms:
+                display_name = alg_name
+                # 如果指定了mark_algorithm并且当前算法名匹配，则添加🌟标记
+                if opts.mark_algorithm and alg_name == opts.mark_algorithm:
+                    display_name = f"[[[{alg_name}]]]"
+                sorted_metric_data[display_name] = score
+                
+            sorted_result[metric_name] = sorted_metric_data
+        
+        print(json.dumps(sorted_result, indent=4, sort_keys=False))
+    else:
+        print(json.dumps(result, indent=4, sort_keys=True))
 if __name__ == '__main__':
     main()
