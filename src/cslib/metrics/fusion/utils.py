@@ -42,7 +42,7 @@ class Database:
         self.load_all_algorithms()
         for a in algorithms:
             if a not in self.all_algorithms_names:
-                raise ValueError(f'{a} not found in the database')
+                raise ValueError(f'{a} not found in the database: {self.all_algorithms_names}')
         self.algorithms_names = {a:self.all_algorithms_names[a] for a in algorithms}
         self.algorithms_ids = {self.all_algorithms_names[a]:a for a in algorithms}
     

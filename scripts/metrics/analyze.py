@@ -5,16 +5,16 @@ from cslib.utils.config import Options
 from cslib.metrics.fusion.utils import Database
 
 # Paths - m3fd
-# default_db_dir = "/Users/kimshan/Public/data/vision/torchvision/m3fd/fused"
-# default_db_name = "metrics.db"
+default_db_dir = "/Volumes/Charles/data/vision/torchvision/m3fd/fusion/fused"
+default_db_name = "metrics.db"
 
 # Paths - msrs
 # default_db_dir = "/Volumes/Charles/data/vision/torchvision/msrs/test/fused"
 # default_db_name = "metrics.db"
 
 # Paths - llvip
-default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
-default_db_name = "metrics.db"
+# default_db_dir = "/Volumes/Charles/data/vision/torchvision/llvip/fused"
+# default_db_name = "metrics.db"
 
 # Paths - tno
 # default_db_dir = "/Volumes/Charles/data/vision/torchvision/tno/tno/fused"
@@ -39,6 +39,7 @@ default_img_id = ()
 # default_algorithms = ('SceneFuse','GTF','SDCFusion','DATFuse','VSMWLS','HMSD')
 default_algorithms = ('cpfusion','datfuse','fpde','fusiongan','gtf','ifevip','piafusion','stdfusion','tardal','crossfuse','comofusion')
 # default_algorithms = ('cpfusion',)
+# default_algorithms = ('crossfuse','comofusion')
 
 # Metrics
 # default_metrics = [
