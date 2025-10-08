@@ -26,6 +26,8 @@ dependencies = [
     "visdom",
     "matplotlib",
     "twine>=6.1.0",
+    "ultralytics",
+    "openpyxl",
 ]
 
 [project.scripts]

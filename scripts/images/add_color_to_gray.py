@@ -20,24 +20,31 @@ def add_color_to_gray(src_color, src_gray, dst):
         os.makedirs(dst)
         print(f"创建目标文件夹：{dst}")
 
-    # 获取两个文件夹中的文件列表
-    color_files = sorted([f for f in os.listdir(src_color) if f.lower().endswith(('.png', '.jpg', '.jpeg'))])
-    gray_files = sorted([f for f in os.listdir(src_gray) if f.lower().endswith(('.png', '.jpg', '.jpeg'))])
-
-    # 检查文件数量是否一致
-    if len(color_files) != len(gray_files):
-        raise ValueError("彩色图片文件夹和灰度图片文件夹中的文件数量不一致！")
-
-    for color_file, gray_file in zip(color_files, gray_files):
-        # 构建完整的文件路径
-        color_path = os.path.join(src_color, color_file)
+    # 获取彩色图片列表并创建名称到路径的映射
+    color_files = [f for f in os.listdir(src_color) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+    # 使用文件名（不含扩展名）作为键，文件路径作为值
+    color_file_map = {os.path.splitext(f)[0]: os.path.join(src_color, f) for f in color_files}
+    
+    # 获取灰度图片列表
+    gray_files = [f for f in os.listdir(src_gray) if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+    
+    # 遍历灰度图片，根据文件名查找对应的彩色图片
+    for gray_file in gray_files:
+        # 构建灰度图片的完整路径
         gray_path = os.path.join(src_gray, gray_file)
-
-        # 检查文件扩展名
-        if not (color_file.lower().endswith(('.png', '.jpg', '.jpeg')) and
-                gray_file.lower().endswith(('.png', '.jpg', '.jpeg'))):
-            print(f"跳过非图片文件：{color_file} 或 {gray_file}")
+        
+        # 获取灰度图片的文件名（不含扩展名）
+        gray_name = os.path.splitext(gray_file)[0]
+        
+        # 查找对应的彩色图片
+        if gray_name not in color_file_map:
+            print(f"未找到对应的彩色图片：{gray_file}")
             continue
+        
+        # 获取彩色图片的路径
+        color_path = color_file_map[gray_name]
+        # 获取彩色图片的文件名
+        color_file = os.path.basename(color_path)
 
         try:
             # 读取彩色图片为 YCbCr 格式
